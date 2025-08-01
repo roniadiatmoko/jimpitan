@@ -96,7 +96,7 @@ export default function App() {
 
   const simpan = async () => {
     const rumahSetor = Object.entries(terisi)
-      .filter(([_, value]) => value) // hanya yang tercentang
+      .filter(([_, value]) => value)
       .map(([nomor]) => {
         const r = rumahList.find((item) => item.nomor === parseInt(nomor));
         return {
@@ -105,37 +105,20 @@ export default function App() {
         };
       });
 
-    if (rumahSetor.length === 0) {
-      alert("Tidak ada rumah yang setor.");
-      return;
+    for (let item of rumahSetor) {
+      await fetch("https://script.google.com/macros/s/AKfycbz1pWDbmqbc2STA8XWrFOJL3HOWVkHBbtRvNacYQp_O1fPSBuvnEKj_ONzAzBbEL5np/exec", {
+        method: "POST",
+        body: JSON.stringify({
+          tanggal, // ambil dari input tanggal
+          nomor_rumah: item.nomor,
+          nama: item.nama,
+          setor: 1,
+          diambil_oleh: 'Petugas Ronda', // misalnya dari state nama petugas
+        }),
+      });
     }
 
-    const yakin = window.confirm(
-      `Yakin ingin simpan ${rumahSetor.length} data ke Google Sheets?`
-    );
-    if (!yakin) return;
-
-    try {
-      const res = await fetch(
-        "https://script.google.com/macros/s/AKfycbxdgslqZkg_-mfNqTo3K1-JyFg53HbuFuc2d7Vi7MXmwL8zIN8RCCi5a9WBdPCvOmfPmg/exec",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            dataSetor: rumahSetor,
-            diambilOleh: "Pak RT", // ganti sesuai input manual kalau ada
-          }),
-        }
-      );
-
-      const json = await res.json();
-      alert(`✅ Berhasil simpan ${json.jumlah} data`);
-    } catch (err) {
-      console.error(err);
-      alert("❌ Gagal menyimpan ke Google Sheets");
-    }
+    Swal.fire("Berhasil!", "Data sudah disimpan.", "success");
   };
 
   return (
