@@ -94,19 +94,55 @@ export default function App() {
   const isSesuai = parseInt(uangDiambil) === totalUang;
   const [keyboardOpen, setKeyboardOpen] = useState(false);
 
-  const simpan = () => {
-    if (!isSesuai) return;
-    const data = {
-      tanggal,
-      rumah_setor: Object.keys(terisi).filter((n) => terisi[n]),
-      total_uang: totalUang,
-    };
-    console.log("Data disimpan:", data);
-    alert("Data berhasil disimpan!");
+  const simpan = async () => {
+    const rumahSetor = Object.entries(terisi)
+      .filter(([_, value]) => value) // hanya yang tercentang
+      .map(([nomor]) => {
+        const r = rumahList.find((item) => item.nomor === parseInt(nomor));
+        return {
+          nomor: r?.nomor,
+          nama: r?.nama,
+        };
+      });
+
+    if (rumahSetor.length === 0) {
+      alert("Tidak ada rumah yang setor.");
+      return;
+    }
+
+    const yakin = window.confirm(
+      `Yakin ingin simpan ${rumahSetor.length} data ke Google Sheets?`
+    );
+    if (!yakin) return;
+
+    try {
+      const res = await fetch(
+        "https://script.google.com/macros/s/AKfycbxdgslqZkg_-mfNqTo3K1-JyFg53HbuFuc2d7Vi7MXmwL8zIN8RCCi5a9WBdPCvOmfPmg/exec",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            dataSetor: rumahSetor,
+            diambilOleh: "Pak RT", // ganti sesuai input manual kalau ada
+          }),
+        }
+      );
+
+      const json = await res.json();
+      alert(`✅ Berhasil simpan ${json.jumlah} data`);
+    } catch (err) {
+      console.error(err);
+      alert("❌ Gagal menyimpan ke Google Sheets");
+    }
   };
 
   return (
-    <div className="min-h-screen pb-96 p-4 bg-gray-50" style={{ paddingBottom: keyboardOpen ? "300px" : "0" }}>
+    <div
+      className="min-h-screen pb-96 p-4 bg-gray-50"
+      style={{ paddingBottom: keyboardOpen ? "300px" : "0" }}
+    >
       <div className="text-center">
         <h1 className="text-2xl font-bold mb-4 text-green-700">
           Nge-Jimpit GBK Tempel 2
