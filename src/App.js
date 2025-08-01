@@ -124,7 +124,7 @@ export default function App() {
   return (
     <div
       className="min-h-screen pb-96 p-4 bg-gray-50"
-      style={{ paddingBottom: keyboardOpen ? "300px" : "0" }}
+      style={{ paddingBottom: keyboardOpen ? "600px" : "0" }}
     >
       <div className="text-center">
         <h1 className="text-2xl font-bold mb-4 text-green-700">
