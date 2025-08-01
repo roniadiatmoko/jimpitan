@@ -106,7 +106,7 @@ export default function App() {
       });
 
     for (let item of rumahSetor) {
-      await fetch("https://script.google.com/macros/s/AKfycbz1pWDbmqbc2STA8XWrFOJL3HOWVkHBbtRvNacYQp_O1fPSBuvnEKj_ONzAzBbEL5np/exec", {
+      await fetch("https://script.google.com/macros/s/AKfycbwE3dSj570d2KP-v00D4JQdhLOIaNlVzI-RiAHG8SRRAUKpfmZXwLUXIU-iMCTeUvw3Wg/exec", {
         method: "POST",
         body: JSON.stringify({
           tanggal, // ambil dari input tanggal
