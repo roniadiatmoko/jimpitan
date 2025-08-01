@@ -193,7 +193,7 @@ export default function App() {
             type="number"
             value={uangDiambil}
             onChange={(e) => setUangDiambil(e.target.value)}
-            className="p-1 border rounded w-50"
+            className="p-1 border rounded w-50 text-black"
             placeholder="Total jimpitan hari ini"
           />
         </div>
