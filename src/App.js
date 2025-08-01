@@ -92,6 +92,7 @@ export default function App() {
   const totalSetor = Object.values(terisi).filter(Boolean).length;
   const totalUang = totalSetor * 500;
   const isSesuai = parseInt(uangDiambil) === totalUang;
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
 
   const simpan = () => {
     if (!isSesuai) return;
@@ -105,7 +106,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen pb-96 p-4 bg-gray-50">
+    <div className="min-h-screen pb-96 p-4 bg-gray-50" style={{ paddingBottom: keyboardOpen ? "300px" : "0" }}>
       <div className="text-center">
         <h1 className="text-2xl font-bold mb-4 text-green-700">
           Nge-Jimpit GBK Tempel 2
@@ -193,6 +194,8 @@ export default function App() {
             type="number"
             value={uangDiambil}
             onChange={(e) => setUangDiambil(e.target.value)}
+            onFocus={() => setKeyboardOpen(true)}
+            onBlur={() => setKeyboardOpen(false)}
             className="p-1 border rounded w-50 text-black"
             placeholder="Total jimpitan hari ini"
           />
