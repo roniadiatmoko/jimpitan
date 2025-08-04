@@ -123,17 +123,17 @@ export default function App() {
 
     try {
       const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbzv09E98t35PX57mfdNnSZWsnnEvhk7u5KTtgssfx65FOrcJxoC6SIDy-cq_OQ11YAfpQ/exec",
+        "http://ee548084-499f-43bb-b451-942060a81754-00-1dz8i3zxrf31f.pike.replit.dev/api/jimpitan",
         {
           method: "POST",
           headers: {
-            "Content-Type": "text/plain",
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             secret_key: "rahasiakita123",
-            tanggal: tanggal.toISOString().split("T")[0],
+            tanggal: "2025-08-04",
             diambil_oleh: "Petugas Ronda",
-            data: rumahSetor,
+            data: rumahSetor, // array berisi { nomor, nama }
           }),
         }
       );
