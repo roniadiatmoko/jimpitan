@@ -123,7 +123,7 @@ export default function App() {
 
     try {
       const response = await fetch(
-        "http://ee548084-499f-43bb-b451-942060a81754-00-1dz8i3zxrf31f.pike.replit.dev/api/jimpitan",
+        "https://ee548084-499f-43bb-b451-942060a81754-00-1dz8i3zxrf31f.pike.replit.dev/api/jimpitan",
         {
           method: "POST",
           headers: {
