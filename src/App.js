@@ -97,17 +97,15 @@ export default function App() {
       return;
     }
 
-    const rumahSetor = Object.entries(terisi)
-      .filter(([_, value]) => value)
-      .map(([nomor]) => {
-        const r = rumahList.find((item) => item.nomor === parseInt(nomor));
-        return {
-          nomor: r?.nomor,
-          nama: r?.nama,
-        };
-      });
+    // --- PERUBAHAN DI SINI ---
+    // Mengumpulkan semua data rumah (terisi dan tidak terisi)
+    const dataJimpitan = rumahList.map(r => ({
+      nomor: r.nomor,
+      nama: r.nama,
+      status: terisi[r.nomor] ? 1 : 0 // 1 jika terisi, 0 jika tidak
+    }));
 
-    if (rumahSetor.length === 0) {
+    if (dataJimpitan.length === 0) {
       Swal.fire("Kosong", "Belum ada rumah yang dicentang.", "info");
       return;
     }
@@ -131,9 +129,9 @@ export default function App() {
           },
           body: JSON.stringify({
             secret_key: "rahasiakita123",
-            tanggal: "2025-08-04",
+            tanggal: format(tanggal, "yyyy-MM-dd"), // Menggunakan tanggal dari DatePicker
             diambil_oleh: "Petugas Ronda",
-            data: rumahSetor, // array berisi { nomor, nama }
+            data: dataJimpitan, // Mengirim semua data rumah
           }),
         }
       );
