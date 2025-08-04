@@ -6,81 +6,78 @@ import { id } from "date-fns/locale";
 import Swal from "sweetalert2";
 
 const rumahList = [
-  { nomor: 1, nama: "Pak Budi" },
-  { nomor: 2, nama: "Bu Ani" },
-  { nomor: 3, nama: "Pak Dedi" },
-  { nomor: 4, nama: "Bu Wati" },
-  { nomor: 5, nama: "Pak Joko" },
-  { nomor: 6, nama: "Bu Sari" },
-  { nomor: 7, nama: "Pak Ahmad" },
-  { nomor: 8, nama: "Bu Rina" },
-  { nomor: 9, nama: "Pak Slamet" },
-  { nomor: 10, nama: "Bu Yuni" },
-  { nomor: 11, nama: "Pak Tono" },
-  { nomor: 12, nama: "Bu Rini" },
-  { nomor: 13, nama: "Pak Anto" },
-  { nomor: 14, nama: "Bu Lina" },
-  { nomor: 15, nama: "Pak Bambang" },
-  { nomor: 16, nama: "Bu Nia" },
-  { nomor: 17, nama: "Pak Darto" },
-  { nomor: 18, nama: "Bu Eni" },
-  { nomor: 19, nama: "Pak Rudi" },
-  { nomor: 20, nama: "Bu Fitri" },
-  { nomor: 21, nama: "Pak Hadi" },
-  { nomor: 22, nama: "Bu Murni" },
-  { nomor: 23, nama: "Pak Udin" },
-  { nomor: 24, nama: "Bu Lilis" },
-  { nomor: 25, nama: "Pak Narto" },
-  { nomor: 26, nama: "Bu Sinta" },
-  { nomor: 27, nama: "Pak Wahyu" },
-  { nomor: 28, nama: "Bu Desi" },
-  { nomor: 29, nama: "Pak Riyan" },
-  { nomor: 30, nama: "Bu Putri" },
-  { nomor: 31, nama: "Pak Gito" },
-  { nomor: 32, nama: "Bu Mega" },
-  { nomor: 33, nama: "Pak Ari" },
-  { nomor: 34, nama: "Bu Citra" },
-  { nomor: 35, nama: "Pak Eko" },
-  { nomor: 36, nama: "Bu Melati" },
-  { nomor: 37, nama: "Pak Reza" },
-  { nomor: 38, nama: "Bu Zahra" },
-  { nomor: 39, nama: "Pak Dani" },
-  { nomor: 40, nama: "Bu Tika" },
-  { nomor: 41, nama: "Pak Yoga" },
-  { nomor: 42, nama: "Bu Rossa" },
-  { nomor: 43, nama: "Pak Ivan" },
-  { nomor: 44, nama: "Bu Rika" },
-  { nomor: 45, nama: "Pak Aldi" },
-  { nomor: 46, nama: "Bu Winda" },
-  { nomor: 47, nama: "Pak Ilham" },
-  { nomor: 48, nama: "Bu Mita" },
-  { nomor: 49, nama: "Pak Tegar" },
-  { nomor: 50, nama: "Bu Shinta" },
-  { nomor: 51, nama: "Pak Fauzi" },
-  { nomor: 52, nama: "Bu Nanda" },
-  { nomor: 53, nama: "Pak Hasan" },
-  { nomor: 54, nama: "Bu Ayu" },
-  { nomor: 55, nama: "Pak Gilang" },
-  { nomor: 56, nama: "Bu Hesti" },
-  { nomor: 57, nama: "Pak Zaki" },
-  { nomor: 58, nama: "Bu Farah" },
-  { nomor: 59, nama: "Pak Damar" },
-  { nomor: 60, nama: "Bu Kiki" },
-  { nomor: 61, nama: "Pak Haris" },
-  { nomor: 62, nama: "Bu Suci" },
-  { nomor: 63, nama: "Pak Bima" },
-  { nomor: 64, nama: "Bu Ningsih" },
-  { nomor: 65, nama: "Pak Iwan" },
-  { nomor: 66, nama: "Bu Wulan" },
-  { nomor: 67, nama: "Pak Jamil" },
-  { nomor: 68, nama: "Bu Dewi" },
+  { nomor: 1, nama: "Hartono" },
+  { nomor: 2, nama: "Yuliyanto" },
+  { nomor: 3, nama: "Risal" },
+  { nomor: 4, nama: "Wahyono" },
+  { nomor: 5, nama: "Doni" },
+  { nomor: 6, nama: "Rizky" },
+  { nomor: 7, nama: "-" },
+  { nomor: 8, nama: "Hendra" },
+  { nomor: 9, nama: "Bambang" },
+  { nomor: 10, nama: "-" },
+  { nomor: 11, nama: "Herma" },
+  { nomor: 12, nama: "-" },
+  { nomor: 13, nama: "-" },
+  { nomor: 14, nama: "-" },
+  { nomor: 15, nama: "Eko" },
+  { nomor: 16, nama: "Farid" },
+  { nomor: 17, nama: "-" },
+  { nomor: 18, nama: "Rini" },
+  { nomor: 19, nama: "Adi" },
+  { nomor: 20, nama: "Pak Roni" },
+  { nomor: 21, nama: "Yudha" },
+  { nomor: 22, nama: "Ineke" },
+  { nomor: 23, nama: "-" },
+  { nomor: 24, nama: "-" },
+  { nomor: 25, nama: "Nugroho" },
+  { nomor: 26, nama: "Agus" },
+  { nomor: 27, nama: "-" },
+  { nomor: 28, nama: "Ade" },
+  { nomor: 29, nama: "-" },
+  { nomor: 30, nama: "Wahyu Sutejo" },
+  { nomor: 31, nama: "Amri" },
+  { nomor: 32, nama: "Dedy" },
+  { nomor: 33, nama: "Roni" },
+  { nomor: 34, nama: "Joko" },
+  { nomor: 35, nama: "Sinyo/Aang" },
+  { nomor: 36, nama: "-" },
+  { nomor: 37, nama: "Ulil" },
+  { nomor: 38, nama: "Ardi/Adinda" },
+  { nomor: 39, nama: "Boby" },
+  { nomor: 40, nama: "Hari" },
+  { nomor: 41, nama: "-" },
+  { nomor: 42, nama: "-" },
+  { nomor: 43, nama: "Farah" },
+  { nomor: 44, nama: "Wahyu" },
+  { nomor: 45, nama: "-" },
+  { nomor: 46, nama: "-" },
+  { nomor: 47, nama: "-" },
+  { nomor: 48, nama: "Sari" },
+  { nomor: 49, nama: "-" },
+  { nomor: 50, nama: "Hafidz" },
+  { nomor: 51, nama: "Koko" },
+  { nomor: 52, nama: "Tri/Yudi" },
+  { nomor: 53, nama: "Anwar" },
+  { nomor: 54, nama: "Okta" },
+  { nomor: 55, nama: "-" },
+  { nomor: 56, nama: "-" },
+  { nomor: 57, nama: "-" },
+  { nomor: 58, nama: "-" },
+  { nomor: 59, nama: "Pitaloka" },
+  { nomor: 60, nama: "Tri" },
+  { nomor: 61, nama: "Royhan" },
+  { nomor: 62, nama: "Samsino" },
+  { nomor: 63, nama: "Kasto" },
+  { nomor: 64, nama: "Wahyu Hidayat" },
+  { nomor: 65, nama: "Yahya" },
+  { nomor: 66, nama: "Zaky" },
+  { nomor: 67, nama: "Endra" },
+  { nomor: 68, nama: "Ikhwan" },
 ];
 
 export default function App() {
-  const [tanggal, setTanggal] = useState(() => {
-    const today = new Date();
-    return today.toISOString().split("T")[0]; // format yyyy-mm-dd
-  });
+  const [tanggal, setTanggal] = useState(new Date());
 
   const [terisi, setTerisi] = useState({});
   const [uangDiambil, setUangDiambil] = useState("");
@@ -95,6 +92,11 @@ export default function App() {
   const [keyboardOpen, setKeyboardOpen] = useState(false);
 
   const simpan = async () => {
+    if (!isSesuai) {
+      Swal.fire("Perhatian", "Jumlah uang diambil tidak sesuai.", "warning");
+      return;
+    }
+
     const rumahSetor = Object.entries(terisi)
       .filter(([_, value]) => value)
       .map(([nomor]) => {
@@ -105,20 +107,48 @@ export default function App() {
         };
       });
 
-    for (let item of rumahSetor) {
-      await fetch("https://script.google.com/macros/s/AKfycbwE3dSj570d2KP-v00D4JQdhLOIaNlVzI-RiAHG8SRRAUKpfmZXwLUXIU-iMCTeUvw3Wg/exec", {
-        method: "POST",
-        body: JSON.stringify({
-          tanggal, // ambil dari input tanggal
-          nomor_rumah: item.nomor,
-          nama: item.nama,
-          setor: 1,
-          diambil_oleh: 'Petugas Ronda', // misalnya dari state nama petugas
-        }),
-      });
+    if (rumahSetor.length === 0) {
+      Swal.fire("Kosong", "Belum ada rumah yang dicentang.", "info");
+      return;
     }
 
-    Swal.fire("Berhasil!", "Data sudah disimpan.", "success");
+    Swal.fire({
+      title: "Menyimpan...",
+      text: "Mohon tunggu sebentar",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    try {
+      const response = await fetch(
+        "https://script.google.com/macros/s/AKfycbzv09E98t35PX57mfdNnSZWsnnEvhk7u5KTtgssfx65FOrcJxoC6SIDy-cq_OQ11YAfpQ/exec",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain",
+          },
+          body: JSON.stringify({
+            secret_key: "rahasiakita123",
+            tanggal: tanggal.toISOString().split("T")[0],
+            diambil_oleh: "Petugas Ronda",
+            data: rumahSetor,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        Swal.fire("Berhasil!", "Data sudah disimpan.", "success");
+        setTerisi({});
+        setUangDiambil("");
+      } else {
+        throw new Error("Gagal menyimpan");
+      }
+    } catch (err) {
+      console.log(err);
+      Swal.fire("Gagal", "Tidak bisa mengirim data. Periksa koneksi.", "error");
+    }
   };
 
   return (
