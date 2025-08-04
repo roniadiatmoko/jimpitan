@@ -39,7 +39,7 @@ const rumahList = [
   { nomor: 31, nama: "Amri" },
   { nomor: 32, nama: "Dedy" },
   { nomor: 33, nama: "Roni" },
-  { nomor: 34, nama: "Joko" },
+  { nomor: 34, nama: "-" },
   { nomor: 35, nama: "Sinyo/Aang" },
   { nomor: 36, nama: "-" },
   { nomor: 37, nama: "Ulil" },
