@@ -236,7 +236,7 @@ export default function App() {
           </strong>
         </div>
         <div className="flex items-center gap-2">
-          <label>Uang Diambil:</label>
+          <label>Hitung Uang:</label>
           <input
             type="number"
             value={uangDiambil}
