@@ -79,10 +79,10 @@ const rumahList = [
   { nomor: 68, nama: "Ikhwan" },
 ];
 
-// Fungsi helper untuk menentukan halaman berdasarkan path URL
+// Fungsi helper untuk menentukan halaman berdasarkan path URL.
+// Sekarang menggunakan `window.location.hash` untuk mendukung GitHub Pages.
 const getPageFromPath = (path) => {
-  // Menggunakan includes untuk mendeteksi '/rapel' di URL
-  if (path.includes("/rapel")) {
+  if (path.includes("#/rapel")) {
     return "rapel";
   }
   return "harian";
@@ -90,7 +90,7 @@ const getPageFromPath = (path) => {
 
 export default function App() {
   // Inisialisasi state halaman dari URL saat pertama kali dimuat
-  const [currentPage, setCurrentPage] = useState(getPageFromPath(window.location.pathname));
+  const [currentPage, setCurrentPage] = useState(getPageFromPath(window.location.hash));
 
   const [tanggal, setTanggal] = useState(new Date());
   const [terisi, setTerisi] = useState({});
@@ -98,12 +98,13 @@ export default function App() {
   const [keyboardOpen, setKeyboardOpen] = useState(false);
 
   // Efek untuk menangani navigasi dari tombol 'back'/'forward' browser
+  // Sekarang juga mendengarkan perubahan pada hash URL
   useEffect(() => {
-    const handlePopState = () => {
-      setCurrentPage(getPageFromPath(window.location.pathname));
+    const handleHashChange = () => {
+      setCurrentPage(getPageFromPath(window.location.hash));
     };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
   
   const toggleRumah = (nomor) => {
