@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/jimpitan/static/css/main.bf84753c.css",
-    "main.js": "/jimpitan/static/js/main.0a2de4ab.js",
+    "main.js": "/jimpitan/static/js/main.79fc74de.js",
     "static/js/453.75796b0c.chunk.js": "/jimpitan/static/js/453.75796b0c.chunk.js",
     "index.html": "/jimpitan/index.html",
     "main.bf84753c.css.map": "/jimpitan/static/css/main.bf84753c.css.map",
-    "main.0a2de4ab.js.map": "/jimpitan/static/js/main.0a2de4ab.js.map",
+    "main.79fc74de.js.map": "/jimpitan/static/js/main.79fc74de.js.map",
     "453.75796b0c.chunk.js.map": "/jimpitan/static/js/453.75796b0c.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.bf84753c.css",
-    "static/js/main.0a2de4ab.js"
+    "static/js/main.79fc74de.js"
   ]
 }
