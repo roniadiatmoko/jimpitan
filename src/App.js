@@ -79,42 +79,64 @@ const rumahList = [
   { nomor: 68, nama: "Ikhwan" },
 ];
 
-export default function App() {
-  // Gunakan state untuk melacak halaman yang sedang aktif.
-  // Default ke 'harian' jika hash tidak ada atau tidak dikenali.
-  const [currentPage, setCurrentPage] = useState("harian");
+const getPageFromPath = (path) => {
+  if (path.includes("#/rapel")) {
+    return "rapel";
+  }
+  return "harian";
+};
 
+export default function App() {
+  const [currentPage, setCurrentPage] = useState(getPageFromPath(window.location.hash));
   const [tanggal, setTanggal] = useState(new Date());
   const [terisi, setTerisi] = useState({});
   const [uangDiambil, setUangDiambil] = useState("");
   const [keyboardOpen, setKeyboardOpen] = useState(false);
+  
+  // State baru untuk menyimpan status rapel harian
+  const [rapelHarianStatus, setRapelHarianStatus] = useState([]);
 
-  // Efek untuk mendengarkan perubahan hash di URL
   useEffect(() => {
     const handleHashChange = () => {
-      // Periksa hash URL dan set halaman yang sesuai.
-      if (window.location.hash.includes("#/rapel")) {
-        setCurrentPage("rapel");
-      } else {
-        setCurrentPage("harian");
-      }
+      setCurrentPage(getPageFromPath(window.location.hash));
     };
-
-    // Set halaman awal saat komponen dimuat
-    handleHashChange();
-    
-    // Tambahkan event listener untuk mendengarkan perubahan hash
     window.addEventListener('hashchange', handleHashChange);
-    
-    // Cleanup: hapus event listener saat komponen di-unmount
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
   
+  // Efek untuk mengambil data rapel harian setiap kali tanggal berubah
+  useEffect(() => {
+    const fetchRapelHarianStatus = async () => {
+      const tanggalFormatted = format(tanggal, "yyyy-MM-dd");
+      try {
+        const response = await fetch(`https://ee548084-499f-43bb-b451-942060a81754-00-1dz8i3zxrf31f.pike.replit.dev/api/rapel-harian/${tanggalFormatted}`);
+        if (response.ok) {
+          const data = await response.json();
+          // rapelHarianStatus sekarang berupa array nomor_rumah
+          console.log("Status rapel harian:", data.rapelHouses);
+          setRapelHarianStatus(data.rapelHouses);
+        } else {
+          console.error("Gagal mengambil status rapel harian");
+          setRapelHarianStatus([]);
+        }
+      } catch (error) {
+        console.error("Error fetching rapel status:", error);
+        setRapelHarianStatus([]);
+      }
+    };
+    fetchRapelHarianStatus();
+  }, [tanggal]);
+
   const toggleRumah = (nomor) => {
+    // MEMO: Logika ini mencegah rumah yang sudah rapel untuk di-centang.
+    // Jika nomor rumah ada di daftar rapel, maka fungsi akan berhenti.
+    if (rapelHarianStatus.includes(String(nomor))) {
+      return;
+    }
     setTerisi((prev) => ({ ...prev, [nomor]: !prev[nomor] }));
   };
 
-  const totalSetor = Object.values(terisi).filter(Boolean).length;
+  const totalSetor = Object.keys(terisi).filter(nomor => terisi[nomor]).length;
   const totalUang = totalSetor * 500;
   const isSesuai = parseInt(uangDiambil) === totalUang;
 
@@ -123,17 +145,22 @@ export default function App() {
       Swal.fire("Perhatian", "Jumlah uang diambil tidak sesuai.", "warning");
       return;
     }
-
-    const dataJimpitan = rumahList.map(r => ({
-      nomor: r.nomor,
-      nama: r.nama,
-      status: terisi[r.nomor] ? 1 : 0
-    }));
-
-    if (dataJimpitan.length === 0) {
+    
+    // Perbaikan: Pastikan ada data yang dicentang sebelum mencoba menyimpan
+    const terisiRumah = Object.keys(terisi).filter(nomor => terisi[nomor]);
+    if (terisiRumah.length === 0) {
       Swal.fire("Kosong", "Belum ada rumah yang dicentang.", "info");
       return;
     }
+
+    const dataJimpitan = rumahList.map(r => ({
+      nomor: String(r.nomor),
+      nama: r.nama,
+      // MEMO: Status disimpan berdasarkan state 'terisi'.
+      // Karena rumah yang sudah rapel tidak bisa di-centang (berkat logika di toggleRumah),
+      // maka statusnya akan otomatis 0 (nol) saat disimpan, sesuai permintaan.
+      status: terisi[r.nomor] ? 1 : 0
+    }));
 
     Swal.fire({
       title: "Menyimpan...",
@@ -217,29 +244,34 @@ export default function App() {
                   <td className="p-2 text-center font-bold">{r.nomor}</td>
                   <td className="p-2">{r.nama}</td>
                   <td className="p-2 text-center">
-                    <input
-                      type="checkbox"
-                      checked={!!terisi[r.nomor]}
-                      onChange={async (e) => {
-                        const isChecked = e.target.checked;
-                        const result = await Swal.fire({
-                          title: isChecked ? `Tandai Jimpitan?` : `Hapus Jimpitan?`,
-                          text: isChecked
-                            ? `Apakah Anda yakin menandai ${r.nomor} - ${r.nama} mengisi jimpitan?`
-                            : `Apakah Anda yakin menghapus jimpitan Rumah ${r.nomor} - ${r.nama}?`,
-                          icon: "question",
-                          showCancelButton: true,
-                          confirmButtonText: "Ya",
-                          cancelButtonText: "Batal",
-                          confirmButtonColor: "#3085d6",
-                          cancelButtonColor: "#d33",
-                        });
-                        if (result.isConfirmed) {
-                          toggleRumah(r.nomor);
-                        }
-                      }}
-                      className="w-6 h-6 accent-blue-500"
-                    />
+                    {/* Logika untuk menampilkan "Rapel" jika rumah sudah rapel. */}
+                    {rapelHarianStatus.includes(String(r.nomor)) ? (
+                      <span className="font-semibold text-green-600">Rapel</span>
+                    ) : (
+                      <input
+                        type="checkbox"
+                        checked={!!terisi[r.nomor]}
+                        onChange={async (e) => {
+                          const isChecked = e.target.checked;
+                          const result = await Swal.fire({
+                            title: isChecked ? `Tandai Jimpitan?` : `Hapus Jimpitan?`,
+                            text: isChecked
+                              ? `Apakah Anda yakin menandai ${r.nomor} - ${r.nama} mengisi jimpitan?`
+                              : `Apakah Anda yakin menghapus jimpitan Rumah ${r.nomor} - ${r.nama}?`,
+                            icon: "question",
+                            showCancelButton: true,
+                            confirmButtonText: "Ya",
+                            cancelButtonText: "Batal",
+                            confirmButtonColor: "#3085d6",
+                            cancelButtonColor: "#d33",
+                          });
+                          if (result.isConfirmed) {
+                            toggleRumah(r.nomor);
+                          }
+                        }}
+                        className="w-6 h-6 accent-blue-500"
+                      />
+                    )}
                   </td>
                 </tr>
               ))}
@@ -267,9 +299,9 @@ export default function App() {
             </div>
             <button
               onClick={simpan}
-              disabled={!isSesuai}
+              disabled={!isSesuai || totalSetor === 0}
               className={`px-4 py-2 mt-10 w-full text-white rounded ${
-                isSesuai ? "bg-green-600" : "bg-gray-400 cursor-not-allowed"
+                isSesuai && totalSetor > 0 ? "bg-green-600" : "bg-gray-400 cursor-not-allowed"
               }`}
             >
               Simpan
