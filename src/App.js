@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import Swal from "sweetalert2";
+
+// Mengimpor komponen RapelForm dari file terpisah
+import RapelForm from "./RapelForm.js";
 
 const rumahList = [
   { nomor: 1, nama: "Hartono" },
@@ -76,12 +79,34 @@ const rumahList = [
   { nomor: 68, nama: "Ikhwan" },
 ];
 
-export default function App() {
-  const [tanggal, setTanggal] = useState(new Date());
+// Fungsi helper untuk menentukan halaman berdasarkan path URL
+const getPageFromPath = (path) => {
+  switch (path) {
+    case "/rapel":
+      return "rapel";
+    default:
+      return "harian";
+  }
+};
 
+export default function App() {
+  // Inisialisasi state halaman dari URL saat pertama kali dimuat
+  const [currentPage, setCurrentPage] = useState(getPageFromPath(window.location.pathname));
+
+  const [tanggal, setTanggal] = useState(new Date());
   const [terisi, setTerisi] = useState({});
   const [uangDiambil, setUangDiambil] = useState("");
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
 
+  // Efek untuk menangani navigasi dari tombol 'back'/'forward' browser
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPage(getPageFromPath(window.location.pathname));
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+  
   const toggleRumah = (nomor) => {
     setTerisi((prev) => ({ ...prev, [nomor]: !prev[nomor] }));
   };
@@ -89,7 +114,6 @@ export default function App() {
   const totalSetor = Object.values(terisi).filter(Boolean).length;
   const totalUang = totalSetor * 500;
   const isSesuai = parseInt(uangDiambil) === totalUang;
-  const [keyboardOpen, setKeyboardOpen] = useState(false);
 
   const simpan = async () => {
     if (!isSesuai) {
@@ -97,12 +121,10 @@ export default function App() {
       return;
     }
 
-    // --- PERUBAHAN DI SINI ---
-    // Mengumpulkan semua data rumah (terisi dan tidak terisi)
     const dataJimpitan = rumahList.map(r => ({
       nomor: r.nomor,
       nama: r.nama,
-      status: terisi[r.nomor] ? 1 : 0 // 1 jika terisi, 0 jika tidak
+      status: terisi[r.nomor] ? 1 : 0
     }));
 
     if (dataJimpitan.length === 0) {
@@ -129,9 +151,9 @@ export default function App() {
           },
           body: JSON.stringify({
             secret_key: "rahasiakita123",
-            tanggal: format(tanggal, "yyyy-MM-dd"), // Menggunakan tanggal dari DatePicker
+            tanggal: format(tanggal, "yyyy-MM-dd"),
             diambil_oleh: "Petugas Ronda",
-            data: dataJimpitan, // Mengirim semua data rumah
+            data: dataJimpitan,
           }),
         }
       );
@@ -150,113 +172,111 @@ export default function App() {
   };
 
   return (
-    <div
-      className="min-h-screen pb-96 p-4 bg-gray-50"
-      style={{ paddingBottom: keyboardOpen ? "300px" : "300px" }}
-    >
-      <div className="text-center">
-        <h1 className="text-2xl font-bold mb-4 text-green-700">
-          Nge-Jimpit GBK Tempel 2
-        </h1>
+    <div className="min-h-screen pb-96 p-4 bg-gray-50">
 
-        <label className="block mb-2 font-medium">Tanggal:</label>
-        <DatePicker
-          selected={tanggal}
-          onChange={(date) => setTanggal(date)}
-          dateFormat="dd-MM-yyyy"
-          locale={id}
-          className="w-full border rounded p-2"
-        />
-        {/* Format tampilan: Jumat, 1 Agustus 2025 */}
-        <div className="mt-4 text-lg text-center font-bold text-green-700">
-          {format(tanggal, "EEEE, d MMMM yyyy", { locale: id })}
-        </div>
-      </div>
+      {currentPage === "harian" ? (
+        // Tampilan untuk input harian
+        <>
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4 text-green-700">
+              Nge-Jimpit GBK Tempel 2
+            </h1>
 
-      {/* Tampilkan hasil yang disimpan */}
-      {/* <div className="mt-4 text-sm text-gray-600">
-        <strong>Format Simpan (YYYY-MM-DD):</strong>{" "}
-        {format(tanggal, "yyyy-MM-dd")}
-      </div> */}
+            <label className="block mb-2 font-medium">Tanggal:</label>
+            <DatePicker
+              selected={tanggal}
+              onChange={(date) => setTanggal(date)}
+              dateFormat="dd-MM-yyyy"
+              locale={id}
+              className="w-full border rounded p-2"
+            />
+            <div className="mt-4 text-lg text-center font-bold text-green-700">
+              {format(tanggal, "EEEE, d MMMM yyyy", { locale: id })}
+            </div>
+          </div>
 
-      <table className="w-full bg-white shadow rounded">
-        <thead>
-          <tr className="bg-gray-200 text-left">
-            <th className="p-2 text-center">Nomor</th>
-            <th className="p-2">Nama</th>
-            <th className="p-2 text-center">Terisi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rumahList.map((r, index) => (
-            <tr
-              key={r.nomor}
-              className={`${
-                index % 2 === 0 ? "bg-green-200" : "bg-white"
-              } border-t`}
+          <table className="w-full bg-white shadow rounded">
+            <thead>
+              <tr className="bg-gray-200 text-left">
+                <th className="p-2 text-center">Nomor</th>
+                <th className="p-2">Nama</th>
+                <th className="p-2 text-center">Terisi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rumahList.map((r, index) => (
+                <tr
+                  key={r.nomor}
+                  className={`${
+                    index % 2 === 0 ? "bg-green-200" : "bg-white"
+                  } border-t`}
+                >
+                  <td className="p-2 text-center font-bold">{r.nomor}</td>
+                  <td className="p-2">{r.nama}</td>
+                  <td className="p-2 text-center">
+                    <input
+                      type="checkbox"
+                      checked={!!terisi[r.nomor]}
+                      onChange={async (e) => {
+                        const isChecked = e.target.checked;
+                        const result = await Swal.fire({
+                          title: isChecked ? `Tandai Jimpitan?` : `Hapus Jimpitan?`,
+                          text: isChecked
+                            ? `Apakah Anda yakin menandai ${r.nomor} - ${r.nama} mengisi jimpitan?`
+                            : `Apakah Anda yakin menghapus jimpitan Rumah ${r.nomor} - ${r.nama}?`,
+                          icon: "question",
+                          showCancelButton: true,
+                          confirmButtonText: "Ya",
+                          cancelButtonText: "Batal",
+                          confirmButtonColor: "#3085d6",
+                          cancelButtonColor: "#d33",
+                        });
+                        if (result.isConfirmed) {
+                          toggleRumah(r.nomor);
+                        }
+                      }}
+                      className="w-6 h-6 accent-blue-500"
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="fixed bottom-0 left-0 right-0 bg-green-900 text-white p-4 border-t shadow-md flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div>
+              💰 Total:{" "}
+              <strong>
+                {totalSetor} × 500 = Rp {totalUang.toLocaleString()}
+              </strong>
+            </div>
+            <div className="flex items-center gap-2">
+              <label>Uang Diambil:</label>
+              <input
+                type="number"
+                value={uangDiambil}
+                onChange={(e) => setUangDiambil(e.target.value)}
+                onFocus={() => setKeyboardOpen(true)}
+                onBlur={() => setKeyboardOpen(false)}
+                className="p-1 border rounded w-50 text-black"
+                placeholder="Total jimpitan hari ini"
+              />
+            </div>
+            <button
+              onClick={simpan}
+              disabled={!isSesuai}
+              className={`px-4 py-2 mt-10 w-full text-white rounded ${
+                isSesuai ? "bg-green-600" : "bg-gray-400 cursor-not-allowed"
+              }`}
             >
-              <td className="p-2 text-center font-bold">{r.nomor}</td>
-              <td className="p-2">{r.nama}</td>
-              <td className="p-2 text-center">
-                <input
-                  type="checkbox"
-                  checked={!!terisi[r.nomor]}
-                  onChange={async (e) => {
-                    const isChecked = e.target.checked;
-                    const result = await Swal.fire({
-                      title: isChecked ? `Tandai Jimpitan?` : `Hapus Jimpitan?`,
-                      text: isChecked
-                        ? `Apakah Anda yakin menandai ${r.nomor} - ${r.nama} mengisi jimpitan?`
-                        : `Apakah Anda yakin menghapus jimpitan Rumah ${r.nomor} - ${r.nama}?`,
-                      icon: "question",
-                      showCancelButton: true,
-                      confirmButtonText: "Ya",
-                      cancelButtonText: "Batal",
-                      confirmButtonColor: "#3085d6",
-                      cancelButtonColor: "#d33",
-                    });
-
-                    if (result.isConfirmed) {
-                      toggleRumah(r.nomor);
-                    }
-                  }}
-                  className="w-6 h-6 accent-blue-500"
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div className="fixed bottom-0 left-0 right-0 bg-green-900 text-white p-4 border-t shadow-md flex flex-col sm:flex-row justify-between items-center gap-2">
-        <div>
-          💰 Total:{" "}
-          <strong>
-            {totalSetor} × 500 = Rp {totalUang.toLocaleString()}
-          </strong>
-        </div>
-        <div className="flex items-center gap-2">
-          <label>Hitung Uang:</label>
-          <input
-            type="number"
-            value={uangDiambil}
-            onChange={(e) => setUangDiambil(e.target.value)}
-            onFocus={() => setKeyboardOpen(true)}
-            onBlur={() => setKeyboardOpen(false)}
-            className="p-1 border rounded w-50 text-black"
-            placeholder="Total jimpitan hari ini"
-          />
-        </div>
-        <button
-          onClick={simpan}
-          disabled={!isSesuai}
-          className={`px-4 py-2 mt-10 w-full text-white rounded ${
-            isSesuai ? "bg-green-600" : "bg-gray-400 cursor-not-allowed"
-          }`}
-        >
-          Simpan
-        </button>
-      </div>
+              Simpan
+            </button>
+          </div>
+        </>
+      ) : (
+        // Tampilan untuk halaman rapel
+        <RapelForm />
+      )}
     </div>
   );
 }
