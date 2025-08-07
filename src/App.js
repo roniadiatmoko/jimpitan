@@ -79,31 +79,34 @@ const rumahList = [
   { nomor: 68, nama: "Ikhwan" },
 ];
 
-// Fungsi helper untuk menentukan halaman berdasarkan path URL.
-// Sekarang menggunakan `window.location.hash` untuk mendukung GitHub Pages.
-const getPageFromPath = (path) => {
-  if (path.includes("#/rapel")) {
-    return "rapel";
-  }
-  return "harian";
-};
-
 export default function App() {
-  // Inisialisasi state halaman dari URL saat pertama kali dimuat
-  const [currentPage, setCurrentPage] = useState(getPageFromPath(window.location.hash));
+  // Gunakan state untuk melacak halaman yang sedang aktif.
+  // Default ke 'harian' jika hash tidak ada atau tidak dikenali.
+  const [currentPage, setCurrentPage] = useState("harian");
 
   const [tanggal, setTanggal] = useState(new Date());
   const [terisi, setTerisi] = useState({});
   const [uangDiambil, setUangDiambil] = useState("");
   const [keyboardOpen, setKeyboardOpen] = useState(false);
 
-  // Efek untuk menangani navigasi dari tombol 'back'/'forward' browser
-  // Sekarang juga mendengarkan perubahan pada hash URL
+  // Efek untuk mendengarkan perubahan hash di URL
   useEffect(() => {
     const handleHashChange = () => {
-      setCurrentPage(getPageFromPath(window.location.hash));
+      // Periksa hash URL dan set halaman yang sesuai.
+      if (window.location.hash.includes("#/rapel")) {
+        setCurrentPage("rapel");
+      } else {
+        setCurrentPage("harian");
+      }
     };
+
+    // Set halaman awal saat komponen dimuat
+    handleHashChange();
+    
+    // Tambahkan event listener untuk mendengarkan perubahan hash
     window.addEventListener('hashchange', handleHashChange);
+    
+    // Cleanup: hapus event listener saat komponen di-unmount
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
   
