@@ -81,12 +81,11 @@ const rumahList = [
 
 // Fungsi helper untuk menentukan halaman berdasarkan path URL
 const getPageFromPath = (path) => {
-  switch (path) {
-    case "/rapel":
-      return "rapel";
-    default:
-      return "harian";
+  // Menggunakan includes untuk mendeteksi '/rapel' di URL
+  if (path.includes("/rapel")) {
+    return "rapel";
   }
+  return "harian";
 };
 
 export default function App() {
