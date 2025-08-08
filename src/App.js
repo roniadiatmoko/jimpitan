@@ -237,7 +237,7 @@ export default function App() {
 
               <table className="w-full bg-white shadow rounded">
                 <thead>
-                  <tr className="bg-gray-200 text-left">
+                  <tr className="bg-gray-200 text-center">
                     <th className="p-2 text-center">Nomor</th>
                     <th className="p-2">Nama</th>
                     <th className="p-2 text-center">Terisi</th>
@@ -252,7 +252,7 @@ export default function App() {
                       } border-t`}
                     >
                       <td className="p-2 text-center font-bold">{r.nomor}</td>
-                      <td className="p-2">{r.nama}</td>
+                      <td className="p-2 text-left">{r.nama}</td>
                       <td className="p-2 text-center">
                         {/* Logika untuk menampilkan "Rapel" jika rumah sudah rapel. */}
                         {rapelHarianStatus.includes(String(r.nomor)) ? (
