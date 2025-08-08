@@ -264,9 +264,9 @@ export default function App() {
                             title: isChecked
                               ? `Tandai Jimpitan?`
                               : `Hapus Jimpitan?`,
-                            text: isChecked
-                              ? `Apakah Anda yakin menandai ${r.nomor} - ${r.nama} mengisi jimpitan?`
-                              : `Apakah Anda yakin menghapus jimpitan Rumah ${r.nomor} - ${r.nama}?`,
+                            html: isChecked
+                              ? `Apakah Anda yakin menandai <b>${r.nomor} - ${r.nama} </b>mengisi jimpitan?`
+                              : `Apakah Anda yakin menghapus jimpitan Rumah <b>${r.nomor} - ${r.nama} </b>?`,
                             icon: "question",
                             showCancelButton: true,
                             confirmButtonText: "Ya",
