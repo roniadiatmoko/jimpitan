@@ -303,16 +303,23 @@ export default function App() {
                 onFocus={() => setKeyboardOpen(true)}
                 onBlur={() => setKeyboardOpen(false)}
                 className="p-1 border rounded w-50 text-black"
-                placeholder="Hitung jimpitan hari ini"
+                placeholder="Masukkan jimpitan hari ini"
               />
             </div>
-            <div className="text-red-300 text-sm">
-              *Masukkan tanpa titik tanpa koma
-            </div>
-            <div className="text-red-800 text-sm text-center bg-red-200 p-2 rounded">
-              Jika uang yang diambil tidak sesuai dengan checklist. <br/>
-              Petugas ronda harus melengkapi kekurangannya.
-            </div>
+
+            {keyboardOpen ? (
+              <div>
+                <div className="text-red-300 text-sm text-center">
+                  *Masukkan tanpa titik tanpa koma
+                </div>
+                <div className="text-red-800 text-sm text-center bg-red-200 p-2 rounded">
+                  Jika uang yang diambil tidak sesuai dengan checklist. <br />
+                  Petugas ronda harus melengkapi kekurangannya.
+                </div>
+              </div>
+            ) : (
+              ""
+            )}
             <button
               onClick={simpan}
               disabled={!isSesuai || totalSetor === 0}
