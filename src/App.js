@@ -87,12 +87,14 @@ const getPageFromPath = (path) => {
 };
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState(getPageFromPath(window.location.hash));
+  const [currentPage, setCurrentPage] = useState(
+    getPageFromPath(window.location.hash)
+  );
   const [tanggal, setTanggal] = useState(new Date());
   const [terisi, setTerisi] = useState({});
   const [uangDiambil, setUangDiambil] = useState("");
   const [keyboardOpen, setKeyboardOpen] = useState(false);
-  
+
   // State baru untuk menyimpan status rapel harian
   const [rapelHarianStatus, setRapelHarianStatus] = useState([]);
 
@@ -100,16 +102,18 @@ export default function App() {
     const handleHashChange = () => {
       setCurrentPage(getPageFromPath(window.location.hash));
     };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
-  
+
   // Efek untuk mengambil data rapel harian setiap kali tanggal berubah
   useEffect(() => {
     const fetchRapelHarianStatus = async () => {
       const tanggalFormatted = format(tanggal, "yyyy-MM-dd");
       try {
-        const response = await fetch(`https://ee548084-499f-43bb-b451-942060a81754-00-1dz8i3zxrf31f.pike.replit.dev/api/rapel-harian/${tanggalFormatted}`);
+        const response = await fetch(
+          `https://ee548084-499f-43bb-b451-942060a81754-00-1dz8i3zxrf31f.pike.replit.dev/api/rapel-harian/${tanggalFormatted}`
+        );
         if (response.ok) {
           const data = await response.json();
           // rapelHarianStatus sekarang berupa array nomor_rumah
@@ -136,7 +140,9 @@ export default function App() {
     setTerisi((prev) => ({ ...prev, [nomor]: !prev[nomor] }));
   };
 
-  const totalSetor = Object.keys(terisi).filter(nomor => terisi[nomor]).length;
+  const totalSetor = Object.keys(terisi).filter(
+    (nomor) => terisi[nomor]
+  ).length;
   const totalUang = totalSetor * 500;
   const isSesuai = parseInt(uangDiambil) === totalUang;
 
@@ -145,21 +151,21 @@ export default function App() {
       Swal.fire("Perhatian", "Jumlah uang diambil tidak sesuai.", "warning");
       return;
     }
-    
+
     // Perbaikan: Pastikan ada data yang dicentang sebelum mencoba menyimpan
-    const terisiRumah = Object.keys(terisi).filter(nomor => terisi[nomor]);
+    const terisiRumah = Object.keys(terisi).filter((nomor) => terisi[nomor]);
     if (terisiRumah.length === 0) {
       Swal.fire("Kosong", "Belum ada rumah yang dicentang.", "info");
       return;
     }
 
-    const dataJimpitan = rumahList.map(r => ({
+    const dataJimpitan = rumahList.map((r) => ({
       nomor: String(r.nomor),
       nama: r.nama,
       // MEMO: Status disimpan berdasarkan state 'terisi'.
       // Karena rumah yang sudah rapel tidak bisa di-centang (berkat logika di toggleRumah),
       // maka statusnya akan otomatis 0 (nol) saat disimpan, sesuai permintaan.
-      status: terisi[r.nomor] ? 1 : 0
+      status: terisi[r.nomor] ? 1 : 0,
     }));
 
     Swal.fire({
@@ -203,7 +209,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen pb-96 p-4 bg-gray-50">
-
       {currentPage === "harian" ? (
         // Tampilan untuk input harian
         <>
@@ -246,7 +251,9 @@ export default function App() {
                   <td className="p-2 text-center">
                     {/* Logika untuk menampilkan "Rapel" jika rumah sudah rapel. */}
                     {rapelHarianStatus.includes(String(r.nomor)) ? (
-                      <span className="font-semibold text-green-600">Rapel</span>
+                      <span className="font-semibold text-green-600">
+                        Rapel
+                      </span>
                     ) : (
                       <input
                         type="checkbox"
@@ -254,7 +261,9 @@ export default function App() {
                         onChange={async (e) => {
                           const isChecked = e.target.checked;
                           const result = await Swal.fire({
-                            title: isChecked ? `Tandai Jimpitan?` : `Hapus Jimpitan?`,
+                            title: isChecked
+                              ? `Tandai Jimpitan?`
+                              : `Hapus Jimpitan?`,
                             text: isChecked
                               ? `Apakah Anda yakin menandai ${r.nomor} - ${r.nama} mengisi jimpitan?`
                               : `Apakah Anda yakin menghapus jimpitan Rumah ${r.nomor} - ${r.nama}?`,
@@ -280,13 +289,13 @@ export default function App() {
 
           <div className="fixed bottom-0 left-0 right-0 bg-green-900 text-white p-4 border-t shadow-md flex flex-col sm:flex-row justify-between items-center gap-2">
             <div>
-              💰 Total:{" "}
+              💰 Total Seharusnya:{" "}
               <strong>
                 {totalSetor} × 500 = Rp {totalUang.toLocaleString()}
               </strong>
             </div>
-            <div className="flex items-center gap-2">
-              <label>Uang Diambil:</label>
+            <div className="flex flex-col items-center gap-2">
+              <label>Masukkan Total Uang Yang Diambil:</label>
               <input
                 type="number"
                 value={uangDiambil}
@@ -294,14 +303,23 @@ export default function App() {
                 onFocus={() => setKeyboardOpen(true)}
                 onBlur={() => setKeyboardOpen(false)}
                 className="p-1 border rounded w-50 text-black"
-                placeholder="Total jimpitan hari ini"
+                placeholder="Hitung jimpitan hari ini"
               />
+            </div>
+            <div className="text-red-300 text-sm">
+              *Masukkan tanpa titik tanpa koma
+            </div>
+            <div className="text-red-800 text-sm text-center bg-red-200 p-2 rounded">
+              Jika uang yang diambil tidak sesuai dengan checklist. <br/>
+              Petugas ronda harus melengkapi kekurangannya.
             </div>
             <button
               onClick={simpan}
               disabled={!isSesuai || totalSetor === 0}
               className={`px-4 py-2 mt-10 w-full text-white rounded ${
-                isSesuai && totalSetor > 0 ? "bg-green-600" : "bg-gray-400 cursor-not-allowed"
+                isSesuai && totalSetor > 0
+                  ? "bg-green-600"
+                  : "bg-gray-400 cursor-not-allowed"
               }`}
             >
               Simpan
