@@ -208,87 +208,93 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen pb-96 p-4 bg-gray-50">
+    <div className="min-h-screen pb-96 bg-gray-50">
       {currentPage === "harian" ? (
         // Tampilan untuk input harian
         <>
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4 text-green-700">
-              Nge-Jimpit GBK Tempel 2
-            </h1>
+            <div className="bg-green-400 mt-[-15px] p-1 shadow">
+              <h1 className="text-left ml-5 font-bold mb-4 mt-10 h-20 text-green-800 text-lg">
+                Nge-Jimpit GBK Tempel 2
+              </h1>
+            </div>
 
-            <label className="block mb-2 font-medium">Tanggal:</label>
-            <DatePicker
-              selected={tanggal}
-              onChange={(date) => setTanggal(date)}
-              dateFormat="dd-MM-yyyy"
-              locale={id}
-              className="w-full border rounded p-2"
-            />
-            <div className="mt-4 text-lg text-center font-bold text-green-700">
-              <div className="text-red-700 text-xs text-center">Pastikan tanggal ronda sudah benar sebelum menyimpan!</div>
-              {format(tanggal, "EEEE, d MMMM yyyy", { locale: id })}
+            <div className="bg-white p-1 rounded-t-3xl text-center shadow mb-4 mt-[-50px]">
+              <label className="block mb-2 font-medium">Tanggal:</label>
+              <DatePicker
+                selected={tanggal}
+                onChange={(date) => setTanggal(date)}
+                dateFormat="dd-MM-yyyy"
+                locale={id}
+                className="w-full border rounded p-2"
+              />
+              <div className="mt-4 text-lg text-center font-bold text-green-700">
+                <div className="text-red-700 text-xs text-center">
+                  Pastikan tanggal ronda sudah benar sebelum menyimpan!
+                </div>
+                {format(tanggal, "EEEE, d MMMM yyyy", { locale: id })}
+              </div>
+
+              <table className="w-full bg-white shadow rounded">
+                <thead>
+                  <tr className="bg-gray-200 text-left">
+                    <th className="p-2 text-center">Nomor</th>
+                    <th className="p-2">Nama</th>
+                    <th className="p-2 text-center">Terisi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rumahList.map((r, index) => (
+                    <tr
+                      key={r.nomor}
+                      className={`${
+                        index % 2 === 0 ? "bg-green-200" : "bg-white"
+                      } border-t`}
+                    >
+                      <td className="p-2 text-center font-bold">{r.nomor}</td>
+                      <td className="p-2">{r.nama}</td>
+                      <td className="p-2 text-center">
+                        {/* Logika untuk menampilkan "Rapel" jika rumah sudah rapel. */}
+                        {rapelHarianStatus.includes(String(r.nomor)) ? (
+                          <span className="font-semibold text-green-600">
+                            Rapel
+                          </span>
+                        ) : (
+                          <input
+                            type="checkbox"
+                            checked={!!terisi[r.nomor]}
+                            onChange={async (e) => {
+                              const isChecked = e.target.checked;
+                              const result = await Swal.fire({
+                                title: isChecked
+                                  ? `Tandai Jimpitan?`
+                                  : `Hapus Jimpitan?`,
+                                html: isChecked
+                                  ? `Apakah Anda yakin menandai <b>${r.nomor} - ${r.nama} </b>mengisi jimpitan?`
+                                  : `Apakah Anda yakin menghapus jimpitan Rumah <b>${r.nomor} - ${r.nama} </b>?`,
+                                icon: "question",
+                                showCancelButton: true,
+                                confirmButtonText: "Ya",
+                                cancelButtonText: "Batal",
+                                confirmButtonColor: "#3085d6",
+                                cancelButtonColor: "#d33",
+                              });
+                              if (result.isConfirmed) {
+                                toggleRumah(r.nomor);
+                              }
+                            }}
+                            className="w-6 h-6 accent-blue-500"
+                          />
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <table className="w-full bg-white shadow rounded">
-            <thead>
-              <tr className="bg-gray-200 text-left">
-                <th className="p-2 text-center">Nomor</th>
-                <th className="p-2">Nama</th>
-                <th className="p-2 text-center">Terisi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rumahList.map((r, index) => (
-                <tr
-                  key={r.nomor}
-                  className={`${
-                    index % 2 === 0 ? "bg-green-200" : "bg-white"
-                  } border-t`}
-                >
-                  <td className="p-2 text-center font-bold">{r.nomor}</td>
-                  <td className="p-2">{r.nama}</td>
-                  <td className="p-2 text-center">
-                    {/* Logika untuk menampilkan "Rapel" jika rumah sudah rapel. */}
-                    {rapelHarianStatus.includes(String(r.nomor)) ? (
-                      <span className="font-semibold text-green-600">
-                        Rapel
-                      </span>
-                    ) : (
-                      <input
-                        type="checkbox"
-                        checked={!!terisi[r.nomor]}
-                        onChange={async (e) => {
-                          const isChecked = e.target.checked;
-                          const result = await Swal.fire({
-                            title: isChecked
-                              ? `Tandai Jimpitan?`
-                              : `Hapus Jimpitan?`,
-                            html: isChecked
-                              ? `Apakah Anda yakin menandai <b>${r.nomor} - ${r.nama} </b>mengisi jimpitan?`
-                              : `Apakah Anda yakin menghapus jimpitan Rumah <b>${r.nomor} - ${r.nama} </b>?`,
-                            icon: "question",
-                            showCancelButton: true,
-                            confirmButtonText: "Ya",
-                            cancelButtonText: "Batal",
-                            confirmButtonColor: "#3085d6",
-                            cancelButtonColor: "#d33",
-                          });
-                          if (result.isConfirmed) {
-                            toggleRumah(r.nomor);
-                          }
-                        }}
-                        className="w-6 h-6 accent-blue-500"
-                      />
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="fixed bottom-0 left-0 right-0 bg-green-900 text-white p-4 border-t shadow-md flex flex-col sm:flex-row justify-between items-center gap-2">
+          <div className="fixed bottom-0 left-0 right-0 bg-green-900 text-white p-4 border-t rounded-t-3xl shadow-md flex flex-col sm:flex-row justify-between items-center gap-2">
             <div>
               💰 Total Seharusnya:{" "}
               <strong>
