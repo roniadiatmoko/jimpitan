@@ -226,7 +226,7 @@ export default function App() {
                 onChange={(date) => setTanggal(date)}
                 dateFormat="dd-MM-yyyy"
                 locale={id}
-                className="w-full border rounded p-2"
+                className="w-full border text-center rounded p-2"
               />
               <div className="mt-4 text-lg text-center font-bold text-green-700">
                 <div className="text-red-700 text-xs text-center">
