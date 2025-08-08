@@ -336,7 +336,7 @@ export default function App() {
                   : "bg-gray-400 cursor-not-allowed"
               }`}
             >
-              Simpan
+              {isSesuai ? "Simpan Jimpitan" : "Jumlah Tidak Sesuai"}
             </button>
           </div>
         </>
