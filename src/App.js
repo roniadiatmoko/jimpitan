@@ -226,6 +226,7 @@ export default function App() {
               className="w-full border rounded p-2"
             />
             <div className="mt-4 text-lg text-center font-bold text-green-700">
+              <div className="text-red-700 text-xs text-center">Pastikan tanggal ronda sudah benar sebelum menyimpan!</div>
               {format(tanggal, "EEEE, d MMMM yyyy", { locale: id })}
             </div>
           </div>
@@ -323,7 +324,7 @@ export default function App() {
             <button
               onClick={simpan}
               disabled={!isSesuai || totalSetor === 0}
-              className={`px-4 py-2 mt-10 w-full text-white rounded ${
+              className={`px-4 py-2 mt-5 w-full text-white rounded ${
                 isSesuai && totalSetor > 0
                   ? "bg-green-600"
                   : "bg-gray-400 cursor-not-allowed"
