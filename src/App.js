@@ -214,7 +214,7 @@ export default function App() {
         <>
           <div className="text-center">
             <div className="bg-green-400 mt-[-15px] p-1 shadow">
-              <h1 className="text-left ml-5 font-bold mb-4 mt-10 h-20 text-green-800 text-lg">
+              <h1 className="text-center font-bold mb-4 mt-10 h-20 text-green-800 text-lg">
                 Nge-Jimpit GBK Tempel 2
               </h1>
             </div>
