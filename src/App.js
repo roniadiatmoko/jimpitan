@@ -81,8 +81,13 @@ const rumahList = [
 
 const getPageFromPath = (path) => {
   if (path.includes("#/rapel")) {
-    return "rapel";
+    return "rapel-form";
   }
+
+  if (path.includes('#/rapel-list')) {
+    return "rapel-list"
+  }
+
   return "harian";
 };
 
