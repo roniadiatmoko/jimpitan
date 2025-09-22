@@ -235,6 +235,18 @@ export default function App() {
                 {format(tanggal, "EEEE, d MMMM yyyy", { locale: id })}
               </div>
 
+              <div className="mt-4 mb-4 bg-red-400 rounded-md p-4">
+                <p className="text-center text-red-900">
+                  <strong>Perhatian:</strong>
+                  &nbsp; Untuk menghindari salah mengisi tanggal. Server akan
+                  ditutup pukul <b>23:59 WIB</b>.
+                  <br />
+                  Silakan menjimpit sebelum jam tersebut.
+                  <br />
+                  Jika ada kendala bisa WA ke Grup
+                </p>
+              </div>
+
               <table className="w-full bg-white shadow rounded">
                 <thead>
                   <tr className="bg-gray-200 text-center">
