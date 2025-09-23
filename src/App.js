@@ -7,6 +7,8 @@ import Swal from "sweetalert2";
 
 // Mengimpor komponen RapelForm dari file terpisah
 import RapelForm from "./RapelForm.js";
+import ServerCheckModal from "./ModalServerCheck.js";
+import { ENDPOINT_BASE_URL } from "./config.js";
 
 const rumahList = [
   { nomor: 1, nama: "Hartono" },
@@ -103,6 +105,8 @@ export default function App() {
   // State baru untuk menyimpan status rapel harian
   const [rapelHarianStatus, setRapelHarianStatus] = useState([]);
 
+  const endPoint = ENDPOINT_BASE_URL;
+
   useEffect(() => {
     const handleHashChange = () => {
       setCurrentPage(getPageFromPath(window.location.hash));
@@ -117,7 +121,7 @@ export default function App() {
       const tanggalFormatted = format(tanggal, "yyyy-MM-dd");
       try {
         const response = await fetch(
-          `https://ee548084-499f-43bb-b451-942060a81754-00-1dz8i3zxrf31f.pike.replit.dev/api/rapel-harian/${tanggalFormatted}`
+          `${endPoint}/api/rapel-harian/${tanggalFormatted}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -184,7 +188,7 @@ export default function App() {
 
     try {
       const response = await fetch(
-        "https://ee548084-499f-43bb-b451-942060a81754-00-1dz8i3zxrf31f.pike.replit.dev/api/jimpitan",
+        `${endPoint}/api/jimpitan`,
         {
           method: "POST",
           headers: {
@@ -214,6 +218,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen pb-96 bg-gray-50">
+      <ServerCheckModal />
       {currentPage === "harian" ? (
         // Tampilan untuk input harian
         <>
