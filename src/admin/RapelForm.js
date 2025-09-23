@@ -51,7 +51,7 @@ export default function RapelForm() {
   };
 
   return (
-    <div className="mt-8 p-4 bg-yellow-100 border-2 border-yellow-400 rounded-lg shadow-md">
+    <div className="m-8 p-4 bg-yellow-100 border-2 border-yellow-400 rounded-lg shadow-md">
       <h2 className="text-xl font-bold text-center text-yellow-800 mb-4">Formulir Rapel Jimpitan</h2>
       <div className="flex flex-col sm:flex-row gap-4 mb-4">
         <div className="flex-1">
