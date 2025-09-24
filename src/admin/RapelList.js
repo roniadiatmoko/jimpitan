@@ -3,6 +3,7 @@ import { ENDPOINT_BASE_URL, homeList, months } from "../config";
 import RapelForm from "./RapelForm";
 import SimpleModal from "../components/SimpleModal";
 import DetailRapel from "./DetailRapel";
+import { getDaysInMonth } from "../components/DateHelper";
 
 export default function RapelList() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
@@ -157,18 +158,39 @@ export default function RapelList() {
                       {item.nomor_rumah}
                     </td>
                     <td className="px-4 py-2 border">
-                      {homeList.find((h) => h.nomor === Number(item.nomor_rumah))?.nama}
+                      {
+                        homeList.find(
+                          (h) => h.nomor === Number(item.nomor_rumah)
+                        )?.nama
+                      }
                     </td>
                     <td className="px-4 py-2 border text-center">
-                      {item.jumlah_rapel}
+                      {`${item.jumlah_rapel} dari ${getDaysInMonth(
+                        selectedMonth,
+                        year
+                      )} `}
+
+                      {getDaysInMonth(selectedMonth, year) ===
+                      item.jumlah_rapel ? (
+                        <span className="text-green-600 font-bold p-2 ml-2">
+                          Lunas
+                        </span>
+                      ) : (
+                        <span className="text-red-500 bg-red-300 rounded-full p-2 font-bold ml-2">
+                          Kurang{" "}
+                          {getDaysInMonth(selectedMonth, year) -
+                            item.jumlah_rapel}{" "}
+                          Hari
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-1 border text-center">
-                      <button 
+                      <button
                         className="bg-blue-600 w-full text-white p-1 rounded-xl font-bold hover:bg-blue-700"
                         onClick={() => {
-                          setSelectedItem(item)
-                          setOpenModalDetail(true)
-                        }}  
+                          setSelectedItem(item);
+                          setOpenModalDetail(true);
+                        }}
                       >
                         Detail
                       </button>
@@ -180,7 +202,16 @@ export default function RapelList() {
               {
                 /* Modal Detail Rapel */
                 openModalDetail && (
-                <SimpleModal content={<DetailRapel nomorRumah={selectedItem.nomor_rumah} year={year} month={selectedMonth}  />} onClose={() => setOpenModalDetail(false)} />
+                  <SimpleModal
+                    content={
+                      <DetailRapel
+                        nomorRumah={selectedItem.nomor_rumah}
+                        year={year}
+                        month={selectedMonth}
+                      />
+                    }
+                    onClose={() => setOpenModalDetail(false)}
+                  />
                 )
               }
             </tbody>
