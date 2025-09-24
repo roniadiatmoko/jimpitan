@@ -1,20 +1,51 @@
-import { useState } from "react";
-import { months } from "../config";
+import { useEffect, useState } from "react";
+import { ENDPOINT_BASE_URL, homeList, months } from "../config";
+import RapelForm from "./RapelForm";
+import SimpleModal from "../components/SimpleModal";
+import DetailRapel from "./DetailRapel";
 
 export default function RapelList() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [rapelData, setRapelData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [openModalAdd, setOpenModalAdd] = useState(false);
+  const [openModalDetail, setOpenModalDetail] = useState(false);
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [selectedItem, setSelectedItem] = useState(null);
 
-  const showRapelData = () => {
+  const showRapelData = async () => {
     setLoading(true);
     //get api request here
+    try {
+      const monthTwoDigit = selectedMonth.toString().padStart(2, "0");
+      const monthToSearch = `${year}-${monthTwoDigit}`;
+      const res = await fetch(
+        `${ENDPOINT_BASE_URL}/api/rapel-bulanan/${monthToSearch}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    setTimeout(() => {
-      alert(selectedMonth);
-      setLoading(false);
-    }, 5000);
+      if (!res.ok) {
+        throw new Error(`Error ${res.status}`);
+      }
+
+      const data = await res.json();
+      setRapelData(data.rapelBulanan);
+      console.log(rapelData);
+    } catch (error) {
+      console.log(error);
+    }
+
+    setLoading(false);
   };
+
+  useEffect(() => {
+    showRapelData();
+  }, []);
 
   return (
     <div className="m-8">
@@ -40,7 +71,7 @@ export default function RapelList() {
           </select>
 
           <button
-            className="pl-4 pr-4 pt-1 pb-1 rounded-xl bg-blue-400 text-white hover:bg-blue-500"
+            className="pl-4 pr-4 pt-1 pb-1 rounded-xl bg-blue-500 text-white hover:bg-blue-700"
             onClick={showRapelData}
           >
             <span>Tampilkan</span>
@@ -65,6 +96,37 @@ export default function RapelList() {
 
         {/* data rapel */}
         <div className="overflow-x-auto p-4">
+          <button
+            className="p-4 mb-5 float-right rounded-xl text-white font-bold bg-blue-600 hover:bg-blue-700"
+            onClick={() => {
+              setOpenModalAdd(true);
+            }}
+          >
+            <span>+ Tambah Data Rapel</span>
+          </button>
+
+          {
+            /* Modal Add Rapel */
+            openModalAdd ? (
+              <div className="bg-black bg-opacity-50 fixed top-0 left-0 w-full h-full z-40">
+                <div className="fixed top-1/2 left-1/2 w-[90%] transform -translate-x-1/2 -translate-y-1/2 text-center bg-white rounded-lg p-5 z-50">
+                  <h3 className="text-center bold mb-10">Tambah Data Rapel</h3>
+                  <RapelForm />
+                  <button
+                    className="p-4 mb-5 float-right rounded-xl text-white font-bold bg-gray-600 hover:bg-blue-700"
+                    onClick={() => {
+                      setOpenModalAdd(false);
+                    }}
+                  >
+                    <span>Tutup</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              ""
+            )
+          }
+
           <table className="min-w-full border border-gray-300 rounded-lg overflow-hidden">
             <thead className="bg-blue-600 text-white">
               <tr>
@@ -72,6 +134,7 @@ export default function RapelList() {
                 <th className="px-4 py-2 border">Nomor Rumah</th>
                 <th className="px-4 py-2 border">Nama</th>
                 <th className="px-4 py-2 border">Jumlah Hari Rapel</th>
+                <th className="px-4 py-2 border">Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -91,15 +154,35 @@ export default function RapelList() {
                       {index + 1}
                     </td>
                     <td className="px-4 py-2 border text-center">
-                      {item.nomorRumah}
+                      {item.nomor_rumah}
                     </td>
-                    <td className="px-4 py-2 border">{item.nama}</td>
+                    <td className="px-4 py-2 border">
+                      {homeList.find((h) => h.nomor === Number(item.nomor_rumah))?.nama}
+                    </td>
                     <td className="px-4 py-2 border text-center">
-                      {item.jumlahHari}
+                      {item.jumlah_rapel}
+                    </td>
+                    <td className="px-4 py-1 border text-center">
+                      <button 
+                        className="bg-blue-600 w-full text-white p-1 rounded-xl font-bold hover:bg-blue-700"
+                        onClick={() => {
+                          setSelectedItem(item)
+                          setOpenModalDetail(true)
+                        }}  
+                      >
+                        Detail
+                      </button>
                     </td>
                   </tr>
                 ))
               )}
+
+              {
+                /* Modal Detail Rapel */
+                openModalDetail && (
+                <SimpleModal content={<DetailRapel nomorRumah={selectedItem.nomor_rumah} year={year} month={selectedMonth}  />} onClose={() => setOpenModalDetail(false)} />
+                )
+              }
             </tbody>
           </table>
         </div>
