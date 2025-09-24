@@ -1,5 +1,5 @@
 import {useState } from "react"
-import { ENDPOINTS, userAccount } from "./config";
+import { userAccount } from "./config";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginForm() {

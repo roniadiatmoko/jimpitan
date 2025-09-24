@@ -4,8 +4,8 @@ export default function DetailRapel({nomorRumah, year, month}){
     return (
         <div className="m-8">
             <h1 className="text-2xl font-bold">Detail Rapel </h1>
-            <h2 className="text-green-500"><b>Rumah No. {nomorRumah} - {homeList.find(home => home.nomor == nomorRumah).nama}</b></h2>
-            <h2 className="text-green-500"><b>{months.find(m => m.value == month).label} {year}</b></h2>
+            <h2 className="text-green-500"><b>Rumah No. {nomorRumah} - {homeList.find(home => home.nomor === Number(nomorRumah)).nama}</b></h2>
+            <h2 className="text-green-500"><b>{months.find(m => m.value === Number(month)).label} {year}</b></h2>
 
             <div className="mt-5 rounded-xl bg-green-100 w-full h-full">
                 <table className="w-full text-center text-lg font-semibold ">

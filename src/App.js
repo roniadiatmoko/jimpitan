@@ -5,10 +5,8 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import Swal from "sweetalert2";
 import {
-  HashRouter as Router,
   Routes,
-  Route,
-  Navigate,
+  Route
 } from "react-router-dom";
 
 // Mengimpor komponen RapelForm dari file terpisah
@@ -19,7 +17,6 @@ import AdminArea from "./admin/AdminArea.js";
 import RapelList from "./admin/RapelList.js";
 import DetailHarian from "./admin/DetailHarian.js";
 import AdminHome from "./admin/AdminHome.js";
-import AdminPanel from "./admin/AdminPanel.js";
 import LoginForm from "./LoginForm.js";
 
 const rumahList = homeList;
@@ -237,7 +234,7 @@ export default function App() {
                         {/* Logika untuk menampilkan "Rapel" jika rumah sudah rapel. */}
                         {rapelHarianStatus.includes(String(r.nomor)) ? (
                           <span className="font-semibold text-green-600">
-                            Rapel
+                            Sudah Rapel
                           </span>
                         ) : (
                           <input

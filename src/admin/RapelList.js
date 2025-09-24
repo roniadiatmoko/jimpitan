@@ -4,6 +4,7 @@ import RapelForm from "./RapelForm";
 import SimpleModal from "../components/SimpleModal";
 import DetailRapel from "./DetailRapel";
 import { getDaysInMonth } from "../components/DateHelper";
+import { rupiahFormat } from "../components/MoneyHeper";
 
 export default function RapelList() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
@@ -44,9 +45,13 @@ export default function RapelList() {
     setLoading(false);
   };
 
+  const kekurangan = (jumlahHariRapel) => {
+    return getDaysInMonth(selectedMonth, year) - jumlahHariRapel;
+  }
+
   useEffect(() => {
     showRapelData();
-  }, []);
+  }, [selectedMonth]);
 
   return (
     <div className="m-8">
@@ -60,7 +65,12 @@ export default function RapelList() {
           <select
             className="w-[50%] p-4 mb-2 rounded-lg bg-white"
             value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
+            onChange={
+              (e) => {
+                setSelectedMonth(e.target.value);
+              }
+              
+            }
           >
             {months.map((month) => {
               return (
@@ -71,12 +81,12 @@ export default function RapelList() {
             })}
           </select>
 
-          <button
+          {/* <button
             className="pl-4 pr-4 pt-1 pb-1 rounded-xl bg-blue-500 text-white hover:bg-blue-700"
             onClick={showRapelData}
           >
             <span>Tampilkan</span>
-          </button>
+          </button> */}
         </div>
       </div>
       <div className="mt-1 bg-blue-50 p-4 rounded-xl">
@@ -97,6 +107,7 @@ export default function RapelList() {
 
         {/* data rapel */}
         <div className="overflow-x-auto p-4">
+          <h2 className="font-bold text-4xl float-left text-blue-700">{months.find(m => m.value === Number(selectedMonth)).label} {year}</h2>
           <button
             className="p-4 mb-5 float-right rounded-xl text-white font-bold bg-blue-600 hover:bg-blue-700"
             onClick={() => {
@@ -178,9 +189,8 @@ export default function RapelList() {
                       ) : (
                         <span className="text-red-500 bg-red-300 rounded-full p-2 font-bold ml-2">
                           Kurang{" "}
-                          {getDaysInMonth(selectedMonth, year) -
-                            item.jumlah_rapel}{" "}
-                          Hari
+                          {kekurangan(item.jumlah_rapel)}{" "}
+                          Hari ( { rupiahFormat(kekurangan(item.jumlah_rapel) * 500)} )
                         </span>
                       )}
                     </td>

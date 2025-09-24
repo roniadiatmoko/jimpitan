@@ -1,7 +1,5 @@
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
-import { useState } from "react";
-
 export default function AdminPanel() {
   const navigate = useNavigate();
   const location = useLocation();
