@@ -1,9 +1,11 @@
 import {useState } from "react"
 import { ENDPOINTS, userAccount } from "./config";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginForm() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = () => {
         let usernameCheck = username;
@@ -11,8 +13,11 @@ export default function LoginForm() {
         userAccount.forEach((user) => {
             if (user.username == usernameCheck && user.password == passwordCheck) {
                 localStorage.setItem('token', 'true');
+                localStorage.setItem('username', username);
+                localStorage.setItem('fullname', user.fullname);
+
                 console.log('logged')
-                window.location.href = ENDPOINTS.admin;
+                navigate("/admin", {replace: true})
             }
         })
     }

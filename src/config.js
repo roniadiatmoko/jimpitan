@@ -79,8 +79,8 @@ export const homeList = [
 ];
 
 export const userAccount = [
-  { username: "menterijimpitan", password: "menterijimpitan" },
-  { username: "kepalasuku", password: "kepalasuku" },
+  { username: "menterijimpitan", password: "menterijimpitan", fullname: "Menteri Jimpitan" },
+  { username: "ketua", password: "kepalasuku", fullname: "Ketua Paguyuban" },
 ];
 
 export const months = [

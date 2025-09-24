@@ -4,12 +4,23 @@ import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import Swal from "sweetalert2";
+import {
+  HashRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 // Mengimpor komponen RapelForm dari file terpisah
 import RapelForm from "./admin/RapelForm.js";
 import ServerCheckModal from "./ModalServerCheck.js";
 import { ENDPOINT_BASE_URL, homeList } from "./config.js";
 import AdminArea from "./admin/AdminArea.js";
+import RapelList from "./admin/RapelList.js";
+import DetailHarian from "./admin/DetailHarian.js";
+import AdminHome from "./admin/AdminHome.js";
+import AdminPanel from "./admin/AdminPanel.js";
+import LoginForm from "./LoginForm.js";
 
 const rumahList = homeList;
 
@@ -18,12 +29,12 @@ const getPageFromPath = (path) => {
     return "rapel-form";
   }
 
-  if (path.includes('#/rapel-list')) {
-    return "rapel-list"
+  if (path.includes("#/rapel-list")) {
+    return "rapel-list";
   }
 
-  if (path.includes('#/admin')){
-    return 'admin';
+  if (path.includes("#/admin")) {
+    return "admin";
   }
 
   return "harian";
@@ -123,21 +134,18 @@ export default function App() {
     });
 
     try {
-      const response = await fetch(
-        `${endPoint}/api/jimpitan`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            secret_key: "rahasiakita123",
-            tanggal: format(tanggal, "yyyy-MM-dd"),
-            diambil_oleh: "Petugas Ronda",
-            data: dataJimpitan,
-          }),
-        }
-      );
+      const response = await fetch(`${endPoint}/api/jimpitan`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          secret_key: "rahasiakita123",
+          tanggal: format(tanggal, "yyyy-MM-dd"),
+          diambil_oleh: "Petugas Ronda",
+          data: dataJimpitan,
+        }),
+      });
 
       if (response.ok) {
         Swal.fire("Berhasil!", "Data sudah disimpan.", "success");
@@ -152,14 +160,22 @@ export default function App() {
     }
   };
 
-  if (currentPage === "admin") {
-    return (
-      <AdminArea />
-    )
-  }
-
   return (
     <div className="min-h-screen pb-96 bg-gray-50">
+      <Routes>
+        {/* ADMIN PAGE */}
+        <Route path="/admin" element={<AdminArea />}>
+          <Route path="login" element={<LoginForm />} />
+
+          <Route>
+            <Route index element={<AdminHome />} /> {/*default /admin */}
+            <Route path="rapel-list" element={<RapelList />} />
+            <Route path="rapel-input" element={<RapelForm />} />
+            <Route path="detail-harian" element={<DetailHarian />} />
+          </Route>
+        </Route>
+      </Routes>
+
       <ServerCheckModal />
       {currentPage === "harian" ? (
         // Tampilan untuk input harian
@@ -306,7 +322,8 @@ export default function App() {
         </>
       ) : (
         // Tampilan untuk halaman rapel
-        <RapelForm />
+        // <RapelForm />
+        ""
       )}
     </div>
   );
