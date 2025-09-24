@@ -122,8 +122,7 @@ export default function RapelList() {
             openModalAdd ? (
               <div className="bg-black bg-opacity-50 fixed top-0 left-0 w-full h-full z-40">
                 <div className="fixed top-1/2 left-1/2 w-[90%] transform -translate-x-1/2 -translate-y-1/2 text-center bg-white rounded-lg p-5 z-50">
-                  <h3 className="text-center bold mb-10">Tambah Data Rapel</h3>
-                  <RapelForm />
+                  <RapelForm onSuccess={() => showRapelData()} />
                   <button
                     className="p-4 mb-5 float-right rounded-xl text-white font-bold bg-gray-600 hover:bg-blue-700"
                     onClick={() => {
@@ -152,7 +151,7 @@ export default function RapelList() {
             <tbody>
               {rapelData.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="text-center py-4 text-gray-500">
+                  <td colSpan={5} className="text-center py-4 text-gray-500">
                     Belum ada data rapel
                   </td>
                 </tr>
