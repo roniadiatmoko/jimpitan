@@ -233,7 +233,7 @@ export default function App() {
                       <td className="p-2 text-center">
                         {/* Logika untuk menampilkan "Rapel" jika rumah sudah rapel. */}
                         {rapelHarianStatus.includes(String(r.nomor)) ? (
-                          <span className="font-semibold text-green-600">
+                          <span className="font-bold text-green-600">
                             Sudah Rapel
                           </span>
                         ) : (
