@@ -214,7 +214,7 @@ export default function App() {
 
               <div className="mt-5 mb-5 p-4 bg-orange-200 rounded-xl text-left">
                 <p>Keterangan:</p>
-                <p><span className="text-red-700 font-bold">*</span> = Rumah sudah dihuni</p>
+                <p><span className="text-red-700 font-bold">*</span> = Rumah sudah dihuni wajib jimpitan</p>
               </div>
 
               <table className="w-full bg-white shadow rounded">
@@ -238,7 +238,7 @@ export default function App() {
                       <td className="p-2 text-center">
                         {/* Logika untuk menampilkan "Rapel" jika rumah sudah rapel. */}
                         {rapelHarianStatus.includes(String(r.nomor)) ? (
-                          <span className="font-bold text-green-600">
+                          <span className="font-bold text-blue-600">
                             Sudah Rapel
                           </span>
                         ) : (
