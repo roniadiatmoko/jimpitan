@@ -20,7 +20,7 @@ export default function ServerCheckModal() {
   useEffect(() => {
     setTimeout(() => {
         pingServer();
-    }, 2000)
+    }, 1000)
   }, []);
 
   if (!checkServer) {

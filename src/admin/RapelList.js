@@ -37,7 +37,7 @@ export default function RapelList() {
 
       const data = await res.json();
       setRapelData(data.rapelBulanan);
-      console.log(rapelData);
+      // console.log(rapelData);
     } catch (error) {
       console.log(error);
     }
