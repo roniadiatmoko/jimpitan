@@ -212,6 +212,11 @@ export default function App() {
                 </p>
               </div>
 
+              <div className="mt-5 mb-5 p-4 bg-orange-200 rounded-xl text-left">
+                <p>Keterangan:</p>
+                <p><span className="text-red-700 font-bold">*</span> = Rumah sudah dihuni</p>
+              </div>
+
               <table className="w-full bg-white shadow rounded">
                 <thead>
                   <tr className="bg-gray-200 text-center">
@@ -229,7 +234,7 @@ export default function App() {
                       } border-t`}
                     >
                       <td className="p-2 text-center font-bold">{r.nomor}</td>
-                      <td className="p-2 text-left">{r.nama}</td>
+                      <td className="p-2 text-left">{r.nama} {r.sudah_menghuni === 1 && <span className="text-red-600">*</span>}</td>
                       <td className="p-2 text-center">
                         {/* Logika untuk menampilkan "Rapel" jika rumah sudah rapel. */}
                         {rapelHarianStatus.includes(String(r.nomor)) ? (
