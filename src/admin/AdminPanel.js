@@ -22,7 +22,7 @@ export default function AdminPanel() {
               to="rapel-list"
               relative="route"
               className={
-                currentPath.endsWith("/rapel-list") || currentPath === "/admin"
+                currentPath.endsWith("/rapel-list")
                   ? "bg-blue-900 rounded-full p-3 text-white font-bold"
                   : "hover:bg-blue-900 rounded-full p-3 hover:text-white"
               }
