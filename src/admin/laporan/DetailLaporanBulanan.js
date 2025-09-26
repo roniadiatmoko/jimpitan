@@ -119,7 +119,7 @@ export default function LaporanBulananAccordion({
 
     // apiDataPengeluaran();
     setLoading(false);
-  }, []);
+  }, [period]);
 
   return (
     <div>

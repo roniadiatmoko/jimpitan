@@ -3,6 +3,7 @@ import { months } from "../../config";
 import DatePicker from "react-datepicker";
 import { format } from "date-fns";
 import DetailLaporanBulanan from "./DetailLaporanBulanan";
+import { se } from "date-fns/locale";
 
 export default function LaporanBulanan() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
@@ -26,7 +27,7 @@ export default function LaporanBulanan() {
       </div>
 
       <div className="mt-5">
-        <DetailLaporanBulanan />
+        <DetailLaporanBulanan period={selectedMonth.getFullYear() + "-" + (selectedMonth.getMonth() + 1).toString().padStart(2, "0")} />
       </div>
     </div>
   );
