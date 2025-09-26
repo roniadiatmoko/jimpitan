@@ -65,9 +65,7 @@ export default function LaporanBulananAccordion({
 
   const apiDataHarian = async () => {
     try {
-      const res = await fetch(
-        `${ENDPOINT_BASE_URL}/api/jimpitan/${period}`
-      );
+      const res = await fetch(`${ENDPOINT_BASE_URL}/api/jimpitan/${period}`);
       const data = await res.json();
 
       setDataHarian(data.data);
@@ -78,7 +76,9 @@ export default function LaporanBulananAccordion({
 
   const apiDataRapel = async () => {
     try {
-      const res = await fetch(`${ENDPOINT_BASE_URL}/api/rapel-bulanan/${period}`);
+      const res = await fetch(
+        `${ENDPOINT_BASE_URL}/api/rapel-bulanan/${period}`
+      );
       const data = await res.json();
       setDataRapel(data.rapelBulanan);
     } catch (error) {
@@ -100,21 +100,23 @@ export default function LaporanBulananAccordion({
 
   const totalHarian = useMemo(
     () => dataHarian.reduce((a, b) => a + (b.nominal || 0), 0),
-    []
+    [dataHarian]
   );
   const totalRapel = useMemo(
     () => dataRapel.reduce((a, b) => a + (b.nominal || 0), 0),
-    []
+    [dataRapel]
   );
   const totalSemua = totalHarian + totalRapel;
 
-  const pengeluaranBulan = useMemo(() =>
-    dataPengeluaran.reduce((a, b) => a + (b.total || 0), 0)
+  const pengeluaranBulan = useMemo(
+    () => dataPengeluaran.reduce((a, b) => a + (b.total || 0), 0),
+    [dataPengeluaran]
   );
 
   useEffect(() => {
     apiDataHarian();
     apiDataRapel();
+
     // apiDataPengeluaran();
     setLoading(false);
   }, []);
@@ -186,9 +188,18 @@ export default function LaporanBulananAccordion({
                   <tbody>
                     {dataRapel.map((r, i) => (
                       <tr key={i} className="odd:bg-white even:bg-gray-50">
-                        <td className="border p-2 text-center">{r.nomor_rumah}</td>
-                        <td className="border p-2"> {homeList.find((h) => h.nomor === Number(r.nomor_rumah))?.nama || "-"}</td>
-                        <td className="border p-2 text-center">{r.jumlah_rapel} Hari</td>
+                        <td className="border p-2 text-center">
+                          {r.nomor_rumah}
+                        </td>
+                        <td className="border p-2">
+                          {" "}
+                          {homeList.find(
+                            (h) => h.nomor === Number(r.nomor_rumah)
+                          )?.nama || "-"}
+                        </td>
+                        <td className="border p-2 text-center">
+                          {r.jumlah_rapel} Hari
+                        </td>
                         <td className="border p-2 text-right">
                           {rupiahFormat(r.nominal)}
                         </td>
