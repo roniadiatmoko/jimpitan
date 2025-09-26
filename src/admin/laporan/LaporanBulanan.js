@@ -1,0 +1,33 @@
+import { useState } from "react";
+import { months } from "../../config";
+import DatePicker from "react-datepicker";
+import { format } from "date-fns";
+import DetailLaporanBulanan from "./DetailLaporanBulanan";
+
+export default function LaporanBulanan() {
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
+
+  return (
+    <div className="m-8 bg-white shadow-md p-4 rounded-xl">
+        <h1 className="text-center font-bold text-2xl text-purple-700 mb-10">Laporan Bulanan</h1>
+      <h2>Pilih Bulan</h2>
+      <DatePicker
+        selected={selectedMonth}
+        onChange={(date) => setSelectedMonth(date)}
+        dateFormat="MMMM yyyy"
+        showMonthYearPicker // hanya bulan & tahun
+        wrapperClassName="w-full"
+        className="bg-gray-200 rounded-md p-2 w-full"
+      />
+
+      <div className="mt-4 text-center">
+        <span className="text-sm text-gray-500">Menampilkan laporan <br/></span>
+        <span className="text-xl font-bold text-purple-600">{months.find((m) => m.value === selectedMonth.getMonth() + 1).label} {" " + selectedMonth.getFullYear()}</span>
+      </div>
+
+      <div className="mt-5">
+        <DetailLaporanBulanan />
+      </div>
+    </div>
+  );
+}

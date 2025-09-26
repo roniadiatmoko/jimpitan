@@ -40,6 +40,17 @@ export default function AdminPanel() {
             >
               Detail Harian
             </Link>
+            <Link
+              to="laporan-bulanan"
+              relative="route"
+              className={
+                currentPath.endsWith("laporan-bulanan") ?
+                  "bg-blue-900 rounded-full p-3 text-white font-bold"
+                  : "hover:bg-blue-900 rounded-full p-3 hover:text-white"
+              }
+            >
+              Laporan Bulanan
+            </Link>
           </div>
           <div className="p-1 rounded-full font-semibold">
             <button

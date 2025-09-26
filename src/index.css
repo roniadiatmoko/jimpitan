@@ -6,3 +6,27 @@ html, body {
   scroll-behavior: smooth;
   overscroll-behavior: contain;
 }
+
+/* ubah lebar popup utama */
+.react-datepicker {
+  font-size: 1.2rem; /* perbesar font */
+
+}
+
+/* grid bulan */
+.react-datepicker__month-wrapper {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr); /* tetap 3 kolom */
+  gap: 10px;
+}
+
+/* kotak bulan */
+.react-datepicker__month-text {
+  padding: 1rem;           /* perbesar kotak */
+  font-size: 1.1rem;       /* teks lebih besar */
+  border-radius: 8px;
+}
+
+.react-datepicker__month-text:hover {
+  background-color: #e5e7eb; /* Tailwind gray-200 */
+}

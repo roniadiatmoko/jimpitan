@@ -18,6 +18,7 @@ import RapelList from "./admin/RapelList.js";
 import DetailHarian from "./admin/DetailHarian.js";
 import AdminHome from "./admin/AdminHome.js";
 import LoginForm from "./LoginForm.js";
+import LaporanBulanan from "./admin/laporan/LaporanBulanan.js";
 
 const rumahList = homeList;
 
@@ -169,6 +170,7 @@ export default function App() {
             <Route path="rapel-list" element={<RapelList />} />
             <Route path="rapel-input" element={<RapelForm />} />
             <Route path="detail-harian" element={<DetailHarian />} />
+            <Route path="laporan-bulanan" element={<LaporanBulanan />} />
           </Route>
         </Route>
       </Routes>
