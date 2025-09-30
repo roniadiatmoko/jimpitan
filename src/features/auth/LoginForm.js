@@ -1,6 +1,7 @@
 import {useState } from "react"
-import { userAccount } from "./config";
+
 import { useNavigate } from "react-router-dom";
+import { userAccount } from "../../shared/config";
 
 export default function LoginForm() {
     const [username, setUsername] = useState('');

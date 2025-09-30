@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect } from "react";
-import { rupiahFormat } from "../../components/MoneyHeper";
-import { ENDPOINT_BASE_URL, homeList } from "../../config";
+import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
+import { ENDPOINT_BASE_URL, homeList } from "../../../shared/config";
 
 function AccordionItem({
   id,

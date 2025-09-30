@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import PengeluaranForm from "./PengeluaranForm";
-import { ENDPOINT_BASE_URL } from "../../config";
-import SimpleModal from "../../components/SimpleModal";
-import { rupiahFormat } from "../../components/MoneyHeper";
+import { ENDPOINT_BASE_URL } from "../../../shared/config";
+import SimpleModal from "../../../shared/components/SimpleModal";
+import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
 
 export default function PengeluaranBulanan({ period }) {
   const [loading, setLoading] = useState(false);

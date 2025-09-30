@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import LoginForm from "../LoginForm";
-import AdminPanel from "./AdminPanel";
+
 import { useLocation } from "react-router-dom";
+import LoginForm from "../auth/LoginForm";
+import AdminPanel from "./AdminPanel";
 
 export default function AdminArea() {
     const [isLogin, setIsLogin] = useState(false);

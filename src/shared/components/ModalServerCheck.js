@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { ENDPOINT_BASE_URL } from "./config";
+import { ENDPOINT_BASE_URL } from "../config";
+
 
 export default function ServerCheckModal() {
   const [checkServer, setCheckServer] = useState(true);

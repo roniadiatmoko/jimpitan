@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { months } from "../../config";
+import { months } from "../../../shared/config";
 import DatePicker from "react-datepicker";
 import DetailLaporanBulanan from "./DetailLaporanBulanan";
 

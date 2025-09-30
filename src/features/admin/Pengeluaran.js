@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PengeluaranBulanan from "./laporan/PengeluaranBulanan";
 import DatePicker from "react-datepicker";
-import { months } from "../config";
+import { months } from "../../shared/config";
 
 export default function Pengeluaran() {
     const [selectedMonth, setSelectedMonth] = useState(new Date());

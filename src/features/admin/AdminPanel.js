@@ -1,5 +1,5 @@
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import MyNavbar from "../components/MyNavbar";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import MyNavbar from "../../shared/components/MyNavbar";
 
 export default function AdminPanel() {
   const navigate = useNavigate();

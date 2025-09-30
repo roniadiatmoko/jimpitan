@@ -1,7 +1,7 @@
 import { useState } from "react";
 import CurrencyInput from "react-currency-input-field";
 import DatePicker from "react-datepicker";
-import { ENDPOINT_BASE_URL } from "../../config";
+import { ENDPOINT_BASE_URL } from "../../../shared/config";
 import Swal from "sweetalert2";
 
 export default function PengeluaranForm({onSuccess}) {

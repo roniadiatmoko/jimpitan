@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { ENDPOINT_BASE_URL, homeList, months } from "../config";
+import { ENDPOINT_BASE_URL, homeList, months } from "../../shared/config";
 import RapelForm from "./RapelForm";
-import SimpleModal from "../components/SimpleModal";
+import SimpleModal from "../../shared/components/SimpleModal";
 import DetailRapel from "./DetailRapel";
-import { getDaysInMonth } from "../components/DateHelper";
-import { rupiahFormat } from "../components/MoneyHeper";
+import { getDaysInMonth } from "../../shared/helpers/DateHelper";
+import { rupiahFormat } from "../../shared/helpers/MoneyHeper";
 
 export default function RapelList() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
