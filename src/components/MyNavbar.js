@@ -59,6 +59,17 @@ export default function MyNavbar({ onLogout }) {
             </Link>
           </li>
           <li>
+            <Link
+              to="pengeluaran"
+              className={`${baseLink} block text-center ${
+                isActive("/pengeluaran") ? activeLink : hoverLink
+              }`}
+              onClick={() => setOpen(false)}
+            >
+              Pengeluaran
+            </Link>
+          </li>
+          <li>
             <button
               type="button"
               onClick={onLogout}
@@ -104,6 +115,17 @@ export default function MyNavbar({ onLogout }) {
               onClick={() => setOpen(false)}
             >
               Laporan Bulanan
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="pengeluaran"
+              className={`${baseLink} block text-center ${
+                isActive("/pengeluaran") ? activeLink : hoverLink
+              }`}
+              onClick={() => setOpen(false)}
+            >
+              Pengeluaran
             </Link>
           </li>
           <li>

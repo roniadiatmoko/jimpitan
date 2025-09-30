@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { months } from "../../config";
 import DatePicker from "react-datepicker";
-import { format } from "date-fns";
 import DetailLaporanBulanan from "./DetailLaporanBulanan";
-import { se } from "date-fns/locale";
 
 export default function LaporanBulanan() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());

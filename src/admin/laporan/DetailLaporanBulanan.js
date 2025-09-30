@@ -89,10 +89,10 @@ export default function LaporanBulananAccordion({
   const apiDataPengeluaran = async () => {
     try {
       const res = await fetch(
-        `${ENDPOINT_BASE_URL}/api/pengeluaran-bulan/2025-09`
+        `${ENDPOINT_BASE_URL}/api/pengeluaran/2025-09`
       );
       const data = await res.json();
-      setDataPengeluaran(data);
+      setDataPengeluaran(data.pengeluaran);
     } catch (error) {
       console.log(error);
     }
@@ -109,15 +109,14 @@ export default function LaporanBulananAccordion({
   const totalSemua = totalHarian + totalRapel;
 
   const pengeluaranBulan = useMemo(
-    () => dataPengeluaran.reduce((a, b) => a + (b.total || 0), 0),
+    () => dataPengeluaran.reduce((a, b) => a + (b.nominal || 0), 0),
     [dataPengeluaran]
   );
 
   useEffect(() => {
     apiDataHarian();
     apiDataRapel();
-
-    // apiDataPengeluaran();
+    apiDataPengeluaran();
     setLoading(false);
   }, [period]);
 
@@ -241,23 +240,19 @@ export default function LaporanBulananAccordion({
                       <th className="border p-2 text-center">Tanggal</th>
                       <th className="border p-2 text-center">Keperluan</th>
                       <th className="border p-2 text-center">Nominal</th>
-                      <th className="border p-2 text-center">PIC</th>
-                      <th className="border p-2 text-center">
-                        Bukti (Opsional)
-                      </th>
+                      <th className="border p-2 text-center">Penanggung Jawab</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {dataPengeluaran.map((r, i) => (
+                    {dataPengeluaran.map((p, i) => (
                       <tr key={i} className="odd:bg-white even:bg-gray-50">
-                        <td className="border p-2 text-center">{r.nomor}</td>
-                        <td className="border p-2">{r.nama}</td>
-                        <td className="border p-2">{r.nama}</td>
+                        <td className="border p-2 text-center">{i + 1}</td>
+                        <td className="border p-2">{(p.tanggal).toString().slice(0, 10)}</td>
+                        <td className="border p-2">{p.keterangan}</td>
                         <td className="border p-2 text-right">
-                          {rupiahFormat(r.nominal)}
+                          {rupiahFormat(p.nominal)}
                         </td>
-                        <td className="border p-2">{r.nama}</td>
-                        <td className="border p-2">{r.nama}</td>
+                        <td className="border p-2">{p.penanggung_jawab}</td>
                       </tr>
                     ))}
                   </tbody>
