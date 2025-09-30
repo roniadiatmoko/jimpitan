@@ -10,18 +10,16 @@ import {
 } from "react-router-dom";
 
 // Mengimpor komponen RapelForm dari file terpisah
-import RapelForm from "../features/admin/RapelForm.js";
-
 import { ENDPOINT_BASE_URL, homeList } from "../shared/config.js";
 import AdminArea from "../features/admin/AdminArea.js";
-import RapelList from "../features/admin/RapelList.js";
-import DetailHarian from "../features/admin/DetailHarian.js";
+import DetailHarian from "../features/admin/harian/DetailHarian.js";
 import AdminHome from "../features/admin/AdminHome.js";
-
 import LaporanBulanan from "../features/admin/laporan/LaporanBulanan.js";
-import Pengeluaran from "../features/admin/Pengeluaran.js";
 import ServerCheckModal from "../shared/components/ModalServerCheck.js";
 import LoginForm from "../features/auth/LoginForm.js";
+import RapelForm from "../features/admin/rapel/RapelForm.js";
+import RapelList from "../features/admin/rapel/RapelList.js";
+import Pengeluaran from "../features/admin/pengeluaran/Pengeluaran.js";
 
 const rumahList = homeList;
 

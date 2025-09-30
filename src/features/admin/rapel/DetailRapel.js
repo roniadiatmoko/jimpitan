@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { ENDPOINT_BASE_URL, homeList, months } from "../../shared/config";
-import { getDatesinMonth, getDaysInMonth } from "../../shared/helpers/DateHelper";
+import { ENDPOINT_BASE_URL, homeList, months } from "../../../shared/config";
+import { getDatesinMonth, getDaysInMonth } from "../../../shared/helpers/DateHelper";
 import { format } from "date-fns";
 
 export default function DetailRapel({ nomorRumah, year, month }) {
