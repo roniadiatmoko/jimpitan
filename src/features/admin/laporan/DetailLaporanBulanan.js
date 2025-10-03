@@ -89,7 +89,7 @@ export default function LaporanBulananAccordion({
   const apiDataPengeluaran = async () => {
     try {
       const res = await fetch(
-        `${ENDPOINT_BASE_URL}/api/pengeluaran/2025-09`
+        `${ENDPOINT_BASE_URL}/api/pengeluaran/${period}`
       );
       const data = await res.json();
       setDataPengeluaran(data.pengeluaran);
@@ -109,7 +109,7 @@ export default function LaporanBulananAccordion({
   const totalSemua = totalHarian + totalRapel;
 
   const pengeluaranBulan = useMemo(
-    () => dataPengeluaran.reduce((a, b) => a + (b.nominal || 0), 0),
+    () => dataPengeluaran.reduce((a, b) => a + (Number(b.nominal) || 0), 0),
     [dataPengeluaran]
   );
 

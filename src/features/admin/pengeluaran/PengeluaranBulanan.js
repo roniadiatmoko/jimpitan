@@ -38,7 +38,7 @@ export default function PengeluaranBulanan({ period }) {
   };
 
   const totalPengeluaran = useMemo(
-    () => dataPengeluaran.reduce((a, b) => a + (b.nominal || 0), 0),
+    () => dataPengeluaran.reduce((a, b) => a + (Number(b.nominal) || 0), 0),
     [dataPengeluaran]
   );
 
