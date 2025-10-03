@@ -45,17 +45,7 @@ export default function MyNavbar({ onLogout }) {
                 isActive("/detail-harian") ? activeLink : hoverLink
               }`}
             >
-              Detail Harian
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="laporan-bulanan"
-              className={`${baseLink} ${
-                isActive("/laporan-bulanan") ? activeLink : hoverLink
-              }`}
-            >
-              Laporan Bulanan
+              Hitung Ulang Harian
             </Link>
           </li>
           <li>
@@ -67,6 +57,16 @@ export default function MyNavbar({ onLogout }) {
               onClick={() => setOpen(false)}
             >
               Pengeluaran
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="laporan-bulanan"
+              className={`${baseLink} ${
+                isActive("/laporan-bulanan") ? activeLink : hoverLink
+              }`}
+            >
+              Laporan Bulanan
             </Link>
           </li>
           <li>
@@ -103,7 +103,7 @@ export default function MyNavbar({ onLogout }) {
               }`}
               onClick={() => setOpen(false)}
             >
-              Detail Harian
+              Hitung Ulang Harian
             </Link>
           </li>
           <li>

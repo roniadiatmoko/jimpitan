@@ -8,7 +8,9 @@ export default function LaporanBulanan() {
 
   return (
     <div className="m-8 bg-white shadow-md p-4 rounded-xl">
-        <h1 className="text-center font-bold text-2xl text-purple-700 mb-10">Laporan Bulanan</h1>
+      <h1 className="text-center font-bold text-2xl text-purple-700 mb-10">
+        Laporan Bulanan
+      </h1>
       <h2>Pilih Bulan</h2>
       <DatePicker
         selected={selectedMonth}
@@ -20,12 +22,23 @@ export default function LaporanBulanan() {
       />
 
       <div className="mt-4 text-center">
-        <span className="text-sm text-gray-500">Menampilkan laporan <br/></span>
-        <span className="text-xl font-bold text-purple-600">{months.find((m) => m.value === selectedMonth.getMonth() + 1).label} {" " + selectedMonth.getFullYear()}</span>
+        <span className="text-sm text-gray-500">
+          Menampilkan laporan <br />
+        </span>
+        <span className="text-xl font-bold text-purple-600">
+          {months.find((m) => m.value === selectedMonth.getMonth() + 1).label}{" "}
+          {" " + selectedMonth.getFullYear()}
+        </span>
       </div>
 
       <div className="mt-5">
-        <DetailLaporanBulanan period={selectedMonth.getFullYear() + "-" + (selectedMonth.getMonth() + 1).toString().padStart(2, "0")} />
+        <DetailLaporanBulanan
+          period={
+            selectedMonth.getFullYear() +
+            "-" +
+            (selectedMonth.getMonth() + 1).toString().padStart(2, "0")
+          }
+        />
       </div>
     </div>
   );

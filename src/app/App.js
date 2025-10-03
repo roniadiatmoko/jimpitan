@@ -72,7 +72,7 @@ export default function App() {
         if (response.ok) {
           const data = await response.json();
           // rapelHarianStatus sekarang berupa array nomor_rumah
-          console.log("Status rapel harian:", data.rapelHouses);
+          // console.log("Status rapel harian:", data.rapelHouses);
           setRapelHarianStatus(data.rapelHouses);
         } else {
           console.error("Gagal mengambil status rapel harian");
