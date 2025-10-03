@@ -14,6 +14,9 @@ export default function DetailNominalHitungUlangHarian({ period }) {
   const datesInMonth = useMemo(() => getDatesinMonth(month, year), [period]);
   const [openModalEdit, setOpenModalEdit] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [reloadFlag, setReloadFlag] = useState(0);
+  const [selectedNominalHarian, setSelectedNominalHarian] = useState(0);
+  const [selectedNominalHitungUlang, setSelectedNominalHitungUlang] = useState(0);
 
   async function withConcurrency(tasks, limit = 6) {
     const ret = [];
@@ -102,7 +105,7 @@ export default function DetailNominalHitungUlangHarian({ period }) {
     }
 
     run();
-  }, [period]);
+  }, [period, reloadFlag]);
 
   return (
     <div>
@@ -160,6 +163,8 @@ export default function DetailNominalHitungUlangHarian({ period }) {
                     onClick={() => {
                       setOpenModalEdit(true);
                       setSelectedDate(format(r.tanggal, "yyyy-MM-dd", { locale: id }));
+                      setSelectedNominalHarian(r.nominalHarian);
+                      setSelectedNominalHitungUlang(r.nominalHitungUlang);
                     }}
                   >
                     Update
@@ -197,8 +202,11 @@ export default function DetailNominalHitungUlangHarian({ period }) {
             content={
               <HitungULangHarianForm
                 tanggal={selectedDate}
+                nominalHarian = {selectedNominalHarian}
+                nominalHitungUlang = {selectedNominalHitungUlang}
                 onSuccess={() => {
                   setOpenModalEdit(false);
+                  setReloadFlag(x => x + 1);
                 }}
               />
             }
