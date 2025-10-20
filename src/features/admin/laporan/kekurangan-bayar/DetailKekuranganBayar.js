@@ -180,9 +180,9 @@ export default function KekuranganBayar({
                       <button
                         className="bg-amber-600 text-white px-3 py-1 rounded hover:bg-amber-800"
                         onClick={() => {
-                            setSelectedNomorRumah(item.nomor_rumah)
-                            setOpenModalAdd(true)}
-                        }
+                          setSelectedNomorRumah(item.nomor_rumah);
+                          setOpenModalAdd(true);
+                        }}
                       >
                         Lunasi
                       </button>
@@ -198,6 +198,20 @@ export default function KekuranganBayar({
                 </td>
               </tr>
             )}
+            <tr className="bg-red-300">
+              <td className="px-4 py-2 border text-right font-bold" colSpan={6}>
+                Total Kekurangan Bayar
+              </td>
+              <td className="px-4 py-2 border text-right font-bold">
+                {rupiahFormat(
+                  filteredData.reduce(
+                    (sum, item) => sum + item.kekurangan_hari * 500,
+                    0
+                  )
+                )}
+              </td>
+              <td></td>
+            </tr>
           </tbody>
         </table>
 
@@ -206,7 +220,10 @@ export default function KekuranganBayar({
           openModalAdd ? (
             <div className="bg-black bg-opacity-50 fixed top-0 left-0 w-full h-full z-40">
               <div className="fixed top-1/2 left-1/2 w-[90%] transform -translate-x-1/2 -translate-y-1/2 text-center bg-white rounded-lg p-5 z-50">
-                <RapelForm onSuccess={() => getKekuranganBayar()} nomorRumah={selectedNomorRumah} />
+                <RapelForm
+                  onSuccess={() => getKekuranganBayar()}
+                  nomorRumah={selectedNomorRumah}
+                />
                 <button
                   className="p-4 mb-5 float-right rounded-xl text-white font-bold bg-gray-600 hover:bg-blue-700"
                   onClick={() => {
