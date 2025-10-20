@@ -19,10 +19,7 @@ export default function MyNavbar({ onLogout }) {
         <div className="font-bold text-lg text-blue-700">Aplikasi Jimpitan</div>
 
         {/* Toggle Button (mobile) */}
-        <button
-          className="md:hidden text-xl"
-          onClick={() => setOpen(!open)}
-        >
+        <button className="md:hidden text-xl" onClick={() => setOpen(!open)}>
           ☰
         </button>
 
@@ -66,7 +63,17 @@ export default function MyNavbar({ onLogout }) {
                 isActive("/laporan-bulanan") ? activeLink : hoverLink
               }`}
             >
-              Laporan Bulanan
+              Rekap Bulanan
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="kekurangan-bayar"
+              className={`${baseLink} ${
+                isActive("/kekurangan-bayar") ? activeLink : hoverLink
+              }`}
+            >
+              Kekurangan Bayar
             </Link>
           </li>
           <li>
