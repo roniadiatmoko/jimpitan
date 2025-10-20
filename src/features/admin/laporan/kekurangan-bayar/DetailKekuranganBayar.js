@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ENDPOINT_BASE_URL, homeList } from "../../../../shared/config";
 import { rupiahFormat } from "../../../../shared/helpers/MoneyHeper";
 import html2canvas from "html2canvas";
+import RapelForm from "../../rapel/RapelForm";
 
 export default function KekuranganBayar({
   period = new Date().getFullYear() +
@@ -13,6 +14,8 @@ export default function KekuranganBayar({
   const [reloadFlag, setReloadFlag] = useState(0);
   const [statusFilter, setStatusFilter] = useState("all"); // all | menghuni | belum
   const [exporting, setExporting] = useState(false);
+  const [selectedNomorRumah, setSelectedNomorRumah] = useState(null);
+  const [openModalAdd, setOpenModalAdd] = useState(false);
   const tableRef = useRef(null);
 
   const handleExportImage = async () => {
@@ -176,8 +179,9 @@ export default function KekuranganBayar({
                     <td className="px-4 py-2 border">
                       <button
                         className="bg-amber-600 text-white px-3 py-1 rounded hover:bg-amber-800"
-                        onClick={() =>
-                          alert(`Detail untuk ${item.nomor_rumah}`)
+                        onClick={() => {
+                            setSelectedNomorRumah(item.nomor_rumah)
+                            setOpenModalAdd(true)}
                         }
                       >
                         Lunasi
@@ -196,6 +200,27 @@ export default function KekuranganBayar({
             )}
           </tbody>
         </table>
+
+        {
+          /* Modal Add Rapel */
+          openModalAdd ? (
+            <div className="bg-black bg-opacity-50 fixed top-0 left-0 w-full h-full z-40">
+              <div className="fixed top-1/2 left-1/2 w-[90%] transform -translate-x-1/2 -translate-y-1/2 text-center bg-white rounded-lg p-5 z-50">
+                <RapelForm onSuccess={() => getKekuranganBayar()} nomorRumah={selectedNomorRumah} />
+                <button
+                  className="p-4 mb-5 float-right rounded-xl text-white font-bold bg-gray-600 hover:bg-blue-700"
+                  onClick={() => {
+                    setOpenModalAdd(false);
+                  }}
+                >
+                  <span>Tutup</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            ""
+          )
+        }
       </div>
     </div>
   );

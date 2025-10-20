@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import Select from "react-select";
 import { ENDPOINT_BASE_URL, homeList, months } from "../../../shared/config";
@@ -6,7 +6,7 @@ import { getDaysInMonth } from "../../../shared/helpers/DateHelper";
 import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
 
 // Komponen terpisah untuk formulir Rapel Jimpitan
-export default function RapelForm({onSuccess}) {
+export default function RapelForm({ onSuccess, nomorRumah = null }) {
   const [rapelNominal, setRapelNominal] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedHouse, setSelectedHouse] = useState("");
@@ -16,6 +16,13 @@ export default function RapelForm({onSuccess}) {
     value: h.nomor,
     label: `${h.nomor} - ${h.nama}`,
   }));
+
+  useEffect(() => {
+    if (nomorRumah) {
+      const match = houseOptions.find((opt) => opt.value === Number(nomorRumah));
+      if (match) setSelectedHouse(match.value);
+    }
+  }, [nomorRumah, houseOptions]);
 
   const handleRapelSubmit = async () => {
     if (!selectedHouse) {
@@ -41,19 +48,16 @@ export default function RapelForm({onSuccess}) {
       const monthTwoDigit = selectedMonth.toString().padStart(2, "0");
       const monthToSearch = `${year}-${monthTwoDigit}`;
 
-      const response = await fetch(
-        `${ENDPOINT_BASE_URL}/api/rapel`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            secret_key: "rahasiakita123",
-            nomor_rumah: selectedHouse,
-            nominal: parseInt(rapelNominal),
-            bulan: monthToSearch,
-          }),
-        }
-      );
+      const response = await fetch(`${ENDPOINT_BASE_URL}/api/rapel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          secret_key: "rahasiakita123",
+          nomor_rumah: selectedHouse,
+          nominal: parseInt(rapelNominal),
+          bulan: monthToSearch,
+        }),
+      });
 
       const result = await response.json();
 
@@ -79,9 +83,11 @@ export default function RapelForm({onSuccess}) {
       <div className="flex flex-col sm:flex-row gap-4 mb-4">
         <div className="flex-1">
           <label className="block text-gray-700">Nomor Rumah</label>
+          
           <Select
             options={houseOptions}
-            value={houseOptions.find(opt => opt.value === selectedHouse)}
+            value={houseOptions.find(o => String(o.value) === String(nomorRumah))}
+            defaultValue={houseOptions.find(o => o.value === Number(nomorRumah))}
             onChange={(opt) => setSelectedHouse(opt.value)}
             isSearchable
             placeholder="Pilih Rumah ..."
