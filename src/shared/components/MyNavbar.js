@@ -77,6 +77,16 @@ export default function MyNavbar({ onLogout }) {
             </Link>
           </li>
           <li>
+            <Link
+              to="list-warga"
+              className={`${baseLink} ${
+                isActive("/list-warga") ? activeLink : hoverLink
+              }`}
+            >
+              Warga
+            </Link>
+          </li>
+          <li>
             <button
               type="button"
               onClick={onLogout}
@@ -133,6 +143,26 @@ export default function MyNavbar({ onLogout }) {
               onClick={() => setOpen(false)}
             >
               Pengeluaran
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="kekurangan-bayar"
+              className={`${baseLink} ${
+                isActive("/kekurangan-bayar") ? activeLink : hoverLink
+              }`}
+            >
+              Kekurangan Bayar
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="list-warga"
+              className={`${baseLink} ${
+                isActive("/list-warga") ? activeLink : hoverLink
+              }`}
+            >
+              Warga
             </Link>
           </li>
           <li>

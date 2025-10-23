@@ -21,6 +21,7 @@ import RapelForm from "../features/admin/rapel/RapelForm.js";
 import RapelList from "../features/admin/rapel/RapelList.js";
 import Pengeluaran from "../features/admin/pengeluaran/Pengeluaran.js";
 import KekuranganBayar from "../features/admin/laporan/kekurangan-bayar/KekuranganBayar.js";
+import ListWarga from "../features/admin/warga/ListWarga.js";
 
 const rumahList = homeList;
 
@@ -175,6 +176,7 @@ export default function App() {
             <Route path="laporan-bulanan" element={<LaporanBulanan />} />
             <Route path="pengeluaran" element={<Pengeluaran />} />
             <Route path="kekurangan-bayar" element={<KekuranganBayar />} />
+            <Route path="list-warga" element={<ListWarga />} />
           </Route>
         </Route>
       </Routes>

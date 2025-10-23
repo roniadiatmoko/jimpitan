@@ -14,6 +14,8 @@ export const ENDPOINTS = {
     rapelList: `${ENDPOINT_BASE_URL}/#/rapel-list`
 }
 
+export const SALDO_MULAI = 1200000;
+
 export const homeList = [
   { nomor: 1, nama: "Hartono", sudah_menghuni: 1 },
   { nomor: 2, nama: "Yuliyanto", sudah_menghuni: 1 },
