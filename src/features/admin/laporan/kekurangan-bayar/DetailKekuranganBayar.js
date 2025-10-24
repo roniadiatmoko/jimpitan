@@ -77,7 +77,7 @@ export default function KekuranganBayar({
     const map = {};
     for (const h of homeList) map[Number(h.nomor)] = h;
     return map;
-  }, []);
+  }, [homeList]);
 
   // Terapkan filter status
   const filteredData = useMemo(() => {
