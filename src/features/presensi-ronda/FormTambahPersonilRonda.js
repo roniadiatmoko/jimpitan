@@ -2,7 +2,12 @@ import { format } from "date-fns";
 import { fi, id } from "date-fns/locale";
 import { ENDPOINT_BASE_URL, homeList } from "../../shared/config";
 import { useState } from "react";
-export default function FormTambahPersonilRonda({ tanggal, onClose, onSuccess }) {
+import Swal from "sweetalert2";
+export default function FormTambahPersonilRonda({
+  tanggal,
+  onClose,
+  onSuccess,
+}) {
   const [selectedHomes, setSelectedHomes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -17,7 +22,11 @@ export default function FormTambahPersonilRonda({ tanggal, onClose, onSuccess })
 
   const handleSimpan = async () => {
     if (selectedHomes.length === 0) {
-      alert("Pilih minimal satu personil ronda.");
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Menyimpan",
+        text: "Minimal pilih 1 rumah",
+      });
       return;
     }
 
@@ -54,12 +63,22 @@ export default function FormTambahPersonilRonda({ tanggal, onClose, onSuccess })
         throw new Error(text || "Gagal menyimpan data personil ronda.");
       }
 
-      alert("Berhasil menyimpan personil ronda.");
+      await Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Personil ronda berhasil disimpan.",
+        timer: 1700,
+        showConfirmButton: false,
+      });
       setSelectedHomes([]);
-      if(onSuccess) onSuccess();
+      if (onSuccess) onSuccess();
       if (onClose) onClose();
     } catch (err) {
-      alert("Gagal menyimpan data personil ronda. Silakan coba lagi." + err);
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Menyimpan",
+        text: "Terjadi kesalahan. Silakan coba lagi.",
+      });
       setErrorMsg(
         "Gagal menyimpan data personil ronda. Silakan coba lagi." + err
       );
@@ -70,7 +89,7 @@ export default function FormTambahPersonilRonda({ tanggal, onClose, onSuccess })
 
   return (
     <div>
-      <h2 className="text-xl text-teal-700 font-bold mb-4">
+      <h2 className="text-xl text-purple-700 font-bold mb-4">
         Personil Ronda {format(tanggal, "EEEE, d MMMM yyyy", { locale: id })}
       </h2>
       <form>
@@ -107,7 +126,7 @@ export default function FormTambahPersonilRonda({ tanggal, onClose, onSuccess })
         <button
           type="button"
           onClick={handleSimpan}
-          className="bg-green-600 w-full mt-5 text-white px-4 py-2 rounded hover:bg-green-700"
+          className="bg-purple-600 w-full mt-5 text-white px-4 py-2 rounded hover:bg-purple-700"
         >
           Simpan {selectedHomes.length} Personil Ronda
         </button>

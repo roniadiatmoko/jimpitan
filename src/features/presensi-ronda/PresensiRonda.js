@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import SimpleModal from "../../shared/components/SimpleModal";
 import FormTambahPersonilRonda from "./FormTambahPersonilRonda";
 import { ENDPOINT_BASE_URL } from "../../shared/config";
+import Swal from "sweetalert2";
 
 export default function PresensiRonda({ tanggal }) {
   const [personilRonda, setPersonilRonda] = useState([]);
@@ -53,10 +54,21 @@ export default function PresensiRonda({ tanggal }) {
         throw new Error(text || "Gagal menghapus personil ronda.");
       }
 
-      alert("Berhasil menghapus personil ronda.");
+      await Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Personil ronda berhasil dihapus.",
+        timer: 1700,
+        showConfirmButton: false,
+      });
+
       fetchPersonilRonda();
     } catch (error) {
-      alert("Gagal menghapus personil ronda. Silakan coba lagi." + error);
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Menghapus",
+        text: "Terjadi kesalahan. Silakan coba lagi.",
+      });
     }
   };
 
@@ -65,8 +77,8 @@ export default function PresensiRonda({ tanggal }) {
   }, [tanggalStr]);
 
   return (
-    <div className="mb-2 bg-teal-100 shadow-md p-4 rounded-xl">
-      <h1 className="text-center font-bold text-2xl text-green-700 mb-2">
+    <div className="mb-2 bg-purple-200 shadow-md p-4 rounded-xl">
+      <h1 className="text-center font-bold text-xl text-purple-700 mb-2">
         Penanggung Jawab Ronda
       </h1>
       <p className="text-center text-gray-600">
@@ -74,7 +86,7 @@ export default function PresensiRonda({ tanggal }) {
       </p>
 
       <button
-        className="mt-4 bg-green-600 w-full text-white p-2 rounded-xl font-bold hover:bg-green-700"
+        className="mt-4 bg-purple-600 w-full text-white p-2 rounded-xl font-bold hover:bg-green-700"
         onClick={() => setOpenModalTambahPersonilRonda(true)}
       >
         + Tambah Personil Ronda
@@ -98,7 +110,7 @@ export default function PresensiRonda({ tanggal }) {
 
       <div>
         <table className="w-full mt-2 border border-gray-300 rounded-lg overflow-hidden">
-          <thead className="bg-teal-600 text-white">
+          <thead className="bg-purple-400 text-white">
             <tr>
               <th className="px-4 py-2 border">#</th>
               <th className="px-4 py-2 border">Penanggung Jawab</th>
