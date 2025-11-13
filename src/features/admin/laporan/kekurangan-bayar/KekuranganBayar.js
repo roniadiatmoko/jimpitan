@@ -7,7 +7,7 @@ export default function KekuranganBayar() {
     const [selectedMonth, setSelectedMonth] = useState(new Date());
 
     return (
-        <div className="m-8 bg-white shadow-md p-4 rounded-xl">
+        <div className="m-4 bg-white shadow-md p-4 rounded-xl">
               <h1 className="text-center font-bold text-2xl text-amber-700 mb-10">
                 Laporan Kekurangan Bayar
               </h1>

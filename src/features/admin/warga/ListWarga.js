@@ -25,7 +25,7 @@ export default function ListWarga() {
   }, [homeMap, statusFilter, homeList]);
 
   return (
-    <div className="m-8 bg-white shadow-md p-4 rounded-xl">
+    <div className="m-4 bg-white shadow-md p-4 rounded-xl">
       <h1 className="text-center font-bold text-2xl text-sky-700 mb-10">
         Daftar Warga
       </h1>
@@ -55,44 +55,48 @@ export default function ListWarga() {
         <option value="belum">Belum Dihuni</option>
       </select>
 
-      <table className="w-full mt-2 border border-gray-300 rounded-lg overflow-hidden">
-        <thead className="bg-sky-600 text-white">
-          <tr>
-            <th className="px-4 py-2 border w-10">#</th>
-            <th className="px-4 py-2 border">Nomor Rumah</th>
-            <th className="px-4 py-2 border">Penghuni</th>
-            <th className="px-4 py-2 border">Status Kepenghunian</th>
-            <th className="px-4 py-2 border">Terhitung Mulai</th>
-          </tr>
-        </thead>
-        <tbody>
-          {homeListSorted.map((h, index) => {
-            return (
-              <tr>
-                <td className="px-4 py-2 border text-center bg-gray-400">{index + 1}</td>
-                <td className="px-4 py-2 border text-center">{h.nomor}</td>
-                <td className="px-4 py-2 border">{h.nama}</td>
-                <td className="px-4 py-2 border">
-                  <span
-                    className={
-                      h.sudah_menghuni === 1
-                        ? "bg-green-300 text-green-700 block text-center p-2 text-sm rounded-full font-bold"
-                        : "bg-red-300 text-red-700 p-2 block text-center text-sm rounded-full font-bold"
-                    }
-                  >
-                    {h.sudah_menghuni === 1 ? "Menghuni" : "Belum"}
-                  </span>
-                </td>
-                <td className="px-4 py-2 border">
-                  {h.tanggal_huni !== "0000-00-00"
-                    ? format(new Date(h.tanggal_huni), "dd MMMM yyyy")
-                    : "-"}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="overflow-x-auto">
+        <table className="w-full mt-2 border border-gray-300 rounded-lg overflow-hidden">
+          <thead className="bg-sky-600 text-white">
+            <tr>
+              <th className="px-4 py-2 border w-10">#</th>
+              <th className="px-4 py-2 border">Nomor Rumah</th>
+              <th className="px-4 py-2 border">Penghuni</th>
+              <th className="px-4 py-2 border">Status Kepenghunian</th>
+              <th className="px-4 py-2 border">Terhitung Mulai</th>
+            </tr>
+          </thead>
+          <tbody>
+            {homeListSorted.map((h, index) => {
+              return (
+                <tr>
+                  <td className="px-4 py-2 border text-center bg-gray-400">
+                    {index + 1}
+                  </td>
+                  <td className="px-4 py-2 border text-center">{h.nomor}</td>
+                  <td className="px-4 py-2 border">{h.nama}</td>
+                  <td className="px-4 py-2 border">
+                    <span
+                      className={
+                        h.sudah_menghuni === 1
+                          ? "bg-green-300 text-green-700 block text-center p-2 text-sm rounded-full font-bold"
+                          : "bg-red-300 text-red-700 p-2 block text-center text-sm rounded-full font-bold"
+                      }
+                    >
+                      {h.sudah_menghuni === 1 ? "Menghuni" : "Belum"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 border">
+                    {h.tanggal_huni !== "0000-00-00"
+                      ? format(new Date(h.tanggal_huni), "dd MMMM yyyy")
+                      : "-"}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

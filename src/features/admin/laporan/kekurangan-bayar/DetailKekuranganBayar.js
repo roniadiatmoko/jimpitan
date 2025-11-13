@@ -119,7 +119,7 @@ export default function KekuranganBayar({
       {loading && (
         <div className="text-center text-gray-500 mb-2">Memuat data...</div>
       )}
-      <div ref={tableRef}>
+      <div ref={tableRef} className="overflow-x-auto">
         <table className="w-full border border-gray-300 rounded-lg overflow-hidden">
           <thead className="bg-amber-600 text-white">
             <tr>

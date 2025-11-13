@@ -16,7 +16,8 @@ export default function DetailNominalHitungUlangHarian({ period }) {
   const [selectedDate, setSelectedDate] = useState(null);
   const [reloadFlag, setReloadFlag] = useState(0);
   const [selectedNominalHarian, setSelectedNominalHarian] = useState(0);
-  const [selectedNominalHitungUlang, setSelectedNominalHitungUlang] = useState(0);
+  const [selectedNominalHitungUlang, setSelectedNominalHitungUlang] =
+    useState(0);
 
   async function withConcurrency(tasks, limit = 6) {
     const ret = [];
@@ -116,85 +117,87 @@ export default function DetailNominalHitungUlangHarian({ period }) {
       ) : (
         ""
       )}
+      <div className="overflow-x-auto">
+        <table className="w-full border border-gray-300 rounded-lg overflow-hidden">
+          <thead className="bg-teal-600 text-white">
+            <tr>
+              <th className="px-4 py-2 border">Tanggal</th>
+              <th className="px-4 py-2 border">Nominal Petugas Ronda</th>
+              <th className="px-4 py-2 border">Nominal Hitung Ulang</th>
+              <th className="px-4 py-2 border">Balance</th>
+              <th className="px-4 py-2 border">Selisih</th>
+              <th className="px-4 py-2 border">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, index) => {
+              return (
+                <tr key={index}>
+                  <td className="px-4 py-2 border">
+                    {format(r.tanggal, "EEEE, dd MMM yyyy", { locale: id })}
+                  </td>
+                  <td className="px-4 py-2 border text-right">
+                    Rp {r.nominalHarian.toLocaleString("id-ID")}
+                  </td>
+                  <td className="px-4 py-2 border text-right">
+                    Rp {r.nominalHitungUlang.toLocaleString("id-ID")}
+                  </td>
+                  <td className="px-4 py-2 border text-center">
+                    <span
+                      className={
+                        r.balance === "Balance"
+                          ? "bg-green-300 text-green-600 font-bold text-sm py-2 px-2 rounded-full"
+                          : r.balance === "Surplus"
+                          ? "bg-blue-300 text-blue-600 font-bold py-2 px-2 rounded-full"
+                          : "bg-red-300 text-red-600 font-bold text-sm py-2 px-2 rounded-full"
+                      }
+                    >
+                      {r.balance}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 border text-right">
+                    Rp {r.selisih.toLocaleString("id-ID")}
+                  </td>
+                  <td className="px-4 py-2 border">
+                    <button
+                      className="bg-orange-600 w-full text-white p-1 rounded-xl font-bold hover:bg-orange-700"
+                      onClick={() => {
+                        setOpenModalEdit(true);
+                        setSelectedDate(
+                          format(r.tanggal, "yyyy-MM-dd", { locale: id })
+                        );
+                        setSelectedNominalHarian(r.nominalHarian);
+                        setSelectedNominalHitungUlang(r.nominalHitungUlang);
+                      }}
+                    >
+                      Update
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
 
-      <table className="w-full border border-gray-300 rounded-lg overflow-hidden">
-        <thead className="bg-teal-600 text-white">
-          <tr>
-            <th className="px-4 py-2 border">Tanggal</th>
-            <th className="px-4 py-2 border">Nominal Petugas Ronda</th>
-            <th className="px-4 py-2 border">Nominal Hitung Ulang</th>
-            <th className="px-4 py-2 border">Balance</th>
-            <th className="px-4 py-2 border">Selisih</th>
-            <th className="px-4 py-2 border">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r, index) => {
-            return (
-              <tr key={index}>
-                <td className="px-4 py-2 border">
-                  {format(r.tanggal, "EEEE, dd MMM yyyy", { locale: id })}
-                </td>
-                <td className="px-4 py-2 border text-right">
-                  Rp {r.nominalHarian.toLocaleString("id-ID")}
-                </td>
-                <td className="px-4 py-2 border text-right">
-                  Rp {r.nominalHitungUlang.toLocaleString("id-ID")}
-                </td>
-                <td className="px-4 py-2 border text-center">
-                  <span
-                    className={
-                      r.balance === "Balance"
-                        ? "bg-green-300 text-green-600 font-bold text-sm py-2 px-2 rounded-full"
-                        : r.balance === "Surplus"
-                        ? "bg-blue-300 text-blue-600 font-bold py-2 px-2 rounded-full"
-                        : "bg-red-300 text-red-600 font-bold text-sm py-2 px-2 rounded-full"
-                    }
-                  >
-                    {r.balance}
-                  </span>
-                </td>
-                <td className="px-4 py-2 border text-right">
-                  Rp {r.selisih.toLocaleString("id-ID")}
-                </td>
-                <td className="px-4 py-2 border">
-                  <button
-                    className="bg-orange-600 w-full text-white p-1 rounded-xl font-bold hover:bg-orange-700"
-                    onClick={() => {
-                      setOpenModalEdit(true);
-                      setSelectedDate(format(r.tanggal, "yyyy-MM-dd", { locale: id }));
-                      setSelectedNominalHarian(r.nominalHarian);
-                      setSelectedNominalHitungUlang(r.nominalHitungUlang);
-                    }}
-                  >
-                    Update
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
-
-          <tr className="font-semibold bg-gray-50">
-            <td className="border p-2 text-right">Total</td>
-            <td className="border p-2 text-right">
-              Rp{" "}
-              {rows
-                .reduce((a, b) => a + (b.nominalHarian || 0), 0)
-                .toLocaleString("id-ID")}
-            </td>
-            <td className="border p-2 text-right">
-              Rp{" "}
-              {rows
-                .reduce((a, b) => a + (b.nominalHitungUlang || 0), 0)
-                .toLocaleString("id-ID")}
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-
+            <tr className="font-semibold bg-gray-50">
+              <td className="border p-2 text-right">Total</td>
+              <td className="border p-2 text-right">
+                Rp{" "}
+                {rows
+                  .reduce((a, b) => a + (b.nominalHarian || 0), 0)
+                  .toLocaleString("id-ID")}
+              </td>
+              <td className="border p-2 text-right">
+                Rp{" "}
+                {rows
+                  .reduce((a, b) => a + (b.nominalHitungUlang || 0), 0)
+                  .toLocaleString("id-ID")}
+              </td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       {
         /* Modal Add Rapel */
         openModalEdit ? (
@@ -202,11 +205,11 @@ export default function DetailNominalHitungUlangHarian({ period }) {
             content={
               <HitungULangHarianForm
                 tanggal={selectedDate}
-                nominalHarian = {selectedNominalHarian}
-                nominalHitungUlang = {selectedNominalHitungUlang}
+                nominalHarian={selectedNominalHarian}
+                nominalHitungUlang={selectedNominalHitungUlang}
                 onSuccess={() => {
                   setOpenModalEdit(false);
-                  setReloadFlag(x => x + 1);
+                  setReloadFlag((x) => x + 1);
                 }}
               />
             }

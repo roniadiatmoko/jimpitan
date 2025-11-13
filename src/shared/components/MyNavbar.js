@@ -148,7 +148,7 @@ export default function MyNavbar({ onLogout }) {
           <li>
             <Link
               to="kekurangan-bayar"
-              className={`${baseLink} ${
+              className={`${baseLink} block text-center ${
                 isActive("/kekurangan-bayar") ? activeLink : hoverLink
               }`}
             >
@@ -158,7 +158,7 @@ export default function MyNavbar({ onLogout }) {
           <li>
             <Link
               to="list-warga"
-              className={`${baseLink} ${
+              className={`${baseLink} block text-center ${
                 isActive("/list-warga") ? activeLink : hoverLink
               }`}
             >
