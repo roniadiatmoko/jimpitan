@@ -41,9 +41,19 @@ export default function PresensiRonda({ tanggal }) {
   };
 
   const handleHapus = async (id) => {
-    if (!window.confirm("Yakin ingin menghapus personil ronda ini?")) {
-      return;
-    }
+    const konfirmasi = await Swal.fire({
+      title: "Hapus Personil Ronda?",
+      text: "Data ini akan dihapus permanen.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, hapus",
+      cancelButtonText: "Batal",
+    });
+
+    // kalau pengguna klik batal → langsung return
+    if (!konfirmasi.isConfirmed) return;
 
     try {
       const res = await fetch(`${ENDPOINT_BASE_URL}/api/ronda/personil/${id}`, {
