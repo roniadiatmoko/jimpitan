@@ -4,10 +4,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import Swal from "sweetalert2";
-import {
-  Routes,
-  Route
-} from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 // Mengimpor komponen RapelForm dari file terpisah
 import { ENDPOINT_BASE_URL, homeList } from "../shared/config.js";
@@ -22,6 +19,7 @@ import RapelList from "../features/admin/rapel/RapelList.js";
 import Pengeluaran from "../features/admin/pengeluaran/Pengeluaran.js";
 import KekuranganBayar from "../features/admin/laporan/kekurangan-bayar/KekuranganBayar.js";
 import ListWarga from "../features/admin/warga/ListWarga.js";
+import PresensiRonda from "../features/presensi-ronda/PresensiRonda.js";
 
 const rumahList = homeList;
 
@@ -220,10 +218,7 @@ export default function App() {
                 </p>
               </div>
 
-              <div className="mt-5 mb-5 p-4 bg-orange-200 rounded-xl text-left">
-                <p>Keterangan:</p>
-                <p><span className="text-red-700 font-bold">*</span> = Rumah sudah dihuni wajib jimpitan</p>
-              </div>
+              <PresensiRonda tanggal={tanggal} />
 
               <table className="w-full bg-white shadow rounded">
                 <thead>
@@ -242,7 +237,12 @@ export default function App() {
                       } border-t`}
                     >
                       <td className="p-2 text-center font-bold">{r.nomor}</td>
-                      <td className="p-2 text-left">{r.nama} {r.sudah_menghuni === 1 && <span className="text-red-600">*</span>}</td>
+                      <td className="p-2 text-left">
+                        {r.nama}{" "}
+                        {r.sudah_menghuni === 1 && (
+                          <span className="text-red-600">*</span>
+                        )}
+                      </td>
                       <td className="p-2 text-center">
                         {/* Logika untuk menampilkan "Rapel" jika rumah sudah rapel. */}
                         {rapelHarianStatus.includes(String(r.nomor)) ? (
@@ -281,6 +281,13 @@ export default function App() {
                   ))}
                 </tbody>
               </table>
+              <div className="mt-5 mb-5 p-4 bg-orange-200 rounded-xl text-left">
+                <p>Keterangan:</p>
+                <p>
+                  <span className="text-red-700 font-bold">*</span> = Rumah
+                  sudah dihuni wajib jimpitan
+                </p>
+              </div>
             </div>
           </div>
 
