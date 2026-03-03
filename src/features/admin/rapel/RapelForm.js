@@ -4,13 +4,13 @@ import Select from "react-select";
 import { ENDPOINT_BASE_URL, homeList, months } from "../../../shared/config";
 import { getDaysInMonth } from "../../../shared/helpers/DateHelper";
 import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
+import DatePicker from "react-datepicker";
 
 // Komponen terpisah untuk formulir Rapel Jimpitan
 export default function RapelForm({ onSuccess, nomorRumah = null }) {
   const [rapelNominal, setRapelNominal] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedHouse, setSelectedHouse] = useState("");
-  const [year, setYear] = useState(new Date().getFullYear());
 
   const houseOptions = homeList.map((h) => ({
     value: h.nomor,
@@ -19,7 +19,9 @@ export default function RapelForm({ onSuccess, nomorRumah = null }) {
 
   useEffect(() => {
     if (nomorRumah) {
-      const match = houseOptions.find((opt) => opt.value === Number(nomorRumah));
+      const match = houseOptions.find(
+        (opt) => opt.value === Number(nomorRumah),
+      );
       if (match) setSelectedHouse(match.value);
     }
   }, [nomorRumah, houseOptions]);
@@ -45,8 +47,7 @@ export default function RapelForm({ onSuccess, nomorRumah = null }) {
     });
 
     try {
-      const monthTwoDigit = selectedMonth.toString().padStart(2, "0");
-      const monthToSearch = `${year}-${monthTwoDigit}`;
+      const monthToSearch = selectedMonth.getFullYear() + "-" + (selectedMonth.getMonth() + 1).toString().padStart(2, "0");
 
       const response = await fetch(`${ENDPOINT_BASE_URL}/api/rapel`, {
         method: "POST",
@@ -83,11 +84,15 @@ export default function RapelForm({ onSuccess, nomorRumah = null }) {
       <div className="flex flex-col sm:flex-row gap-4 mb-4">
         <div className="flex-1">
           <label className="block text-gray-700">Nomor Rumah</label>
-          
+
           <Select
             options={houseOptions}
-            value={houseOptions.find(o => String(o.value) === String(nomorRumah))}
-            defaultValue={houseOptions.find(o => o.value === Number(nomorRumah))}
+            value={houseOptions.find(
+              (o) => String(o.value) === String(nomorRumah),
+            )}
+            defaultValue={houseOptions.find(
+              (o) => o.value === Number(nomorRumah),
+            )}
             onChange={(opt) => setSelectedHouse(opt.value)}
             isSearchable
             placeholder="Pilih Rumah ..."
@@ -111,7 +116,7 @@ export default function RapelForm({ onSuccess, nomorRumah = null }) {
         </div>
         <div className="flex-1">
           <label className="block text-gray-700">Bulan</label>
-          <select
+          {/* <select
             className="w-full p-2 border border-gray-300 bg-white rounded"
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
@@ -123,15 +128,24 @@ export default function RapelForm({ onSuccess, nomorRumah = null }) {
                 </option>
               );
             })}
-          </select>
+          </select> */}
+
+          <DatePicker
+            selected={selectedMonth}
+            onChange={(date) => setSelectedMonth(date)}
+            dateFormat="MMMM yyyy"
+            showMonthYearPicker // hanya bulan & tahun
+            wrapperClassName="w-full"
+            className="bg-gray-200 rounded-md p-2 w-full"
+          />
         </div>
       </div>
       <div className="text-center text-gray-600 mb-4">
-        Bulan {months.find((m) => m.value === Number(selectedMonth)).label}{" "}
-        terdapat {getDaysInMonth(selectedMonth, new Date().getFullYear())} hari
+        Bulan {months.find((m) => m.value === Number((selectedMonth.getMonth() + 1).toString().padStart(2, "0"))).label}{" "}
+        terdapat {getDaysInMonth((selectedMonth.getMonth() + 1).toString().padStart(2, "0"), new Date().getFullYear())} hari
         (
         {rupiahFormat(
-          getDaysInMonth(selectedMonth, new Date().getFullYear()) * 500
+          getDaysInMonth((selectedMonth.getMonth() + 1).toString().padStart(2, "0"), new Date().getFullYear()) * 500,
         )}
         ).
         <br />

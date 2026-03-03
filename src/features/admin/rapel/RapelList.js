@@ -5,22 +5,21 @@ import { getDaysInMonth } from "../../../shared/helpers/DateHelper";
 import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
 import RapelForm from "./RapelForm";
 import DetailRapel from "./DetailRapel";
+import DatePicker from "react-datepicker";
 
 export default function RapelList() {
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [rapelData, setRapelData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [openModalAdd, setOpenModalAdd] = useState(false);
   const [openModalDetail, setOpenModalDetail] = useState(false);
-  const [year, setYear] = useState(new Date().getFullYear());
   const [selectedItem, setSelectedItem] = useState(null);
 
   const showRapelData = async () => {
     setLoading(true);
     //get api request here
     try {
-      const monthTwoDigit = selectedMonth.toString().padStart(2, "0");
-      const monthToSearch = `${year}-${monthTwoDigit}`;
+      const monthToSearch = selectedMonth.getFullYear() + "-" + (selectedMonth.getMonth() + 1).toString().padStart(2, "0");
       const res = await fetch(
         `${ENDPOINT_BASE_URL}/api/rapel-bulanan/${monthToSearch}`,
         {
@@ -46,7 +45,7 @@ export default function RapelList() {
   };
 
   const kekurangan = (jumlahHariRapel) => {
-    return getDaysInMonth(selectedMonth, year) - jumlahHariRapel;
+    return getDaysInMonth((selectedMonth.getMonth() + 1).toString().padStart(2, "0"), selectedMonth.getFullYear()) - jumlahHariRapel;
   }
 
   useEffect(() => {
@@ -62,24 +61,14 @@ export default function RapelList() {
         <br />
         <span className="text-gray-600">Pilih Bulan</span>
         <div className="flex flex-row justify-stretch gap-5">
-          <select
-            className="w-[50%] p-4 mb-2 rounded-lg bg-white"
-            value={selectedMonth}
-            onChange={
-              (e) => {
-                setSelectedMonth(e.target.value);
-              }
-              
-            }
-          >
-            {months.map((month) => {
-              return (
-                <option value={month.value} key={month.value}>
-                  {month.label}
-                </option>
-              );
-            })}
-          </select>
+          <DatePicker
+                selected={selectedMonth}
+                onChange={(date) => setSelectedMonth(date)}
+                dateFormat="MMMM yyyy"
+                showMonthYearPicker // hanya bulan & tahun
+                wrapperClassName="w-full"
+                className="bg-gray-200 rounded-md p-2 w-full"
+              />
 
           {/* <button
             className="pl-4 pr-4 pt-1 pb-1 rounded-xl bg-blue-500 text-white hover:bg-blue-700"
@@ -107,7 +96,7 @@ export default function RapelList() {
 
         {/* data rapel */}
         <div className="overflow-x-auto p-4">
-          <h2 className="font-bold text-4xl float-left text-blue-700">{months.find(m => m.value === Number(selectedMonth)).label} {year}</h2>
+          <h2 className="font-bold text-4xl float-left text-blue-700">{months.find(m => m.value === Number((selectedMonth.getMonth() + 1).toString().padStart(2, "0"))).label} {selectedMonth.getFullYear()}</h2>
           <button
             className="p-4 mb-5 float-right rounded-xl text-white font-bold bg-blue-600 hover:bg-blue-700"
             onClick={() => {
@@ -176,11 +165,11 @@ export default function RapelList() {
                     </td>
                     <td className="px-4 py-2 border text-center">
                       {`${item.jumlah_rapel} dari ${getDaysInMonth(
-                        selectedMonth,
-                        year
+                        (selectedMonth.getMonth() + 1).toString().padStart(2, "0"),
+                        selectedMonth.getFullYear()
                       )} `}
 
-                      {getDaysInMonth(selectedMonth, year) ===
+                      {getDaysInMonth((selectedMonth.getMonth() + 1).toString().padStart(2, "0"), selectedMonth.getFullYear()) ===
                       item.jumlah_rapel ? (
                         <span className="text-green-600 font-bold p-2 ml-2">
                           Lunas
@@ -215,8 +204,8 @@ export default function RapelList() {
                     content={
                       <DetailRapel
                         nomorRumah={selectedItem.nomor_rumah}
-                        year={year}
-                        month={selectedMonth}
+                        year={selectedMonth.getFullYear()}
+                        month={(selectedMonth.getMonth() + 1).toString().padStart(2, "0")}
                       />
                     }
                     onClose={() => setOpenModalDetail(false)}

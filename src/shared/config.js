@@ -40,7 +40,7 @@ export const homeList = [
   { nomor: 21, nama: "Yudha", sudah_menghuni: 1, tanggal_huni: "2025-01-01" },
   { nomor: 22, nama: "Ineke", sudah_menghuni: 1, tanggal_huni: "2025-01-01" },
   { nomor: 23, nama: "-", sudah_menghuni: 0, tanggal_huni: "0000-00-00" },
-  { nomor: 24, nama: "Andika", sudah_menghuni: 0, tanggal_huni: "2026-02-01" },
+  { nomor: 24, nama: "Andika", sudah_menghuni: 1, tanggal_huni: "2026-02-01" },
   { nomor: 25, nama: "Nugroho", sudah_menghuni: 1, tanggal_huni: "2025-01-01" },
   { nomor: 26, nama: "Agus", sudah_menghuni: 1, tanggal_huni: "2025-01-01" },
   { nomor: 27, nama: "-", sudah_menghuni: 0, tanggal_huni: "0000-00-00" },
