@@ -6,20 +6,52 @@ import DetailKekuranganBayar from "./DetailKekuranganBayar";
 export default function KekuranganBayar() {
     const [selectedMonth, setSelectedMonth] = useState(new Date());
 
+    const handlePrevMonth = () => {
+      setSelectedMonth((prev) => {
+        const year = prev.getFullYear();
+        const month = prev.getMonth();
+        return new Date(year, month - 1, 1);
+      });
+    };
+
+    const handleNextMonth = () => {
+      setSelectedMonth((prev) => {
+        const year = prev.getFullYear();
+        const month = prev.getMonth();
+        return new Date(year, month + 1, 1);
+      });
+    };
+
     return (
         <div className="m-4 bg-white shadow-md p-4 rounded-xl">
               <h1 className="text-center font-bold text-2xl text-amber-700 mb-10">
                 Laporan Kekurangan Bayar
               </h1>
               <h2>Pilih Bulan</h2>
-              <DatePicker
-                selected={selectedMonth}
-                onChange={(date) => setSelectedMonth(date)}
-                dateFormat="MMMM yyyy"
-                showMonthYearPicker // hanya bulan & tahun
-                wrapperClassName="w-full"
-                className="bg-gray-200 rounded-md p-2 w-full"
-              />
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+                  onClick={handlePrevMonth}
+                >
+                  ◀
+                </button>
+                <DatePicker
+                  selected={selectedMonth}
+                  onChange={(date) => setSelectedMonth(date)}
+                  dateFormat="MMMM yyyy"
+                  showMonthYearPicker // hanya bulan & tahun
+                  wrapperClassName="w-56"
+                  className="bg-gray-200 rounded-md p-2 w-full"
+                />
+                <button
+                  type="button"
+                  className="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+                  onClick={handleNextMonth}
+                >
+                  ▶
+                </button>
+              </div>
         
               <div className="mt-4 text-center">
                 <span className="text-sm text-gray-500">

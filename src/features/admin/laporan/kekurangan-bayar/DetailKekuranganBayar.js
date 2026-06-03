@@ -93,17 +93,43 @@ export default function KekuranganBayar({
   return (
     <div className="text-gray-800">
       {/* Filter Bar */}
-      <div className="mb-3 flex items-center gap-3">
-        <label className="text-sm font-medium">Filter Status:</label>
-        <select
-          className="border rounded px-3 py-2"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
-          <option value="all">Semua</option>
-          <option value="menghuni">Menghuni</option>
-          <option value="belum">Belum Dihuni</option>
-        </select>
+      <div className="mb-3 flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium mr-2">Filter Status:</span>
+          <label className={`inline-flex items-center rounded-full border px-3 py-2 text-sm cursor-pointer transition ${statusFilter === "all" ? "bg-amber-600 text-white border-amber-600" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"}`}>
+            <input
+              type="radio"
+              name="statusFilter"
+              value="all"
+              checked={statusFilter === "all"}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="sr-only"
+            />
+            Semua
+          </label>
+          <label className={`inline-flex items-center rounded-full border px-3 py-2 text-sm cursor-pointer transition ${statusFilter === "menghuni" ? "bg-amber-600 text-white border-amber-600" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"}`}>
+            <input
+              type="radio"
+              name="statusFilter"
+              value="menghuni"
+              checked={statusFilter === "menghuni"}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="sr-only"
+            />
+            Menghuni
+          </label>
+          <label className={`inline-flex items-center rounded-full border px-3 py-2 text-sm cursor-pointer transition ${statusFilter === "belum" ? "bg-amber-600 text-white border-amber-600" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"}`}>
+            <input
+              type="radio"
+              name="statusFilter"
+              value="belum"
+              checked={statusFilter === "belum"}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="sr-only"
+            />
+            Belum Dihuni
+          </label>
+        </div>
 
         <button
           onClick={handleExportImage}
