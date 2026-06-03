@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 export default function MyNavbar({ onLogout }) {
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
+  const [dataOpen, setDataOpen] = useState(false);
 
   const baseLink =
     "rounded-full px-4 py-2 transition font-medium whitespace-nowrap";
@@ -76,15 +77,47 @@ export default function MyNavbar({ onLogout }) {
               Kekurangan Bayar
             </Link>
           </li>
-          <li>
-            <Link
-              to="list-warga"
-              className={`${baseLink} ${
-                isActive("/list-warga") ? activeLink : hoverLink
+          <li className="relative">
+            <button
+              type="button"
+              onClick={() => setDataOpen((prev) => !prev)}
+              className={`${baseLink} inline-flex items-center gap-2 ${
+                isActive("/list-warga") || isActive("/tanggal-putih")
+                  ? activeLink
+                  : hoverLink
+              }`}
+              aria-expanded={dataOpen}
+            >
+              Data
+              <span className="text-sm">▾</span>
+            </button>
+            <div
+              className={`absolute left-0 top-full mt-2 min-w-[180px] flex-col rounded-xl border border-blue-200 bg-white shadow-lg ${
+                dataOpen ? "flex" : "hidden"
               }`}
             >
-              Warga
-            </Link>
+              <Link
+                to="list-warga"
+                className={`${baseLink} block rounded-t-xl text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-900`}
+                onClick={() => setDataOpen(false)}
+              >
+                Warga
+              </Link>
+              <Link
+                to="tanggal-putih"
+                className={`${baseLink} block text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-900`}
+                onClick={() => setDataOpen(false)}
+              >
+                Tanggal Putih
+              </Link>
+              <Link
+                to="template-broadcast"
+                className={`${baseLink} block rounded-b-xl text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-900`}
+                onClick={() => setDataOpen(false)}
+              >
+                Template Broadcast
+              </Link>
+            </div>
           </li>
           <li>
             <button
@@ -155,14 +188,36 @@ export default function MyNavbar({ onLogout }) {
               Kekurangan Bayar
             </Link>
           </li>
-          <li>
+          <li className="border-t border-blue-200 pt-2">
+            <span className="block text-center font-semibold text-blue-900">
+              Data
+            </span>
             <Link
               to="list-warga"
               className={`${baseLink} block text-center ${
                 isActive("/list-warga") ? activeLink : hoverLink
               }`}
+              onClick={() => setOpen(false)}
             >
               Warga
+            </Link>
+            <Link
+              to="tanggal-putih"
+              className={`${baseLink} block text-center ${
+                isActive("/tanggal-putih") ? activeLink : hoverLink
+              }`}
+              onClick={() => setOpen(false)}
+            >
+              Tanggal Putih
+            </Link>
+            <Link
+              to="template-broadcast"
+              className={`${baseLink} block text-center ${
+                isActive("/template-broadcast") ? activeLink : hoverLink
+              }`}
+              onClick={() => setOpen(false)}
+            >
+              Template Broadcast
             </Link>
           </li>
           <li>
