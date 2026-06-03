@@ -68,6 +68,39 @@ export default function DetailNominalHitungUlangHarian({ period }) {
 
   const copyBelumDihitungUlang = () => copyToClipboard(belumDihitungUlangText, "belum");
   const copyDefisit = () => copyToClipboard(defisitText, "defisit");
+  const [sendingTanggal, setSendingTanggal] = useState(null);
+
+  const handleSendWaGroup = async (tanggal) => {
+    const confirm = await Swal.fire({
+      title: "Kirim ke WA Grup?",
+      text: `Kirim laporan jimpitan tanggal ${tanggal} ke grup WA?`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Ya, kirim",
+      cancelButtonText: "Batal",
+    });
+
+    if (!confirm.isConfirmed) {
+      return;
+    }
+
+    setSendingTanggal(tanggal);
+    try {
+      const response = await fetch(
+        `${ENDPOINT_BASE_URL}/api/resend-laporan-jimpitan/${tanggal}`
+      );
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || "Gagal mengirim laporan WA");
+      }
+      Swal.fire("Berhasil", result.message || "Laporan sudah dikirim ke WA Grup.", "success");
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Gagal", err.message || "Gagal mengirim laporan WA.", "error");
+    } finally {
+      setSendingTanggal(null);
+    }
+  };
 
   const summaryCounts = useMemo(() => {
     const counts = {
@@ -328,6 +361,7 @@ export default function DetailNominalHitungUlangHarian({ period }) {
               <th className="px-4 py-2 border">Nominal Hitung Ulang</th>
               <th className="px-4 py-2 border">Balance</th>
               <th className="px-4 py-2 border">Selisih</th>
+              <th className="px-4 py-2 border">Kirim WA ke Grup</th>
               <th className="px-4 py-2 border">Aksi</th>
             </tr>
           </thead>
@@ -359,6 +393,20 @@ export default function DetailNominalHitungUlangHarian({ period }) {
                   </td>
                   <td className="px-4 py-2 border text-right">
                     Rp {r.selisih.toLocaleString("id-ID")}
+                  </td>
+                  <td className="px-4 py-2 border text-center">
+                    <button
+                      type="button"
+                      disabled={sendingTanggal === format(r.tanggal, "yyyy-MM-dd")}
+                      onClick={() =>
+                        handleSendWaGroup(format(r.tanggal, "yyyy-MM-dd"))
+                      }
+                      className="w-full rounded-xl bg-cyan-600 px-2 py-1 text-xs font-bold text-white hover:bg-cyan-700 disabled:cursor-not-allowed disabled:bg-cyan-300"
+                    >
+                      {sendingTanggal === format(r.tanggal, "yyyy-MM-dd")
+                        ? "Mengirim..."
+                        : "Kirim ke WAGRUP"}
+                    </button>
                   </td>
                   <td className="px-4 py-2 border">
                     <button
