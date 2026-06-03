@@ -18,6 +18,100 @@ export default function DetailNominalHitungUlangHarian({ period }) {
   const [selectedNominalHarian, setSelectedNominalHarian] = useState(0);
   const [selectedNominalHitungUlang, setSelectedNominalHitungUlang] =
     useState(0);
+  const [balanceFilter, setBalanceFilter] = useState("all"); // all | Balance | Surplus | Defisit | Belum Dihitung Ulang
+  const [copySuccessBelum, setCopySuccessBelum] = useState("");
+  const [copySuccessDefisit, setCopySuccessDefisit] = useState("");
+
+  const filteredRows = useMemo(() => {
+    if (balanceFilter === "all") return rows;
+    return rows.filter((r) => r.balance === balanceFilter);
+  }, [rows, balanceFilter]);
+
+  const belumDihitungUlangText = useMemo(() => {
+    return filteredRows
+      .filter((row) => row.balance === "Belum Dihitung Ulang")
+      .map((row) => format(row.tanggal, "EEEE, dd MMM yyyy", { locale: id }))
+      .join("\n");
+  }, [filteredRows]);
+
+  const defisitText = useMemo(() => {
+    return filteredRows
+      .filter((row) => row.balance === "Defisit")
+      .map((row) => format(row.tanggal, "EEEE, dd MMM yyyy", { locale: id }))
+      .join("\n");
+  }, [filteredRows]);
+
+  const copyToClipboard = async (text, type) => {
+    if (!navigator.clipboard) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      if (type === "belum") {
+        setCopySuccessBelum("Disalin ke clipboard");
+        window.setTimeout(() => setCopySuccessBelum(""), 2000);
+      } else if (type === "defisit") {
+        setCopySuccessDefisit("Disalin ke clipboard");
+        window.setTimeout(() => setCopySuccessDefisit(""), 2000);
+      }
+    } catch (error) {
+      if (type === "belum") {
+        setCopySuccessBelum("Gagal menyalin");
+        window.setTimeout(() => setCopySuccessBelum(""), 2000);
+      } else if (type === "defisit") {
+        setCopySuccessDefisit("Gagal menyalin");
+        window.setTimeout(() => setCopySuccessDefisit(""), 2000);
+      }
+    }
+  };
+
+  const copyBelumDihitungUlang = () => copyToClipboard(belumDihitungUlangText, "belum");
+  const copyDefisit = () => copyToClipboard(defisitText, "defisit");
+
+  const summaryCounts = useMemo(() => {
+    const counts = {
+      sudahDihitung: 0,
+      belumDihitungUlang: 0,
+      Balance: 0,
+      Surplus: 0,
+      Defisit: 0,
+      totalNominalHarian: 0,
+      totalNominalHitungUlang: 0,
+      pctSudahDihitung: 0,
+      pctBelumDihitungUlang: 0,
+      pctBalance: 0,
+      pctSurplus: 0,
+      pctDefisit: 0,
+    };
+
+    const totalDays = datesInMonth.length;
+
+    for (const row of filteredRows) {
+      if (row.balance === "Belum Dihitung Ulang") {
+        counts.belumDihitungUlang += 1;
+      } else {
+        counts.sudahDihitung += 1;
+      }
+
+      if (row.balance === "Balance") counts.Balance += 1;
+      if (row.balance === "Surplus") counts.Surplus += 1;
+      if (row.balance === "Defisit") counts.Defisit += 1;
+
+      counts.totalNominalHarian += row.nominalHarian || 0;
+      counts.totalNominalHitungUlang += row.nominalHitungUlang || 0;
+    }
+
+    if (totalDays > 0) {
+      counts.pctSudahDihitung = (counts.sudahDihitung / totalDays) * 100;
+      counts.pctBelumDihitungUlang = (counts.belumDihitungUlang / totalDays) * 100;
+      counts.pctBalance = (counts.Balance / totalDays) * 100;
+      counts.pctSurplus = (counts.Surplus / totalDays) * 100;
+      counts.pctDefisit = (counts.Defisit / totalDays) * 100;
+    }
+
+    return counts;
+  }, [filteredRows, datesInMonth]);
 
   async function withConcurrency(tasks, limit = 6) {
     const ret = [];
@@ -117,6 +211,114 @@ export default function DetailNominalHitungUlangHarian({ period }) {
       ) : (
         ""
       )}
+      <div className="mb-4 flex flex-col gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="bg-emerald-100 rounded-xl border border-emerald-200 p-4 shadow-sm">
+            <div className="text-sm uppercase tracking-wide text-emerald-700">
+              SUDAH DIHITUNG
+            </div>
+            <div className="text-3xl font-bold text-emerald-900">
+              {summaryCounts.sudahDihitung}
+            </div>
+            <div className="text-sm text-emerald-700">
+              {summaryCounts.pctSudahDihitung.toFixed(1)}% dari {datesInMonth.length} hari
+            </div>
+          </div>
+          <div className="bg-orange-100 rounded-xl border border-orange-200 p-4 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-sm uppercase tracking-wide text-orange-700">
+                BELUM DIHITUNG ULANG
+              </div>
+              <button
+                type="button"
+                className="inline-flex items-center justify-center rounded-lg bg-orange-600 px-2 py-1 text-xs font-semibold text-white hover:bg-orange-700"
+                onClick={copyBelumDihitungUlang}
+              >
+                Copy Hari
+              </button>
+            </div>
+            <div className="text-3xl font-bold text-orange-900">
+              {summaryCounts.belumDihitungUlang}
+            </div>
+            <div className="text-sm text-orange-700">
+              {summaryCounts.pctBelumDihitungUlang.toFixed(1)}% dari {datesInMonth.length} hari
+            </div>
+            {copySuccessBelum && (
+              <div className="mt-2 text-sm text-orange-800">{copySuccessBelum}</div>
+            )}
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+            <div className="text-sm uppercase tracking-wide text-gray-500">
+              TOTAL NOMINAL
+            </div>
+            <div className="text-base text-slate-700">
+              Nominal Petugas Ronda: Rp {summaryCounts.totalNominalHarian.toLocaleString("id-ID")}
+            </div>
+            <div className="text-base text-slate-700">
+              Nominal Hitung Ulang: Rp {summaryCounts.totalNominalHitungUlang.toLocaleString("id-ID")}
+            </div>
+          </div>
+          <div className="bg-emerald-100 rounded-xl border border-emerald-200 p-4 shadow-sm">
+            <div className="text-sm uppercase tracking-wide text-emerald-700">
+              SURPLUS
+            </div>
+            <div className="text-3xl font-bold text-emerald-900">
+              {summaryCounts.Surplus}
+            </div>
+            <div className="text-sm text-emerald-700">
+              {summaryCounts.pctSurplus.toFixed(1)}% dari {datesInMonth.length} hari
+            </div>
+          </div>
+          <div className="bg-red-100 rounded-xl border border-red-200 p-4 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-sm uppercase tracking-wide text-red-700">
+                DEFISIT
+              </div>
+              <button
+                type="button"
+                className="inline-flex items-center justify-center rounded-lg bg-red-600 px-2 py-1 text-xs font-semibold text-white hover:bg-red-700"
+                onClick={copyDefisit}
+              >
+                Copy Hari
+              </button>
+            </div>
+            <div className="text-3xl font-bold text-red-900">
+              {summaryCounts.Defisit}
+            </div>
+            <div className="text-sm text-red-700">
+              {summaryCounts.pctDefisit.toFixed(1)}% dari {datesInMonth.length} hari
+            </div>
+            {copySuccessDefisit && (
+              <div className="mt-2 text-sm text-red-800">{copySuccessDefisit}</div>
+            )}
+          </div>
+          <div className="bg-sky-100 rounded-xl border border-sky-200 p-4 shadow-sm">
+            <div className="text-sm uppercase tracking-wide text-sky-700">
+              BALANCE
+            </div>
+            <div className="text-3xl font-bold text-sky-900">
+              {summaryCounts.Balance}
+            </div>
+            <div className="text-sm text-sky-700">
+              {summaryCounts.pctBalance.toFixed(1)}% dari {datesInMonth.length} hari
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center gap-3">
+          <label className="text-sm font-medium">Filter Balance:</label>
+          <select
+            className="border rounded px-3 py-2"
+            value={balanceFilter}
+            onChange={(e) => setBalanceFilter(e.target.value)}
+          >
+            <option value="all">Semua</option>
+            <option value="Balance">Balance</option>
+            <option value="Surplus">Surplus</option>
+            <option value="Defisit">Defisit</option>
+            <option value="Belum Dihitung Ulang">Belum Dihitung Ulang</option>
+          </select>
+        </div>
       <div className="overflow-x-auto">
         <table className="w-full border border-gray-300 rounded-lg overflow-hidden">
           <thead className="bg-teal-600 text-white">
@@ -130,7 +332,7 @@ export default function DetailNominalHitungUlangHarian({ period }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((r, index) => {
+            {filteredRows.map((r, index) => {
               return (
                 <tr key={index}>
                   <td className="px-4 py-2 border">
@@ -181,13 +383,13 @@ export default function DetailNominalHitungUlangHarian({ period }) {
               <td className="border p-2 text-right">Total</td>
               <td className="border p-2 text-right">
                 Rp{" "}
-                {rows
+                {filteredRows
                   .reduce((a, b) => a + (b.nominalHarian || 0), 0)
                   .toLocaleString("id-ID")}
               </td>
               <td className="border p-2 text-right">
                 Rp{" "}
-                {rows
+                {filteredRows
                   .reduce((a, b) => a + (b.nominalHitungUlang || 0), 0)
                   .toLocaleString("id-ID")}
               </td>
