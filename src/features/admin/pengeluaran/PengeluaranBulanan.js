@@ -37,6 +37,28 @@ export default function PengeluaranBulanan({ period }) {
     setLoading(false);
   };
 
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm(
+      "Hapus data pengeluaran ini? Data akan dihapus permanen."
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`${ENDPOINT_BASE_URL}/api/pengeluaran/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Gagal menghapus data pengeluaran.");
+      }
+
+      setDataPengeluaran((prev) => prev.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error(error);
+      window.alert("Gagal menghapus data pengeluaran. Silakan coba lagi.");
+    }
+  };
+
   const totalPengeluaran = useMemo(
     () => dataPengeluaran.reduce((a, b) => a + (Number(b.nominal) || 0), 0),
     [dataPengeluaran]
@@ -106,15 +128,23 @@ export default function PengeluaranBulanan({ period }) {
                         {pengeluaran.penanggung_jawab}
                       </td>
                       <td className="px-4 py-2 border">
-                        <button
-                          className="bg-red-600 w-full text-white p-1 rounded-xl font-bold hover:bg-blue-700"
-                          onClick={() => {
-                            setSelectedItem(pengeluaran);
-                            setOpenModalHapus(true);
-                          }}
-                        >
-                          Detail
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            className="bg-blue-600 text-white px-3 py-1 rounded-xl font-bold hover:bg-blue-700"
+                            onClick={() => {
+                              setSelectedItem(pengeluaran);
+                              setOpenModalHapus(true);
+                            }}
+                          >
+                            Detail
+                          </button>
+                          <button
+                            className="bg-red-600 text-white px-3 py-1 rounded-xl font-bold hover:bg-red-700"
+                            onClick={() => handleDelete(pengeluaran.id)}
+                          >
+                            Hapus
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
