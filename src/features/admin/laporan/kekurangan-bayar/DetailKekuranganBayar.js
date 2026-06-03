@@ -223,6 +223,7 @@ export default function KekuranganBayar({
                 <RapelForm
                   onSuccess={() => getKekuranganBayar()}
                   nomorRumah={selectedNomorRumah}
+                  initialPeriod={period}
                 />
                 <button
                   className="p-4 mb-5 float-right rounded-xl text-white font-bold bg-gray-600 hover:bg-blue-700"

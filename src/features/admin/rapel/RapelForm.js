@@ -7,9 +7,18 @@ import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
 import DatePicker from "react-datepicker";
 
 // Komponen terpisah untuk formulir Rapel Jimpitan
-export default function RapelForm({ onSuccess, nomorRumah = null }) {
+const parsePeriodToDate = (period) => {
+  if (!period) return null;
+  const [year, month] = period.split("-").map(Number);
+  if (!year || !month) return null;
+  return new Date(year, month - 1, 1);
+};
+
+export default function RapelForm({ onSuccess, nomorRumah = null, initialPeriod }) {
   const [rapelNominal, setRapelNominal] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const [selectedMonth, setSelectedMonth] = useState(
+    parsePeriodToDate(initialPeriod) || new Date()
+  );
   const [selectedHouse, setSelectedHouse] = useState("");
 
   const houseOptions = homeList.map((h) => ({
@@ -25,6 +34,13 @@ export default function RapelForm({ onSuccess, nomorRumah = null }) {
       if (match) setSelectedHouse(match.value);
     }
   }, [nomorRumah, houseOptions]);
+
+  useEffect(() => {
+    const parsed = parsePeriodToDate(initialPeriod);
+    if (parsed) {
+      setSelectedMonth(parsed);
+    }
+  }, [initialPeriod]);
 
   const handleRapelSubmit = async () => {
     if (!selectedHouse) {
