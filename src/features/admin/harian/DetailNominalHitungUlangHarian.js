@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ENDPOINT_BASE_URL } from "../../../shared/config";
 import SimpleModal from "../../../shared/components/SimpleModal";
 import HitungULangHarianForm from "./HitungUlangHarianForm";
+import Swal from "sweetalert2";
 
 export default function DetailNominalHitungUlangHarian({ period }) {
   const [loading, setLoading] = useState(true);
@@ -361,8 +362,9 @@ export default function DetailNominalHitungUlangHarian({ period }) {
               <th className="px-4 py-2 border">Nominal Hitung Ulang</th>
               <th className="px-4 py-2 border">Balance</th>
               <th className="px-4 py-2 border">Selisih</th>
-              <th className="px-4 py-2 border">Kirim WA ke Grup</th>
               <th className="px-4 py-2 border">Aksi</th>
+              <th className="px-4 py-2 border"></th>
+              <th className="px-4 py-2 border">Kirim WA ke Grup</th>
             </tr>
           </thead>
           <tbody>
@@ -394,20 +396,6 @@ export default function DetailNominalHitungUlangHarian({ period }) {
                   <td className="px-4 py-2 border text-right">
                     Rp {r.selisih.toLocaleString("id-ID")}
                   </td>
-                  <td className="px-4 py-2 border text-center">
-                    <button
-                      type="button"
-                      disabled={sendingTanggal === format(r.tanggal, "yyyy-MM-dd")}
-                      onClick={() =>
-                        handleSendWaGroup(format(r.tanggal, "yyyy-MM-dd"))
-                      }
-                      className="w-full rounded-xl bg-cyan-600 px-2 py-1 text-xs font-bold text-white hover:bg-cyan-700 disabled:cursor-not-allowed disabled:bg-cyan-300"
-                    >
-                      {sendingTanggal === format(r.tanggal, "yyyy-MM-dd")
-                        ? "Mengirim..."
-                        : "Kirim ke WAGRUP"}
-                    </button>
-                  </td>
                   <td className="px-4 py-2 border">
                     <button
                       className="bg-orange-600 w-full text-white p-1 rounded-xl font-bold hover:bg-orange-700"
@@ -423,6 +411,25 @@ export default function DetailNominalHitungUlangHarian({ period }) {
                       Update
                     </button>
                   </td>
+                  <td></td>
+                  <td className="px-4 py-2 border text-center">
+                    <button
+                      type="button"
+                      disabled={
+                        sendingTanggal === format(r.tanggal, "yyyy-MM-dd") ||
+                        r.nominalHarian === 0
+                      }
+                      onClick={() =>
+                        handleSendWaGroup(format(r.tanggal, "yyyy-MM-dd"))
+                      }
+                      className="w-full rounded-xl bg-cyan-600 px-2 py-1 text-xs font-bold text-white hover:bg-cyan-700 disabled:cursor-not-allowed disabled:bg-cyan-300 disabled:text-slate-500"
+                    >
+                      {sendingTanggal === format(r.tanggal, "yyyy-MM-dd")
+                        ? "Mengirim..."
+                        : "Kirim ke WAGRUP"}
+                    </button>
+                  </td>
+                  
                 </tr>
               );
             })}
