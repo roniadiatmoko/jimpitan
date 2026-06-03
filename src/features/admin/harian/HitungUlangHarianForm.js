@@ -2,11 +2,40 @@ import { useState } from "react";
 import { ENDPOINT_BASE_URL } from "../../../shared/config";
 import Swal from "sweetalert2";
 
-export default function HitungULangHarianForm({ tanggal, nominalHarian, nominalHitungUlang, onSuccess }) {
+export default function HitungULangHarianForm({
+  tanggal,
+  nominalHarian,
+  nominalHitungUlang,
+  onSuccess,
+}) {
   const [isLoading, setIsLoading] = useState(false);
   const [nominal, setNominal] = useState(nominalHarian || "");
-  const [valNominalHitungUlang, setValNominalHitungUlang] = useState(nominalHitungUlang || "");
+  const [valNominalHitungUlang, setValNominalHitungUlang] = useState(
+    nominalHitungUlang || "",
+  );
+  const [isSamaPetugasRonda, setIsSamaPetugasRonda] = useState(false);
   const [error, setError] = useState("");
+
+  // Mengubah angka murni menjadi format Rupiah (contoh: 10000 -> 10.000)
+  const formatRupiah = (value) => {
+    if (!value) return "";
+    return new Intl.NumberFormat("id-ID").format(value);
+  };
+
+  // Mengubah format Rupiah menjadi angka murni (contoh: 10.000 -> 10000)
+  const unformatRupiah = (value) => {
+    return value.replace(/\D/g, ""); // Menghapus semua karakter selain angka
+  };
+
+  const handleCheckboxChange = (e) => {
+    const checked = e.target.checked;
+    setIsSamaPetugasRonda(checked);
+
+    if (checked) {
+      // Set nilai input nominal mengikuti nominalHarian
+      setValNominalHitungUlang(nominalHarian);
+    }
+  };
 
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -36,7 +65,7 @@ export default function HitungULangHarianForm({ tanggal, nominalHarian, nominalH
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ nominal: nominalNum }),
-        }
+        },
       );
 
       const data = await res.json().catch(() => ({}));
@@ -45,9 +74,13 @@ export default function HitungULangHarianForm({ tanggal, nominalHarian, nominalH
         throw new Error(data?.message || "Gagal menghitung ulang");
       }
 
-      Swal.fire("Berhasil!", `Data harian untuk tanggal ${tanggal} telah dihitung ulang dengan nominal ${nominalNum.toLocaleString(
-          "id-ID"
-        )}.`, "success");
+      Swal.fire(
+        "Berhasil!",
+        `Data harian untuk tanggal ${tanggal} telah dihitung ulang dengan nominal ${nominalNum.toLocaleString(
+          "id-ID",
+        )}.`,
+        "success",
+      );
       setValNominalHitungUlang("");
       onSuccess?.();
     } catch (e) {
@@ -68,22 +101,33 @@ export default function HitungULangHarianForm({ tanggal, nominalHarian, nominalH
         Hitung Ulang Harian
       </h1>
       <p className="text-center font-bold">Tanggal: {tanggal}</p>
-      <p className="text-center">Nominal Petugas Ronda:<b> Rp {nominalHarian.toLocaleString("id-ID")}</b></p>
+      <p className="text-center">
+        Nominal Petugas Ronda:<b> Rp {nominalHarian.toLocaleString("id-ID")}</b>
+      </p>
       <div className="mt-4 text-center">
+        <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-gray-700">
+          <input
+            type="checkbox"
+            className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-gray-300"
+            checked={isSamaPetugasRonda}
+            onChange={handleCheckboxChange}
+          />
+          <span>Isikan sama dengan nominal petugas ronda</span>
+        </label>
         <input
-          type="number"
+          type="text"
           placeholder="Nominal"
           className="bg-gray-200 rounded-md p-2 w-full"
-          value={valNominalHitungUlang}
-          onChange={(e) => setValNominalHitungUlang(e.target.value)}
+          value={formatRupiah(valNominalHitungUlang)}
+          onChange={(e) => {
+            setError("");
+            const rawValue = unformatRupiah(e.target.value);
+            setValNominalHitungUlang(rawValue);
+          }}
           onKeyDown={onKeyDown}
           min={0}
         />
-         {error && (
-          <div className="text-red-600 text-sm mt-2">
-            {error}
-          </div>
-        )}
+        {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
         <button
           className="bg-teal-600 w-full mt-5 text-white font-bold px-4 py-2 rounded-full hover:bg-teal-800"
           onClick={handleSubmit}
@@ -91,7 +135,6 @@ export default function HitungULangHarianForm({ tanggal, nominalHarian, nominalH
         >
           {isLoading ? "Menyimpan..." : "Simpan"}
         </button>
-        
       </div>
     </div>
   );
