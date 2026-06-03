@@ -25,7 +25,7 @@ export default function DetailHarian() {
 
       <div className="mt-4 text-center">
         <span className="text-sm text-gray-500">
-          Menampilkan laporan <br />
+          Menampilkan laporan nominal harian<br />
         </span>
         <span className="text-xl font-bold text-teal-600">
           {months.find((m) => m.value === selectedMonth.getMonth() + 1).label}{" "}

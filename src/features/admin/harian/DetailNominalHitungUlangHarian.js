@@ -81,7 +81,7 @@ export default function DetailNominalHitungUlangHarian({ period }) {
               ? "Belum Dihitung Ulang"
               : nominalHarian === nominalHitungUlang
               ? "Balance"
-              : nominalHarian > nominalHitungUlang
+              : nominalHarian < nominalHitungUlang
               ? "Surplus"
               : "Defisit";
 

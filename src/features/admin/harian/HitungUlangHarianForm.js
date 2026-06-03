@@ -17,12 +17,12 @@ export default function HitungULangHarianForm({ tanggal, nominalHarian, nominalH
       return;
     }
 
-    if (nominal === "" || isNaN(Number(nominal))) {
+    if (valNominalHitungUlang === "" || isNaN(Number(valNominalHitungUlang))) {
       alert("Nominal harus diisi angka");
       return;
     }
 
-    const nominalNum = Math.trunc(Number(nominal));
+    const nominalNum = Math.trunc(Number(valNominalHitungUlang));
     // if (nominalNum <= 0) {
     //   alert("Nominal harus lebih dari 0");
     //   return;
@@ -48,7 +48,7 @@ export default function HitungULangHarianForm({ tanggal, nominalHarian, nominalH
       Swal.fire("Berhasil!", `Data harian untuk tanggal ${tanggal} telah dihitung ulang dengan nominal ${nominalNum.toLocaleString(
           "id-ID"
         )}.`, "success");
-      setNominal("");
+      setValNominalHitungUlang("");
       onSuccess?.();
     } catch (e) {
       console.error(e);
