@@ -20,6 +20,7 @@ import Pengeluaran from "../features/admin/pengeluaran/Pengeluaran.js";
 import KekuranganBayar from "../features/admin/laporan/kekurangan-bayar/KekuranganBayar.js";
 import KekuranganBayarTahun from "../features/admin/laporan/kekurangan-bayar/KekuranganBayarTahun.js";
 import ListWarga from "../features/admin/warga/ListWarga.js";
+import RefWarga from "../features/admin/warga/RefWarga.js";
 import TanggalPutih from "../features/admin/pemutihan/TanggalPutih.js";
 import PresensiRonda from "../features/presensi-ronda/PresensiRonda.js";
 
@@ -179,6 +180,7 @@ export default function App() {
             <Route path="kekurangan-bayar-tahun" element={<KekuranganBayarTahun />} />
             <Route path="tanggal-putih" element={<TanggalPutih />} />
             <Route path="list-warga" element={<ListWarga />} />
+            <Route path="ref-warga" element={<RefWarga />} />
           </Route>
         </Route>
       </Routes>

@@ -1,9 +1,11 @@
 import { format } from "date-fns";
 import { homeList } from "../../../shared/config";
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ListWarga() {
   const [statusFilter, setStatusFilter] = useState("all"); // all | menghuni | belum
+  const navigate = useNavigate();
 
   const sudahMenghuni = homeList.filter((h) => h.sudah_menghuni === 1).length;
   const belumMenghuni = homeList.filter((h) => h.sudah_menghuni === 0).length;
@@ -27,20 +29,29 @@ export default function ListWarga() {
   return (
     <div className="m-4 bg-white shadow-md p-4 rounded-xl">
       <h1 className="text-center font-bold text-2xl text-sky-700 mb-10">
-        Daftar Warga
+        Daftar Warga (Static Data)
       </h1>
 
-      <div className="flex justify-between mb-5 gap-4">
-        <div className="bg-green-300 rounded-lg p-4 w-full text-center">
-          <span className="font-bold text-green-700">
-            Sudah Menghuni <br />
-            <h1 className="text-7xl">{sudahMenghuni} </h1>
-          </span>
-        </div>
-        <div className="bg-red-300 rounded-lg p-4 w-full text-center">
-          <span className="font-bold text-red-700 ml-6">
-            Belum Menghuni <br /> <h1 className="text-7xl">{belumMenghuni}</h1>
-          </span>
+      <div className="flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center mb-5">
+        <button
+          type="button"
+          onClick={() => navigate("/admin/ref-warga")}
+          className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700"
+        >
+          Detail Database Warga
+        </button>
+        <div className="grid w-full gap-4 sm:grid-cols-2 lg:w-auto">
+          <div className="bg-green-300 rounded-lg p-4 text-center">
+            <span className="font-bold text-green-700">
+              Sudah Menghuni <br />
+              <h1 className="text-7xl">{sudahMenghuni} </h1>
+            </span>
+          </div>
+          <div className="bg-red-300 rounded-lg p-4 w-full text-center">
+            <span className="font-bold text-red-700 ml-6">
+              Belum Menghuni <br /> <h1 className="text-7xl">{belumMenghuni}</h1>
+            </span>
+          </div>
         </div>
       </div>
 
