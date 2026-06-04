@@ -157,6 +157,7 @@ export default function KekuranganBayar({
               <th className="px-4 py-2 border">Jumlah Kekurangan Hari</th>
               <th className="px-4 py-2 border">Kekurangan Bayar</th>
               <th className="px-4 py-2 border">Aksi</th>
+              <th className="px-4 py-2 border">Kirim Notifikasi ke WA</th>
             </tr>
           </thead>
           <tbody>
@@ -213,19 +214,30 @@ export default function KekuranganBayar({
                         Lunasi
                       </button>
                     </td>
+                    <td className="px-4 py-2 border text-center">
+                      <button
+                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                        onClick={() => {
+                          // TODO: implement WhatsApp notification logic
+                          console.log(`Kirim notifikasi WA ke rumah ${item.nomor_rumah}`);
+                        }}
+                      >
+                        Kirim WA
+                      </button>
+                    </td>
                   </tr>
                 );
               })
             ) : (
               <tr>
                 {/* colSpan menyesuaikan jumlah kolom */}
-                <td className="px-4 py-2 border text-center" colSpan={8}>
+                <td className="px-4 py-2 border text-center" colSpan={9}>
                   Tidak ada data kekurangan bayar.
                 </td>
               </tr>
             )}
             <tr className="bg-red-300">
-              <td className="px-4 py-2 border text-right font-bold" colSpan={6}>
+              <td className="px-4 py-2 border text-right font-bold" colSpan={7}>
                 Total Kekurangan Bayar
               </td>
               <td className="px-4 py-2 border text-right font-bold">

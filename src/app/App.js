@@ -18,6 +18,7 @@ import RapelForm from "../features/admin/rapel/RapelForm.js";
 import RapelList from "../features/admin/rapel/RapelList.js";
 import Pengeluaran from "../features/admin/pengeluaran/Pengeluaran.js";
 import KekuranganBayar from "../features/admin/laporan/kekurangan-bayar/KekuranganBayar.js";
+import KekuranganBayarTahun from "../features/admin/laporan/kekurangan-bayar/KekuranganBayarTahun.js";
 import ListWarga from "../features/admin/warga/ListWarga.js";
 import TanggalPutih from "../features/admin/pemutihan/TanggalPutih.js";
 import PresensiRonda from "../features/presensi-ronda/PresensiRonda.js";
@@ -175,6 +176,7 @@ export default function App() {
             <Route path="laporan-bulanan" element={<LaporanBulanan />} />
             <Route path="pengeluaran" element={<Pengeluaran />} />
             <Route path="kekurangan-bayar" element={<KekuranganBayar />} />
+            <Route path="kekurangan-bayar-tahun" element={<KekuranganBayarTahun />} />
             <Route path="tanggal-putih" element={<TanggalPutih />} />
             <Route path="list-warga" element={<ListWarga />} />
           </Route>
