@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
-import { ENDPOINT_BASE_URL, homeList } from "../../../shared/config";
+import { ENDPOINT_BASE_URL, homeList, months } from "../../../shared/config";
+import Swal from "sweetalert2";
 
 function AccordionItem({
   id,
@@ -62,6 +63,9 @@ export default function LaporanBulananAccordion({
   const [saldoKeseluruhan, setSaldoKeseluruhan] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saldoSebelumnya, setSaldoSebelumnya] = useState(0);
+  const [savingRekap, setSavingRekap] = useState(false);
+
+  const [tahun, bulan] = period.split("-");
 
   const apiDataHarian = async () => {
     try {
@@ -98,6 +102,19 @@ export default function LaporanBulananAccordion({
     }
   };
 
+  const apiDataRekap = async () => {
+    try {
+      const res = await fetch(
+        `${ENDPOINT_BASE_URL}/api/rekap/${tahun}/${bulan}`
+      );
+      const data = await res.json();
+      setSaldoSebelumnya(data.data?.saldo_sebelumnya || 0);
+      setSaldoKeseluruhan(data.data?.sisa_saldo || 0);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const totalHarian = useMemo(
     () => dataHarian.reduce((a, b) => a + (b.nominal || 0), 0),
     [dataHarian]
@@ -113,10 +130,71 @@ export default function LaporanBulananAccordion({
     [dataPengeluaran]
   );
 
+  const handleSimpanUlangRekap = async () => {
+    const confirm = await Swal.fire({
+      title: "Simpan Ulang Rekap?",
+      text: "Data rekap saldo periode ini akan ditimpa dengan nilai terbaru.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, simpan",
+      cancelButtonText: "Batal",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    setSavingRekap(true);
+    Swal.fire({
+      title: "Menyimpan...",
+      text: "Menyimpan rekap saldo, mohon tunggu",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    try {
+      const namaBulan =
+        months.find((m) => m.value === Number(bulan))?.label || bulan;
+      const keterangan = `Rekap otomatis ${namaBulan} ${tahun}`;
+
+      const response = await fetch(`${ENDPOINT_BASE_URL}/api/rekap`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tahun,
+          bulan,
+          pemasukan: totalSemua,
+          pengeluaran: pengeluaranBulan,
+          keterangan,
+          secret_key: "rahasiakita123",
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Gagal menyimpan rekap");
+      }
+
+      await apiDataRekap();
+      Swal.fire(
+        "Berhasil",
+        result.message || "Rekap saldo berhasil disimpan.",
+        "success"
+      );
+    } catch (err) {
+      console.log(err);
+      Swal.fire("Gagal", err.message || "Gagal menyimpan rekap saldo.", "error");
+    } finally {
+      setSavingRekap(false);
+    }
+  };
+
   useEffect(() => {
     apiDataHarian();
     apiDataRapel();
     apiDataPengeluaran();
+    apiDataRekap();
     setLoading(false);
   }, [period]);
 
@@ -260,8 +338,31 @@ export default function LaporanBulananAccordion({
               </div>
             </AccordionItem>
           </div>
-
+          
           <div className="w-full mt-10">
+            {/* Pengeluaran Bulan Ini */}
+            <div className="bg-red-300 border border-red-400 rounded-lg p-4 font-semibold shadow-md">
+              <div className="flex justify-between gap-2">
+                <span className="font-bold">💴 Saldo Bulan Ini </span>
+                <span className="font-bold text-xl text-right">
+                  {rupiahFormat(totalSemua - pengeluaranBulan)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="w-full mt-1">
+            <button
+              type="button"
+              onClick={handleSimpanUlangRekap}
+              disabled={savingRekap}
+              className="w-full bg-purple-600 text-white font-bold p-2 rounded-lg shadow-md hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {savingRekap ? "Menyimpan..." : "🔄 Simpan Ulang Rekap"}
+            </button>
+          </div>
+
+          <div className="w-full mt-1">
             {/* Pengeluaran Bulan Ini */}
             <div className="bg-orange-300 border border-orange-400 rounded-lg p-4 font-semibold shadow-md">
               <div className="flex justify-between gap-2">

@@ -22,6 +22,7 @@ import KekuranganBayarTahun from "../features/admin/laporan/kekurangan-bayar/Kek
 import ListWarga from "../features/admin/warga/ListWarga.js";
 import RefWarga from "../features/admin/warga/RefWarga.js";
 import TanggalPutih from "../features/admin/pemutihan/TanggalPutih.js";
+import RekapList from "../features/admin/rekap/RekapList.js";
 import PresensiRonda from "../features/presensi-ronda/PresensiRonda.js";
 
 const rumahList = homeList;
@@ -175,6 +176,7 @@ export default function App() {
             <Route path="rapel-input" element={<RapelForm />} />
             <Route path="detail-harian" element={<DetailHarian />} />
             <Route path="laporan-bulanan" element={<LaporanBulanan />} />
+            <Route path="daftar-rekap" element={<RekapList />} />
             <Route path="pengeluaran" element={<Pengeluaran />} />
             <Route path="kekurangan-bayar" element={<KekuranganBayar />} />
             <Route path="kekurangan-bayar-tahun" element={<KekuranganBayarTahun />} />

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import PengeluaranForm from "./PengeluaranForm";
+import DetailPengeluaran from "./DetailPengeluaran";
 import { ENDPOINT_BASE_URL } from "../../../shared/config";
 import SimpleModal from "../../../shared/components/SimpleModal";
 import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
@@ -9,7 +10,7 @@ export default function PengeluaranBulanan({ period }) {
   const [dataPengeluaran, setDataPengeluaran] = useState([]);
   const [openModalPengeluaran, setModalAddPengeluaran] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [openModalHapus, setOpenModalHapus] = useState(false);
+  const [openModalDetail, setOpenModalDetail] = useState(false);
 
   const defaultPeriod =
     new Date().getFullYear() +
@@ -80,11 +81,21 @@ export default function PengeluaranBulanan({ period }) {
       </button>
       <div className="overflow-x-auto">
         {
-          /* Modal Detail Rapel */
+          /* Modal Tambah Pengeluaran */
           openModalPengeluaran && (
             <SimpleModal
               content={<PengeluaranForm onSuccess={() => showPengeluaran()} />}
               onClose={() => setModalAddPengeluaran(false)}
+            />
+          )
+        }
+
+        {
+          /* Modal Detail Pengeluaran */
+          openModalDetail && (
+            <SimpleModal
+              content={<DetailPengeluaran pengeluaran={selectedItem} />}
+              onClose={() => setOpenModalDetail(false)}
             />
           )
         }
@@ -101,13 +112,14 @@ export default function PengeluaranBulanan({ period }) {
                 <th className="px-4 py-2 border">Tanggal</th>
                 <th className="px-4 py-2 border">Nominal Pengeluaran</th>
                 <th className="px-4 py-2 border">Penanggung Jawab</th>
+                <th className="px-4 py-2 border">Keterangan</th>
                 <th className="px-4 py-2 border">Aksi</th>
               </tr>
             </thead>
             <tbody>
               {dataPengeluaran.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-4 text-gray-500">
+                  <td colSpan={6} className="text-center py-4 text-gray-500">
                     Belum ada data pengeluaran
                   </td>
                 </tr>
@@ -127,13 +139,16 @@ export default function PengeluaranBulanan({ period }) {
                       <td className="px-4 py-2 border">
                         {pengeluaran.penanggung_jawab}
                       </td>
+                      <td className="px-4 py-2 border max-w-xs truncate">
+                        {pengeluaran.keterangan || "-"}
+                      </td>
                       <td className="px-4 py-2 border">
                         <div className="flex gap-2">
                           <button
                             className="bg-blue-600 text-white px-3 py-1 rounded-xl font-bold hover:bg-blue-700"
                             onClick={() => {
                               setSelectedItem(pengeluaran);
-                              setOpenModalHapus(true);
+                              setOpenModalDetail(true);
                             }}
                           >
                             Detail
@@ -157,6 +172,7 @@ export default function PengeluaranBulanan({ period }) {
                 <td className="px-4 py-2 border text-right">
                   {rupiahFormat(totalPengeluaran)}
                 </td>
+                <td></td>
                 <td></td>
                 <td></td>
               </tr>

@@ -69,6 +69,16 @@ export default function MyNavbar({ onLogout }) {
           </li>
           <li>
             <Link
+              to="daftar-rekap"
+              className={`${baseLink} ${
+                isActive("/daftar-rekap") ? activeLink : hoverLink
+              }`}
+            >
+              Daftar Rekap
+            </Link>
+          </li>
+          <li>
+            <Link
               to="kekurangan-bayar"
               className={`${baseLink} ${
                 isActive("/kekurangan-bayar") ? activeLink : hoverLink
@@ -165,6 +175,17 @@ export default function MyNavbar({ onLogout }) {
               onClick={() => setOpen(false)}
             >
               Laporan Bulanan
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="daftar-rekap"
+              className={`${baseLink} block text-center ${
+                isActive("/daftar-rekap") ? activeLink : hoverLink
+              }`}
+              onClick={() => setOpen(false)}
+            >
+              Daftar Rekap
             </Link>
           </li>
           <li>
