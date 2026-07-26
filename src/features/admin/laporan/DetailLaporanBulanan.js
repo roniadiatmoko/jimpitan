@@ -1,17 +1,12 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
 import { ENDPOINT_BASE_URL, homeList, months } from "../../../shared/config";
+import Card from "../../../shared/components/ui/Card";
+import Button from "../../../shared/components/ui/Button";
+import Spinner from "../../../shared/components/ui/Spinner";
 import Swal from "sweetalert2";
 
-function AccordionItem({
-  id,
-  openId,
-  setOpenId,
-  title,
-  bgColor = "bg-white",
-  amount,
-  children,
-}) {
+function AccordionItem({ id, openId, setOpenId, title, amount, children }) {
   const isOpen = openId === id;
   const contentRef = useRef(null);
   const [maxH, setMaxH] = useState(0);
@@ -22,19 +17,19 @@ function AccordionItem({
   }, [isOpen, children]);
 
   return (
-    <div className={`border rounded-lg ${bgColor} shadow-md`}>
+    <div className="rounded-xl border border-line bg-white">
       <button
         type="button"
         className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left"
         aria-expanded={isOpen}
         onClick={() => setOpenId(isOpen ? null : id)}
       >
-        <span className="font-semibold">
+        <span className="font-semibold text-ink">
           {isOpen ? "▲" : "▼"} {title}
         </span>
 
         {/* Angka rata kanan, lebar konsisten */}
-        <span className="font-bold text-lg min-w-[14ch] text-right">
+        <span className="font-bold text-lg min-w-[14ch] text-right text-ink">
           {rupiahFormat(amount)}
         </span>
       </button>
@@ -201,190 +196,158 @@ export default function LaporanBulananAccordion({
   return (
     <div>
       {loading ? (
-        <div className="flex items-center justify-center mt-10">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-b-4 border-purple-500"></div>
-        </div>
+        <Spinner />
       ) : (
-        <div>
-          <div className="w-full">
-            <AccordionItem
-              id="harian"
-              openId={openId}
-              setOpenId={setOpenId}
-              title="📅 Jimpitan Harian"
-              bgColor="bg-purple-100"
-              amount={totalHarian}
-            >
-              <div className="overflow-x-auto">
-                <table className="border-collapse text-sm w-full">
-                  <thead className="bg-purple-300">
-                    <tr>
-                      <th className="border p-2 text-center">Tanggal</th>
-                      <th className="border p-2 text-center">Rumah Terisi</th>
-                      <th className="border p-2 text-center">Total Jimpitan</th>
+        <div className="space-y-3">
+          <AccordionItem
+            id="harian"
+            openId={openId}
+            setOpenId={setOpenId}
+            title="Jimpitan Harian"
+            amount={totalHarian}
+          >
+            <div className="overflow-x-auto rounded-lg border border-line">
+              <table className="w-full text-sm">
+                <thead className="bg-surface text-center text-xs font-semibold uppercase tracking-wide text-muted">
+                  <tr>
+                    <th className="px-3 py-2 text-center">Tanggal</th>
+                    <th className="px-3 py-2 text-center">Rumah Terisi</th>
+                    <th className="px-3 py-2 text-center">Total Jimpitan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dataHarian.map((d) => (
+                    <tr key={d.tanggal} className="border-t border-line odd:bg-white even:bg-surface">
+                      <td className="px-3 py-2">{d.tanggal}</td>
+                      <td className="px-3 py-2 text-center">
+                        {d.terisi}/{homeList.length}
+                      </td>
+                      <td className="px-3 py-2 text-right">
+                        {rupiahFormat(d.nominal)}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {dataHarian.map((d) => (
-                      <tr
-                        key={d.tanggal}
-                        className="odd:bg-white even:bg-gray-50"
-                      >
-                        <td className="border p-2">{d.tanggal}</td>
-                        <td className="border p-2 text-center">
-                          {d.terisi}/{homeList.length}
-                        </td>
-                        <td className="border p-2 text-right">
-                          {rupiahFormat(d.nominal)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </AccordionItem>
-            <div className="mt-1"></div>
-            <AccordionItem
-              id="rapel"
-              openId={openId}
-              setOpenId={setOpenId}
-              title="🏠 Jimpitan Rapel"
-              bgColor="bg-blue-100"
-              amount={totalRapel}
-            >
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-sm">
-                  <thead className="bg-blue-300">
-                    <tr>
-                      <th className="border p-2 text-center">No Rumah</th>
-                      <th className="border p-2 text-center">Nama Penghuni</th>
-                      <th className="border p-2 text-center">Jumlah Rapel</th>
-                      <th className="border p-2 text-center">Nominal Rapel</th>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </AccordionItem>
+
+          <AccordionItem
+            id="rapel"
+            openId={openId}
+            setOpenId={setOpenId}
+            title="Jimpitan Rapel"
+            amount={totalRapel}
+          >
+            <div className="overflow-x-auto rounded-lg border border-line">
+              <table className="w-full text-sm">
+                <thead className="bg-surface text-center text-xs font-semibold uppercase tracking-wide text-muted">
+                  <tr>
+                    <th className="px-3 py-2 text-center">No Rumah</th>
+                    <th className="px-3 py-2 text-center">Nama Penghuni</th>
+                    <th className="px-3 py-2 text-center">Jumlah Rapel</th>
+                    <th className="px-3 py-2 text-center">Nominal Rapel</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dataRapel.map((r, i) => (
+                    <tr key={i} className="border-t border-line odd:bg-white even:bg-surface">
+                      <td className="px-3 py-2 text-center">
+                        {r.nomor_rumah}
+                      </td>
+                      <td className="px-3 py-2">
+                        {" "}
+                        {homeList.find(
+                          (h) => h.nomor === Number(r.nomor_rumah)
+                        )?.nama || "-"}
+                      </td>
+                      <td className="px-3 py-2 text-center">
+                        {r.jumlah_rapel} Hari
+                      </td>
+                      <td className="px-3 py-2 text-right">
+                        {rupiahFormat(r.nominal)}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {dataRapel.map((r, i) => (
-                      <tr key={i} className="odd:bg-white even:bg-gray-50">
-                        <td className="border p-2 text-center">
-                          {r.nomor_rumah}
-                        </td>
-                        <td className="border p-2">
-                          {" "}
-                          {homeList.find(
-                            (h) => h.nomor === Number(r.nomor_rumah)
-                          )?.nama || "-"}
-                        </td>
-                        <td className="border p-2 text-center">
-                          {r.jumlah_rapel} Hari
-                        </td>
-                        <td className="border p-2 text-right">
-                          {rupiahFormat(r.nominal)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </AccordionItem>
-          </div>
-
-          <div className="w-full mt-1">
-            {/* Total Bulan Ini */}
-            <div className="bg-green-100 border border-purple-200 rounded-lg p-4 font-semibold shadow-md">
-              <div className="flex justify-between gap-2">
-                <span className="font-bold">💰 Total Jimpitan Bulan Ini</span>
-                <span className="font-bold text-lg text-right">
-                  {rupiahFormat(totalSemua)}
-                </span>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
+          </AccordionItem>
 
-          <div className="w-full mt-1">
-            {/* Pengeluaran Bulan Ini */}
-            <AccordionItem
-              id="pengeluaran"
-              openId={openId}
-              setOpenId={setOpenId}
-              title="⛔ Pengeluaran Bulan Ini"
-              bgColor="bg-red-100"
-              amount={pengeluaranBulan}
-            >
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-sm">
-                  <thead className="bg-red-300">
-                    <tr>
-                      <th className="border p-2 text-center">No</th>
-                      <th className="border p-2 text-center">Tanggal</th>
-                      <th className="border p-2 text-center">Keperluan</th>
-                      <th className="border p-2 text-center">Nominal</th>
-                      <th className="border p-2 text-center">Penanggung Jawab</th>
+          {/* Total Bulan Ini */}
+          <Card className="flex items-center justify-between gap-2">
+            <span className="font-semibold text-ink">Total Jimpitan Bulan Ini</span>
+            <span className="text-lg font-bold text-ink">
+              {rupiahFormat(totalSemua)}
+            </span>
+          </Card>
+
+          <AccordionItem
+            id="pengeluaran"
+            openId={openId}
+            setOpenId={setOpenId}
+            title="Pengeluaran Bulan Ini"
+            amount={pengeluaranBulan}
+          >
+            <div className="overflow-x-auto rounded-lg border border-line">
+              <table className="w-full text-sm">
+                <thead className="bg-surface text-center text-xs font-semibold uppercase tracking-wide text-muted">
+                  <tr>
+                    <th className="px-3 py-2 text-center">No</th>
+                    <th className="px-3 py-2 text-center">Tanggal</th>
+                    <th className="px-3 py-2 text-center">Keperluan</th>
+                    <th className="px-3 py-2 text-center">Nominal</th>
+                    <th className="px-3 py-2 text-center">Penanggung Jawab</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dataPengeluaran.map((p, i) => (
+                    <tr key={i} className="border-t border-line odd:bg-white even:bg-surface">
+                      <td className="px-3 py-2 text-center">{i + 1}</td>
+                      <td className="px-3 py-2">{(p.tanggal).toString().slice(0, 10)}</td>
+                      <td className="px-3 py-2">{p.keterangan}</td>
+                      <td className="px-3 py-2 text-right">
+                        {rupiahFormat(p.nominal)}
+                      </td>
+                      <td className="px-3 py-2">{p.penanggung_jawab}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {dataPengeluaran.map((p, i) => (
-                      <tr key={i} className="odd:bg-white even:bg-gray-50">
-                        <td className="border p-2 text-center">{i + 1}</td>
-                        <td className="border p-2">{(p.tanggal).toString().slice(0, 10)}</td>
-                        <td className="border p-2">{p.keterangan}</td>
-                        <td className="border p-2 text-right">
-                          {rupiahFormat(p.nominal)}
-                        </td>
-                        <td className="border p-2">{p.penanggung_jawab}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </AccordionItem>
-          </div>
-          
-          <div className="w-full mt-10">
-            {/* Pengeluaran Bulan Ini */}
-            <div className="bg-red-300 border border-red-400 rounded-lg p-4 font-semibold shadow-md">
-              <div className="flex justify-between gap-2">
-                <span className="font-bold">💴 Saldo Bulan Ini </span>
-                <span className="font-bold text-xl text-right">
-                  {rupiahFormat(totalSemua - pengeluaranBulan)}
-                </span>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
+          </AccordionItem>
 
-          <div className="w-full mt-1">
-            <button
-              type="button"
-              onClick={handleSimpanUlangRekap}
-              disabled={savingRekap}
-              className="w-full bg-purple-600 text-white font-bold p-2 rounded-lg shadow-md hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {savingRekap ? "Menyimpan..." : "🔄 Simpan Ulang Rekap"}
-            </button>
-          </div>
+          {/* Saldo Bulan Ini */}
+          <Card className="flex items-center justify-between gap-2 mt-6">
+            <span className="font-semibold text-ink">Saldo Bulan Ini</span>
+            <span className="text-xl font-bold text-ink">
+              {rupiahFormat(totalSemua - pengeluaranBulan)}
+            </span>
+          </Card>
 
-          <div className="w-full mt-1">
-            {/* Pengeluaran Bulan Ini */}
-            <div className="bg-orange-300 border border-orange-400 rounded-lg p-4 font-semibold shadow-md">
-              <div className="flex justify-between gap-2">
-                <span className="font-bold">💴 Saldo Sebelumnya </span>
-                <span className="font-bold text-xl text-right">
-                  {rupiahFormat(saldoSebelumnya)}
-                </span>
-              </div>
-            </div>
-          </div>
+          <Button
+            className="w-full"
+            onClick={handleSimpanUlangRekap}
+            disabled={savingRekap}
+          >
+            {savingRekap ? "Menyimpan..." : "Simpan Ulang Rekap"}
+          </Button>
 
-          <div className="w-full mt-1">
-            {/* Pengeluaran Bulan Ini */}
-            <div className="bg-green-300 border border-green-400 rounded-lg p-4 font-semibold shadow-md">
-              <div className="flex justify-between gap-2">
-                <span className="font-bold">💳 Sisa Saldo Keseluruhan </span>
-                <span className="font-bold text-xl text-right">
-                  {rupiahFormat(saldoKeseluruhan)}
-                </span>
-              </div>
-            </div>
-          </div>
+          {/* Saldo Sebelumnya */}
+          <Card className="flex items-center justify-between gap-2">
+            <span className="font-semibold text-ink">Saldo Sebelumnya</span>
+            <span className="text-xl font-bold text-ink">
+              {rupiahFormat(saldoSebelumnya)}
+            </span>
+          </Card>
+
+          {/* Sisa Saldo Keseluruhan */}
+          <Card className="flex items-center justify-between gap-2 bg-accent-soft border-accent/20">
+            <span className="font-semibold text-accent">Sisa Saldo Keseluruhan</span>
+            <span className="text-xl font-bold text-accent">
+              {rupiahFormat(saldoKeseluruhan)}
+            </span>
+          </Card>
         </div>
       )}
     </div>

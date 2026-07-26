@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { ENDPOINT_BASE_URL } from "../../../shared/config";
+import Card from "../../../shared/components/ui/Card";
+import Button from "../../../shared/components/ui/Button";
+import Badge from "../../../shared/components/ui/Badge";
 
 const initialFormState = {
   nomor: "",
@@ -147,70 +150,58 @@ export default function RefWarga() {
     });
   }, [data, statusFilter]);
 
-  return (
-    <div className="m-4 bg-white shadow-md p-4 rounded-xl">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-sky-700">
-            Detail Database Warga
-          </h1>
-          <p className="text-sm text-gray-600">
-            Kelola referensi warga lengkap dengan CRUD.
-          </p>
-        </div>
-      </div>
+  const inputClass =
+    "mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
 
-      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="rounded-xl border border-gray-200 bg-white p-5 flex-1">
-          <h2 className="mb-4 text-lg font-semibold">Ringkasan</h2>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-lg border border-gray-200 bg-green-50 p-4 text-green-800">
-              Total Data: <span className="font-semibold">{data.length}</span>
-            </div>
-            <div className="rounded-lg border border-gray-200 bg-blue-50 p-4 text-blue-800">
-              Sudah Menghuni:{" "}
-              <span className="font-semibold">
-                {data.filter((item) => item.sudah_menghuni === 1).length}
-              </span>
-            </div>
-            <div className="rounded-lg border border-gray-200 bg-red-50 p-4 text-red-800">
-              Belum Menghuni:{" "}
-              <span className="font-semibold">
-                {data.filter((item) => item.sudah_menghuni === 0).length}
-              </span>
-            </div>
+  return (
+    <div className="space-y-4">
+      <Card>
+        <h1 className="text-xl font-bold text-ink">
+          Detail Database Warga
+        </h1>
+        <p className="text-sm text-muted">
+          Kelola referensi warga lengkap dengan CRUD.
+        </p>
+      </Card>
+
+      <Card>
+        <h2 className="mb-4 text-base font-semibold text-ink">Ringkasan</h2>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-lg border border-line bg-surface p-4 text-ink">
+            Total Data: <span className="font-semibold">{data.length}</span>
+          </div>
+          <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-4 text-emerald-800">
+            Sudah Menghuni:{" "}
+            <span className="font-semibold">
+              {data.filter((item) => item.sudah_menghuni === 1).length}
+            </span>
+          </div>
+          <div className="rounded-lg border border-red-100 bg-red-50 p-4 text-red-800">
+            Belum Menghuni:{" "}
+            <span className="font-semibold">
+              {data.filter((item) => item.sudah_menghuni === 0).length}
+            </span>
           </div>
         </div>
-      </div>
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={openAddModal}
-          className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700"
-        >
-          + Tambah Warga
-        </button>
-      </div>
+      </Card>
+
+      <Button onClick={openAddModal}>+ Tambah Warga</Button>
 
       {showFormModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold text-slate-900">
+                <h2 className="text-lg font-bold text-ink">
                   {isEditing ? "Edit Warga" : "Tambah Warga"}
                 </h2>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-muted">
                   Lengkapi data warga pada form berikut.
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={closeFormModal}
-                className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-              >
+              <Button variant="secondary" onClick={closeFormModal}>
                 Tutup
-              </button>
+              </Button>
             </div>
 
             {error && (
@@ -222,46 +213,46 @@ export default function RefWarga() {
             <form onSubmit={saveWarga} className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-xs font-medium text-muted">
                     Nomor Rumah
                   </label>
                   <input
                     type="number"
                     value={form.nomor}
                     onChange={(e) => handleInputChange("nomor", e.target.value)}
-                    className="mt-1 w-full rounded border border-gray-300 bg-white px-3 py-2"
+                    className={inputClass}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-xs font-medium text-muted">
                     Nama
                   </label>
                   <input
                     type="text"
                     value={form.nama}
                     onChange={(e) => handleInputChange("nama", e.target.value)}
-                    className="mt-1 w-full rounded border border-gray-300 bg-white px-3 py-2"
+                    className={inputClass}
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs font-medium text-muted">
                   Nomor HP
                 </label>
                 <input
                   type="text"
                   value={form.no_hp}
                   onChange={(e) => handleInputChange("no_hp", e.target.value)}
-                  className="mt-1 w-full rounded border border-gray-300 bg-white px-3 py-2"
+                  className={inputClass}
                 />
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-xs font-medium text-muted">
                     Status
                   </label>
                   <select
@@ -272,14 +263,14 @@ export default function RefWarga() {
                         Number(e.target.value),
                       )
                     }
-                    className="mt-1 w-full rounded border border-gray-300 bg-white px-3 py-2"
+                    className={inputClass}
                   >
                     <option value={1}>Menghuni</option>
                     <option value={0}>Belum Dihuni</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-xs font-medium text-muted">
                     Tanggal Huni
                   </label>
                   <input
@@ -288,46 +279,42 @@ export default function RefWarga() {
                     onChange={(e) =>
                       handleInputChange("tanggal_huni", e.target.value)
                     }
-                    className="mt-1 w-full rounded border border-gray-300 bg-white px-3 py-2"
+                    className={inputClass}
                   />
                 </div>
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <button
-                  type="submit"
-                  className="inline-flex items-center justify-center rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700"
-                  disabled={loading}
-                >
+                <Button type="submit" disabled={loading}>
                   {isEditing ? "Simpan Perubahan" : "Tambah Warga"}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
-                  className="inline-flex items-center justify-center rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-300"
+                  variant="secondary"
                   onClick={closeFormModal}
                 >
                   Batal
-                </button>
+                </Button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      <div className="mt-6">
+      <div>
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-lg font-semibold">Daftar Warga</h2>
-            <p className="text-sm text-gray-500">
+            <h2 className="text-base font-semibold text-ink">Daftar Warga</h2>
+            <p className="text-sm text-muted">
               Data diambil dari API /api/ref-warga.
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-ink">
               Filter status:
             </label>
             <select
-              className="rounded border border-gray-300 bg-white px-3 py-2"
+              className="rounded-lg border border-line bg-white px-3 py-2 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -338,78 +325,70 @@ export default function RefWarga() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-300 text-sm">
-            <thead className="bg-sky-600 text-white">
-              <tr>
-                <th className="px-3 py-2 border">#</th>
-                <th className="px-3 py-2 border">Nomor</th>
-                <th className="px-3 py-2 border">Nama</th>
-                <th className="px-3 py-2 border">Status</th>
-                <th className="px-3 py-2 border">Tanggal Huni</th>
-                <th className="px-3 py-2 border">No HP</th>
-                <th className="px-3 py-2 border">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredData.map((item, index) => (
-                <tr
-                  key={item.nomor || index}
-                  className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                >
-                  <td className="px-3 py-2 border text-center">{index + 1}</td>
-                  <td className="px-3 py-2 border text-center">{item.nomor}</td>
-                  <td className="px-3 py-2 border">{item.nama}</td>
-                  <td className="px-3 py-2 border text-center">
-                    <span
-                      className={
-                        item.sudah_menghuni === 1
-                          ? "inline-flex rounded-full bg-green-200 px-3 py-1 text-xs font-bold text-green-800"
-                          : "inline-flex rounded-full bg-red-200 px-3 py-1 text-xs font-bold text-red-800"
-                      }
-                    >
-                      {item.sudah_menghuni === 1 ? "Menghuni" : "Belum"}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2 border text-center">
-                    {item.tanggal_huni
-                      ? format(new Date(item.tanggal_huni), "dd MMM yyyy")
-                      : "-"}
-                  </td>
-                  <td className="px-3 py-2 border text-center">
-                    {item.no_hp || "-"}
-                  </td>
-                  <td className="px-3 py-2 border text-center space-x-2">
-                    <button
-                      type="button"
-                      className="rounded bg-amber-600 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-700"
-                      onClick={() => editWarga(item)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      className="rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white hover:bg-red-700"
-                      onClick={() => deleteWarga(item.nomor)}
-                    >
-                      Hapus
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {filteredData.length === 0 && (
+        <Card className="p-0 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-surface text-center text-xs font-semibold uppercase tracking-wide text-muted">
                 <tr>
-                  <td
-                    className="px-3 py-6 border text-center text-gray-500"
-                    colSpan={7}
-                  >
-                    Tidak ada data.
-                  </td>
+                  <th className="px-3 py-3">#</th>
+                  <th className="px-3 py-3">Nomor</th>
+                  <th className="px-3 py-3">Nama</th>
+                  <th className="px-3 py-3">Status</th>
+                  <th className="px-3 py-3">Tanggal Huni</th>
+                  <th className="px-3 py-3">No HP</th>
+                  <th className="px-3 py-3">Aksi</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {filteredData.map((item, index) => (
+                  <tr key={item.nomor || index} className="border-t border-line odd:bg-white even:bg-surface">
+                    <td className="px-3 py-2 text-center">{index + 1}</td>
+                    <td className="px-3 py-2 text-center">{item.nomor}</td>
+                    <td className="px-3 py-2">{item.nama}</td>
+                    <td className="px-3 py-2 text-center">
+                      <Badge tone={item.sudah_menghuni === 1 ? "success" : "danger"}>
+                        {item.sudah_menghuni === 1 ? "Menghuni" : "Belum"}
+                      </Badge>
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      {item.tanggal_huni
+                        ? format(new Date(item.tanggal_huni), "dd MMM yyyy")
+                        : "-"}
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      {item.no_hp || "-"}
+                    </td>
+                    <td className="px-3 py-2 text-center space-x-2">
+                      <Button
+                        className="!px-3 !py-1"
+                        onClick={() => editWarga(item)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="danger"
+                        className="!px-3 !py-1"
+                        onClick={() => deleteWarga(item.nomor)}
+                      >
+                        Hapus
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+                {filteredData.length === 0 && (
+                  <tr>
+                    <td
+                      className="px-3 py-6 text-center text-muted"
+                      colSpan={7}
+                    >
+                      Tidak ada data.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       </div>
     </div>
   );

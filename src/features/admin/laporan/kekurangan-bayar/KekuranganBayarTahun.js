@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { ENDPOINT_BASE_URL, homeList, months } from "../../../../shared/config";
 import { rupiahFormat } from "../../../../shared/helpers/MoneyHeper";
+import Card from "../../../../shared/components/ui/Card";
+import Button from "../../../../shared/components/ui/Button";
+import Badge from "../../../../shared/components/ui/Badge";
+import Spinner from "../../../../shared/components/ui/Spinner";
 
 export default function KekuranganBayarTahun() {
   const currentYear = new Date().getFullYear();
@@ -237,70 +241,68 @@ export default function KekuranganBayarTahun() {
   const waPhone = normalizePhone(refWarga?.no_hp);
 
   return (
-    <div className="m-4 bg-white shadow-md p-4 rounded-xl">
-      <h1 className="text-center font-bold text-2xl text-amber-700 mb-6">
-        Rekap Kekurangan Bayar per Tahun
-      </h1>
+    <div className="space-y-4">
+      <Card>
+        <h1 className="text-xl font-bold text-ink mb-6">
+          Rekap Kekurangan Bayar per Tahun
+        </h1>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">
-            Pilih Tahun
-          </label>
-          <select
-            className="w-48 rounded-md border border-gray-300 bg-white px-3 py-2"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-          >
-            {yearOptions.map((optionYear) => (
-              <option key={optionYear} value={optionYear}>
-                {optionYear}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="text-right text-sm text-gray-500">
-          Menampilkan data rekap tahunan untuk tahun{" "}
-          <span className="font-semibold">{year}</span>.
-        </div>
-      </div>
-
-      <div className="mb-4 flex flex-wrap items-center gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium mr-2">Filter Status:</span>
-          {[
-            { value: "all", label: "Semua" },
-            { value: "menghuni", label: "Menghuni" },
-            { value: "belum", label: "Belum Dihuni" },
-          ].map((option) => (
-            <label
-              key={option.value}
-              className={`inline-flex items-center rounded-full border px-3 py-2 text-sm cursor-pointer transition ${
-                statusFilter === option.value
-                  ? "bg-amber-600 text-white border-amber-600"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-              }`}
-            >
-              <input
-                type="radio"
-                name="statusFilter"
-                value={option.value}
-                checked={statusFilter === option.value}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="sr-only"
-              />
-              {option.label}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-medium text-muted">
+              Pilih Tahun
             </label>
-          ))}
-        </div>
-      </div>
+            <select
+              className="w-48 rounded-lg border border-line bg-white px-3 py-2 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+            >
+              {yearOptions.map((optionYear) => (
+                <option key={optionYear} value={optionYear}>
+                  {optionYear}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      {loading && (
-        <div className="rounded-xl border border-yellow-300 bg-yellow-50 p-4 text-sm text-yellow-900">
-          Memuat data rekap tahunan...
+          <div className="text-right text-sm text-muted">
+            Menampilkan data rekap tahunan untuk tahun{" "}
+            <span className="font-semibold text-ink">{year}</span>.
+          </div>
         </div>
-      )}
+
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-ink mr-2">Filter Status:</span>
+            {[
+              { value: "all", label: "Semua" },
+              { value: "menghuni", label: "Menghuni" },
+              { value: "belum", label: "Belum Dihuni" },
+            ].map((option) => (
+              <label
+                key={option.value}
+                className={`inline-flex items-center rounded-full border px-3 py-2 text-sm cursor-pointer transition ${
+                  statusFilter === option.value
+                    ? "bg-accent text-white border-accent"
+                    : "bg-white text-ink border-line hover:bg-surface"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="statusFilter"
+                  value={option.value}
+                  checked={statusFilter === option.value}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="sr-only"
+                />
+                {option.label}
+              </label>
+            ))}
+          </div>
+        </div>
+      </Card>
+
+      {loading && <Spinner label="Memuat data rekap tahunan..." />}
 
       {error && !loading && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
@@ -308,177 +310,172 @@ export default function KekuranganBayarTahun() {
         </div>
       )}
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full border border-gray-300 text-sm">
-          <thead className="bg-amber-600 text-white">
-            <tr>
-              <th className="px-3 py-2 border">Nomor Rumah</th>
-              <th className="px-3 py-2 border">Penghuni</th>
-              <th className="px-3 py-2 border">Status Dihuni</th>
-              <th className="px-3 py-2 border">
-                <div className="flex flex-col gap-1">
-                  <span>Total sampai bulan</span>
-                  <select
-                    value={selectedEndMonth}
-                    onChange={(e) =>
-                      setSelectedEndMonth(Number(e.target.value))
-                    }
-                    className="w-24 rounded border border-white bg-amber-700 px-2 py-1 text-xs text-white"
-                  >
-                    {months.map((month) => (
-                      <option key={month.value} value={month.value}>
-                        {month.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </th>
-              {months.map((month) => (
-                <th key={month.value} className="px-3 py-2 border">
-                  {month.label}
-                </th>
-              ))}
-              <th className="px-3 py-2 border">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.length > 0 ? (
-              filteredData.map((item, index) => {
-                const homeData = homeMap[item.nomor_rumah];
-                const isMenghuni = homeData?.sudah_menghuni === 1;
-                return (
-                  <tr
-                    key={`${item.nomor_rumah}-${index}`}
-                    className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                  >
-                    <td className="px-3 py-2 border text-center">
-                      {item.nomor_rumah}
-                    </td>
-                    <td className="px-3 py-2 border text-left">
-                      {homeData?.nama || "-"}
-                    </td>
-                    <td className="px-3 py-2 border">
-                      <span
-                        className={`px-2 py-1 text-center font-bold rounded-full inline-block ${
-                          isMenghuni
-                            ? "text-green-700 bg-green-300 border-green-700 w-full block"
-                            : "text-red-700 bg-red-300 border-red-700 w-full block"
-                        }`}
-                      >
-                        {isMenghuni ? "Menghuni" : "Belum"}
-                      </span>
-                    </td>
-                    <td
-                      className="px-3 py-2 border text-center font-semibold cursor-pointer hover:bg-amber-100"
-                      onClick={() => {
-                        setSelectedDetail(item);
-                        setShowDetailModal(true);
-                      }}
-                    >
-                      {(() => {
-                        const cumulativeDays = calculateCumulativeTotal(item);
-                        const cumulativeNominal = cumulativeDays * 500;
-                        return `${cumulativeDays} (${rupiahFormat(cumulativeNominal)})`;
-                      })()}
-                    </td>
-                    {months.map((month) => {
-                      const key = month.label.toLowerCase();
-                      const days = Number(item[key]) || 0;
-                      const nominal = days * 500;
-                      return (
-                        <td
-                          key={month.value}
-                          className="px-3 py-2 border text-center"
-                        >
-                          {days} ({rupiahFormat(nominal)})
-                        </td>
-                      );
-                    })}
-                    <td className="px-3 py-2 border text-center font-semibold">
-                      {item.total ?? 0} (
-                      {rupiahFormat((Number(item.total) || 0) * 500)})
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
+      <Card className="p-0 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead className="bg-surface text-center text-xs font-semibold uppercase tracking-wide text-muted">
               <tr>
-                <td
-                  className="px-3 py-6 border text-center text-gray-500"
-                  colSpan={17}
-                >
-                  Tidak ada data rekap tahunan.
-                </td>
+                <th className="px-3 py-3">Nomor Rumah</th>
+                <th className="px-3 py-3">Penghuni</th>
+                <th className="px-3 py-3">Status Dihuni</th>
+                <th className="px-3 py-3">
+                  <div className="flex flex-col gap-1">
+                    <span>Total sampai bulan</span>
+                    <select
+                      value={selectedEndMonth}
+                      onChange={(e) =>
+                        setSelectedEndMonth(Number(e.target.value))
+                      }
+                      className="w-24 rounded border border-line bg-white px-2 py-1 text-xs text-ink normal-case"
+                    >
+                      {months.map((month) => (
+                        <option key={month.value} value={month.value}>
+                          {month.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </th>
+                {months.map((month) => (
+                  <th key={month.value} className="px-3 py-3">
+                    {month.label}
+                  </th>
+                ))}
+                <th className="px-3 py-3">Total</th>
               </tr>
-            )}
-            {filteredData.length > 0 && (
-              <tr className="bg-gray-100 font-semibold">
-                <td className="px-3 py-2 border" colSpan={3}></td>
-                <td className="px-3 py-2 border text-center">
-                  {(() => {
-                    const cumulativeGrandTotal = filteredData.reduce(
-                      (sum, item) => sum + calculateCumulativeTotal(item),
-                      0,
-                    );
-                    const cumulativeNominal = cumulativeGrandTotal * 500;
-                    return `${cumulativeGrandTotal} (${rupiahFormat(cumulativeNominal)})`;
-                  })()}
-                </td>
-                <td className="px-3 py-2 border text-right" colSpan={13}>
-                  Total Seluruh Kekurangan Bayar: {totalSum} (
-                  {rupiahFormat(totalSum * 500)})
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filteredData.length > 0 ? (
+                filteredData.map((item, index) => {
+                  const homeData = homeMap[item.nomor_rumah];
+                  const isMenghuni = homeData?.sudah_menghuni === 1;
+                  return (
+                    <tr
+                      key={`${item.nomor_rumah}-${index}`}
+                      className="border-t border-line odd:bg-white even:bg-surface"
+                    >
+                      <td className="px-3 py-2 text-center">
+                        {item.nomor_rumah}
+                      </td>
+                      <td className="px-3 py-2 text-left">
+                        {homeData?.nama || "-"}
+                      </td>
+                      <td className="px-3 py-2 text-center">
+                        <Badge tone={isMenghuni ? "success" : "danger"}>
+                          {isMenghuni ? "Menghuni" : "Belum"}
+                        </Badge>
+                      </td>
+                      <td
+                        className="px-3 py-2 text-center font-semibold cursor-pointer hover:bg-accent-soft"
+                        onClick={() => {
+                          setSelectedDetail(item);
+                          setShowDetailModal(true);
+                        }}
+                      >
+                        {(() => {
+                          const cumulativeDays = calculateCumulativeTotal(item);
+                          const cumulativeNominal = cumulativeDays * 500;
+                          return `${cumulativeDays} (${rupiahFormat(cumulativeNominal)})`;
+                        })()}
+                      </td>
+                      {months.map((month) => {
+                        const key = month.label.toLowerCase();
+                        const days = Number(item[key]) || 0;
+                        const nominal = days * 500;
+                        return (
+                          <td
+                            key={month.value}
+                            className="px-3 py-2 text-center"
+                          >
+                            {days} ({rupiahFormat(nominal)})
+                          </td>
+                        );
+                      })}
+                      <td className="px-3 py-2 text-center font-semibold">
+                        {item.total ?? 0} (
+                        {rupiahFormat((Number(item.total) || 0) * 500)})
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td
+                    className="px-3 py-6 text-center text-muted"
+                    colSpan={17}
+                  >
+                    Tidak ada data rekap tahunan.
+                  </td>
+                </tr>
+              )}
+              {filteredData.length > 0 && (
+                <tr className="border-t border-line bg-surface font-semibold">
+                  <td className="px-3 py-2" colSpan={3}></td>
+                  <td className="px-3 py-2 text-center">
+                    {(() => {
+                      const cumulativeGrandTotal = filteredData.reduce(
+                        (sum, item) => sum + calculateCumulativeTotal(item),
+                        0,
+                      );
+                      const cumulativeNominal = cumulativeGrandTotal * 500;
+                      return `${cumulativeGrandTotal} (${rupiahFormat(cumulativeNominal)})`;
+                    })()}
+                  </td>
+                  <td className="px-3 py-2 text-right" colSpan={13}>
+                    Total Seluruh Kekurangan Bayar: {totalSum} (
+                    {rupiahFormat(totalSum * 500)})
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
 
       {showDetailModal && selectedDetail ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-xl flex flex-col">
-            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+            <div className="flex items-center justify-between border-b border-line px-6 py-4">
               <div>
-                <h2 className="text-xl font-semibold text-slate-900">
+                <h2 className="text-lg font-bold text-ink">
                   Detail Total sampai bulan
                 </h2>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-muted">
                   {`Rumah ${selectedDetail.nomor_rumah} hingga ${months.find((m) => m.value === selectedEndMonth)?.label}`}
                 </p>
               </div>
-              <button
-                type="button"
+              <Button
+                variant="secondary"
                 onClick={() => setShowDetailModal(false)}
-                className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
               >
                 Tutup
-              </button>
+              </Button>
             </div>
 
             <div className="overflow-y-auto flex-1 px-6 py-4">
               <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <div className="grid grid-cols-2 gap-3 rounded-xl border border-line bg-surface p-4">
                   <div>
-                    <div className="text-xs uppercase text-gray-500">
+                    <div className="text-xs uppercase text-muted">
                       Nomor rumah
                     </div>
-                    <div className="text-base font-semibold text-slate-900">
+                    <div className="text-base font-semibold text-ink">
                       {selectedDetail.nomor_rumah}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs uppercase text-gray-500">
+                    <div className="text-xs uppercase text-muted">
                       Nama penghuni
                     </div>
-                    <div className="text-base font-semibold text-slate-900">
+                    <div className="text-base font-semibold text-ink">
                       {activeHome?.nama || "-"}
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-gray-200 bg-amber-50 p-4">
-                  <div className="text-sm text-gray-600">Kekurangan bayar</div>
-                  <div className="mt-2 text-lg font-semibold text-amber-800">
+                <div className="rounded-xl border border-red-100 bg-red-50 p-4">
+                  <div className="text-sm text-red-700">Kekurangan bayar</div>
+                  <div className="mt-2 text-lg font-semibold text-red-900">
                     {(() => {
                       const cumulativeDays =
                         calculateCumulativeTotal(selectedDetail);
@@ -488,8 +485,8 @@ export default function KekuranganBayarTahun() {
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-gray-200 bg-white p-4">
-                  <div className="mb-3 text-sm font-semibold text-slate-900">
+                <div className="rounded-xl border border-line bg-white p-4">
+                  <div className="mb-3 text-sm font-semibold text-ink">
                     Rincian per bulan
                   </div>
                   <div className="space-y-2">
@@ -506,7 +503,7 @@ export default function KekuranganBayarTahun() {
                         return (
                           <div
                             key={month.value}
-                            className="flex items-center justify-between border-b border-gray-100 pb-2 text-sm text-slate-700"
+                            className="flex items-center justify-between border-b border-line pb-2 text-sm text-ink"
                           >
                             <span>{month.label}</span>
                             <span>{rupiahFormat(nominal)}</span>
@@ -516,11 +513,11 @@ export default function KekuranganBayarTahun() {
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-gray-200 bg-slate-50 p-4 text-right">
-                  <div className="text-sm text-gray-600">
+                <div className="rounded-xl border border-line bg-surface p-4 text-right">
+                  <div className="text-sm text-muted">
                     Total sampai bulan
                   </div>
-                  <div className="mt-2 text-xl font-semibold text-slate-900">
+                  <div className="mt-2 text-xl font-semibold text-ink">
                     {(() => {
                       const cumulativeDays =
                         calculateCumulativeTotal(selectedDetail);
@@ -530,61 +527,27 @@ export default function KekuranganBayarTahun() {
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-gray-200 bg-blue-50 p-4">
+                <div className="rounded-xl border border-accent/20 bg-accent-soft p-4">
                   <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="text-sm font-semibold text-slate-900">
-                      📱 Pesan WhatsApp
+                    <div className="text-sm font-semibold text-ink">
+                      Pesan WhatsApp
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        type="button"
+                      <Button
+                        variant="secondary"
+                        className="!px-3 !py-1 text-xs"
                         onClick={handleCopyMessage}
-                        className="rounded-md bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700"
                       >
-                        📋 Copy Pesan
-                      </button>
-                      <button
-                        type="button"
+                        Copy Pesan
+                      </Button>
+                      <Button
+                        variant="success"
+                        className="!px-3 !py-1 text-xs"
                         onClick={sendWhatsappViaKanal}
                         disabled={!refWarga?.no_hp}
-                        className={`rounded-md px-3 py-1 text-xs font-semibold ${
-                          refWarga?.no_hp
-                            ? "bg-green-600 text-white hover:bg-green-700"
-                            : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                        }`}
                       >
-                        {isLoading ? (
-                          <>
-                            {/* Contoh Ikon Loading (Spinning) menggunakan Tailwind */}
-                            <svg
-                              className="animate-spin h-5 w-5 text-white"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                              ></circle>
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                              ></path>
-                            </svg>
-                            <span>Mengirim...</span>
-                          </>
-                        ) : (
-                          <>
-                            {/* Tampilan normal jika tidak sedang loading */}
-                            <span>Kirim WA via Kanal</span>
-                          </>
-                        )}
-                      </button>
+                        {isLoading ? "Mengirim..." : "Kirim WA via Kanal"}
+                      </Button>
                     </div>
                   </div>
 
@@ -608,7 +571,7 @@ export default function KekuranganBayarTahun() {
                           href={`https://wa.me/${waPhone}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-blue-600 underline"
+                          className="text-accent underline"
                         >
                           {`https://wa.me/${waPhone}`}
                         </a>
@@ -621,7 +584,7 @@ export default function KekuranganBayarTahun() {
                     )}
                   </div>
 
-                  <div className="max-h-40 overflow-y-auto rounded bg-white p-3 text-xs text-slate-700 whitespace-pre-wrap font-mono leading-relaxed">
+                  <div className="max-h-40 overflow-y-auto rounded bg-white p-3 text-xs text-ink whitespace-pre-wrap font-mono leading-relaxed">
                     {buildWhatsappMessage()}
                   </div>
                   {!refWarga?.no_hp && (

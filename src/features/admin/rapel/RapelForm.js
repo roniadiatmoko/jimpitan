@@ -4,6 +4,7 @@ import Select from "react-select";
 import { ENDPOINT_BASE_URL, homeList, months } from "../../../shared/config";
 import { getDaysInMonth } from "../../../shared/helpers/DateHelper";
 import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
+import Button from "../../../shared/components/ui/Button";
 import DatePicker from "react-datepicker";
 
 // Komponen terpisah untuk formulir Rapel Jimpitan
@@ -93,13 +94,13 @@ export default function RapelForm({ onSuccess, nomorRumah = null, initialPeriod 
   };
 
   return (
-    <div className="m-8 p-4 bg-yellow-100 border-2 border-yellow-400 rounded-lg shadow-md">
-      <h2 className="text-xl font-bold text-center text-yellow-800 mb-4">
+    <div>
+      <h2 className="mb-4 text-center text-lg font-bold text-ink">
         Formulir Rapel Jimpitan
       </h2>
       <div className="flex flex-col sm:flex-row gap-4 mb-4">
         <div className="flex-1">
-          <label className="block text-gray-700">Nomor Rumah</label>
+          <label className="mb-1 block text-xs font-medium text-muted">Nomor Rumah</label>
 
           <Select
             options={houseOptions}
@@ -121,17 +122,17 @@ export default function RapelForm({ onSuccess, nomorRumah = null, initialPeriod 
           />
         </div>
         <div className="flex-1">
-          <label className="block text-gray-700">Nominal</label>
+          <label className="mb-1 block text-xs font-medium text-muted">Nominal</label>
           <input
             type="number"
             value={rapelNominal}
             onChange={(e) => setRapelNominal(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded"
+            className="w-full rounded-lg border border-line p-2.5 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
             placeholder="Contoh: 7000"
           />
         </div>
         <div className="flex-1">
-          <label className="block text-gray-700">Bulan</label>
+          <label className="mb-1 block text-xs font-medium text-muted">Bulan</label>
           {/* <select
             className="w-full p-2 border border-gray-300 bg-white rounded"
             value={selectedMonth}
@@ -152,11 +153,11 @@ export default function RapelForm({ onSuccess, nomorRumah = null, initialPeriod 
             dateFormat="MMMM yyyy"
             showMonthYearPicker // hanya bulan & tahun
             wrapperClassName="w-full"
-            className="bg-gray-200 rounded-md p-2 w-full"
+            className="w-full rounded-lg border border-line p-2.5 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
           />
         </div>
       </div>
-      <div className="text-center text-gray-600 mb-4">
+      <div className="text-center text-sm text-muted mb-4">
         Bulan {months.find((m) => m.value === Number((selectedMonth.getMonth() + 1).toString().padStart(2, "0"))).label}{" "}
         terdapat {getDaysInMonth((selectedMonth.getMonth() + 1).toString().padStart(2, "0"), new Date().getFullYear())} hari
         (
@@ -171,12 +172,9 @@ export default function RapelForm({ onSuccess, nomorRumah = null, initialPeriod 
         </span>{" "}
         hari jimpitan kosong.
       </div>
-      <button
-        onClick={handleRapelSubmit}
-        className="w-full bg-yellow-600 text-white font-bold p-2 rounded-lg hover:bg-yellow-700 transition"
-      >
+      <Button onClick={handleRapelSubmit} className="w-full">
         Simpan Rapel
-      </button>
+      </Button>
     </div>
   );
 }

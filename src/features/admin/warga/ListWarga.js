@@ -2,6 +2,9 @@ import { format } from "date-fns";
 import { homeList } from "../../../shared/config";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Card from "../../../shared/components/ui/Card";
+import Button from "../../../shared/components/ui/Button";
+import Badge from "../../../shared/components/ui/Badge";
 
 export default function ListWarga() {
   const [statusFilter, setStatusFilter] = useState("all"); // all | menghuni | belum
@@ -27,87 +30,82 @@ export default function ListWarga() {
   }, [homeMap, statusFilter, homeList]);
 
   return (
-    <div className="m-4 bg-white shadow-md p-4 rounded-xl">
-      <h1 className="text-center font-bold text-2xl text-sky-700 mb-10">
-        Daftar Warga (Static Data)
-      </h1>
+    <div className="space-y-4">
+      <Card>
+        <h1 className="text-xl font-bold text-ink mb-5">
+          Daftar Warga (Static Data)
+        </h1>
 
-      <div className="flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center mb-5">
-        <button
-          type="button"
-          onClick={() => navigate("/admin/ref-warga")}
-          className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700"
-        >
-          Detail Database Warga
-        </button>
-        <div className="grid w-full gap-4 sm:grid-cols-2 lg:w-auto">
-          <div className="bg-green-300 rounded-lg p-4 text-center">
-            <span className="font-bold text-green-700">
-              Sudah Menghuni <br />
-              <h1 className="text-7xl">{sudahMenghuni} </h1>
-            </span>
-          </div>
-          <div className="bg-red-300 rounded-lg p-4 w-full text-center">
-            <span className="font-bold text-red-700 ml-6">
-              Belum Menghuni <br /> <h1 className="text-7xl">{belumMenghuni}</h1>
-            </span>
+        <div className="flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center mb-5">
+          <Button onClick={() => navigate("/admin/ref-warga")}>
+            Detail Database Warga
+          </Button>
+          <div className="grid w-full gap-4 sm:grid-cols-2 lg:w-auto">
+            <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-4 text-center">
+              <span className="font-semibold text-emerald-700">
+                Sudah Menghuni <br />
+                <span className="text-5xl font-bold text-emerald-900">{sudahMenghuni}</span>
+              </span>
+            </div>
+            <div className="rounded-lg border border-red-100 bg-red-50 p-4 w-full text-center">
+              <span className="font-semibold text-red-700">
+                Belum Menghuni <br />
+                <span className="text-5xl font-bold text-red-900">{belumMenghuni}</span>
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <label className="text-sm font-medium">Filter Status:</label>
-      <select
-        className="border rounded px-3 py-2"
-        value={statusFilter}
-        onChange={(e) => setStatusFilter(e.target.value)}
-      >
-        <option value="all">Semua</option>
-        <option value="menghuni">Menghuni</option>
-        <option value="belum">Belum Dihuni</option>
-      </select>
+        <label className="mb-1 block text-xs font-medium text-muted">Filter Status:</label>
+        <select
+          className="rounded-lg border border-line px-3 py-2 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="all">Semua</option>
+          <option value="menghuni">Menghuni</option>
+          <option value="belum">Belum Dihuni</option>
+        </select>
+      </Card>
 
-      <div className="overflow-x-auto">
-        <table className="w-full mt-2 border border-gray-300 rounded-lg overflow-hidden">
-          <thead className="bg-sky-600 text-white">
-            <tr>
-              <th className="px-4 py-2 border w-10">#</th>
-              <th className="px-4 py-2 border">Nomor Rumah</th>
-              <th className="px-4 py-2 border">Penghuni</th>
-              <th className="px-4 py-2 border">Status Kepenghunian</th>
-              <th className="px-4 py-2 border">Terhitung Mulai</th>
-            </tr>
-          </thead>
-          <tbody>
-            {homeListSorted.map((h, index) => {
-              return (
-                <tr>
-                  <td className="px-4 py-2 border text-center bg-gray-400">
-                    {index + 1}
-                  </td>
-                  <td className="px-4 py-2 border text-center">{h.nomor}</td>
-                  <td className="px-4 py-2 border">{h.nama}</td>
-                  <td className="px-4 py-2 border">
-                    <span
-                      className={
-                        h.sudah_menghuni === 1
-                          ? "bg-green-300 text-green-700 block text-center p-2 text-sm rounded-full font-bold"
-                          : "bg-red-300 text-red-700 p-2 block text-center text-sm rounded-full font-bold"
-                      }
-                    >
-                      {h.sudah_menghuni === 1 ? "Menghuni" : "Belum"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2 border">
-                    {h.tanggal_huni !== "0000-00-00"
-                      ? format(new Date(h.tanggal_huni), "dd MMMM yyyy")
-                      : "-"}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <Card className="p-0 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-surface text-center text-xs font-semibold uppercase tracking-wide text-muted">
+              <tr>
+                <th className="px-4 py-3 w-10">#</th>
+                <th className="px-4 py-3">Nomor Rumah</th>
+                <th className="px-4 py-3">Penghuni</th>
+                <th className="px-4 py-3">Status Kepenghunian</th>
+                <th className="px-4 py-3">Terhitung Mulai</th>
+              </tr>
+            </thead>
+            <tbody>
+              {homeListSorted.map((h, index) => {
+                return (
+                  <tr key={h.nomor} className="border-t border-line odd:bg-white even:bg-surface">
+                    <td className="px-4 py-2 text-center text-muted">
+                      {index + 1}
+                    </td>
+                    <td className="px-4 py-2 text-center">{h.nomor}</td>
+                    <td className="px-4 py-2">{h.nama}</td>
+                    <td className="px-4 py-2 text-center">
+                      <Badge tone={h.sudah_menghuni === 1 ? "success" : "danger"}>
+                        {h.sudah_menghuni === 1 ? "Menghuni" : "Belum"}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-2">
+                      {h.tanggal_huni !== "0000-00-00"
+                        ? format(new Date(h.tanggal_huni), "dd MMMM yyyy")
+                        : "-"}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </div>
   );
 }

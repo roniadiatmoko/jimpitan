@@ -19,7 +19,11 @@ export default function AdminArea() {
 
     return (
         <div>
-            {!isLogin ? <LoginForm /> : <AdminPanel />}
+            {!isLogin ? (
+                <LoginForm onLoginSuccess={() => setIsLogin(true)} />
+            ) : (
+                <AdminPanel onLogout={() => setIsLogin(false)} />
+            )}
         </div>
     )
 }

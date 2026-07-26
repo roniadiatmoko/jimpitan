@@ -3,6 +3,9 @@ import { ENDPOINT_BASE_URL, homeList } from "../../../../shared/config";
 import { rupiahFormat } from "../../../../shared/helpers/MoneyHeper";
 import html2canvas from "html2canvas";
 import RapelForm from "../../rapel/RapelForm";
+import Card from "../../../../shared/components/ui/Card";
+import Button from "../../../../shared/components/ui/Button";
+import Badge from "../../../../shared/components/ui/Badge";
 
 export default function KekuranganBayar({
   period = new Date().getFullYear() +
@@ -91,12 +94,12 @@ export default function KekuranganBayar({
   }, [data, homeMap, statusFilter]);
 
   return (
-    <div className="text-gray-800">
+    <div>
       {/* Filter Bar */}
       <div className="mb-3 flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium mr-2">Filter Status:</span>
-          <label className={`inline-flex items-center rounded-full border px-3 py-2 text-sm cursor-pointer transition ${statusFilter === "all" ? "bg-amber-600 text-white border-amber-600" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"}`}>
+          <span className="text-sm font-medium text-ink mr-2">Filter Status:</span>
+          <label className={`inline-flex items-center rounded-full border px-3 py-2 text-sm cursor-pointer transition ${statusFilter === "all" ? "bg-accent text-white border-accent" : "bg-white text-ink border-line hover:bg-surface"}`}>
             <input
               type="radio"
               name="statusFilter"
@@ -107,7 +110,7 @@ export default function KekuranganBayar({
             />
             Semua
           </label>
-          <label className={`inline-flex items-center rounded-full border px-3 py-2 text-sm cursor-pointer transition ${statusFilter === "menghuni" ? "bg-amber-600 text-white border-amber-600" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"}`}>
+          <label className={`inline-flex items-center rounded-full border px-3 py-2 text-sm cursor-pointer transition ${statusFilter === "menghuni" ? "bg-accent text-white border-accent" : "bg-white text-ink border-line hover:bg-surface"}`}>
             <input
               type="radio"
               name="statusFilter"
@@ -118,7 +121,7 @@ export default function KekuranganBayar({
             />
             Menghuni
           </label>
-          <label className={`inline-flex items-center rounded-full border px-3 py-2 text-sm cursor-pointer transition ${statusFilter === "belum" ? "bg-amber-600 text-white border-amber-600" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"}`}>
+          <label className={`inline-flex items-center rounded-full border px-3 py-2 text-sm cursor-pointer transition ${statusFilter === "belum" ? "bg-accent text-white border-accent" : "bg-white text-ink border-line hover:bg-surface"}`}>
             <input
               type="radio"
               name="statusFilter"
@@ -131,146 +134,143 @@ export default function KekuranganBayar({
           </label>
         </div>
 
-        <button
+        <Button
+          className="ml-auto"
           onClick={handleExportImage}
           disabled={exporting}
-          className={`ml-auto flex items-center gap-2 px-4 py-2 rounded text-white ${
-            exporting ? "bg-gray-400" : "bg-amber-600 hover:bg-amber-700"
-          }`}
         >
           {exporting ? "Mengekspor..." : "Ekspor sebagai Gambar"}
-        </button>
+        </Button>
       </div>
 
       {loading && (
-        <div className="text-center text-gray-500 mb-2">Memuat data...</div>
+        <div className="text-center text-muted mb-2">Memuat data...</div>
       )}
-      <div ref={tableRef} className="overflow-x-auto">
-        <table className="w-full border border-gray-300 rounded-lg overflow-hidden">
-          <thead className="bg-amber-600 text-white">
-            <tr>
-              <th className="px-4 py-2 border">#</th>
-              <th className="px-4 py-2 border">Nomor Rumah</th>
-              <th className="px-4 py-2 border">Penghuni</th>
-              <th className="px-4 py-2 border">Status Dihuni</th>
-              <th className="px-4 py-2 border">Tanggal Kosong</th>
-              <th className="px-4 py-2 border">Jumlah Kekurangan Hari</th>
-              <th className="px-4 py-2 border">Kekurangan Bayar</th>
-              <th className="px-4 py-2 border">Aksi</th>
-              <th className="px-4 py-2 border">Kirim Notifikasi ke WA</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData && filteredData.length > 0 ? (
-              filteredData.map((item, index) => {
-                const homeData = homeMap[Number(item.nomor_rumah)];
-                const isMenghuni = homeData?.sudah_menghuni === 1;
+      <div ref={tableRef}>
+        <Card className="p-0 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-surface text-center text-xs font-semibold uppercase tracking-wide text-muted">
+                <tr>
+                  <th className="px-4 py-3">#</th>
+                  <th className="px-4 py-3">Nomor Rumah</th>
+                  <th className="px-4 py-3">Penghuni</th>
+                  <th className="px-4 py-3">Status Dihuni</th>
+                  <th className="px-4 py-3">Tanggal Kosong</th>
+                  <th className="px-4 py-3">Jumlah Kekurangan Hari</th>
+                  <th className="px-4 py-3">Kekurangan Bayar</th>
+                  <th className="px-4 py-3">Aksi</th>
+                  <th className="px-4 py-3">Kirim Notifikasi ke WA</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredData && filteredData.length > 0 ? (
+                  filteredData.map((item, index) => {
+                    const homeData = homeMap[Number(item.nomor_rumah)];
+                    const isMenghuni = homeData?.sudah_menghuni === 1;
 
-                return (
-                  <tr
-                    key={item.id ?? `${item.nomor_rumah}-${index}`}
-                    className={index % 2 === 0 ? "bg-white" : "bg-gray-100"}
-                  >
-                    <td className="px-4 py-2 border text-center">
-                      {index + 1}
-                    </td>
-                    <td className="px-4 py-2 border text-center">
-                      {item.nomor_rumah}
-                    </td>
-                    <td className="px-4 py-2 border text-left">
-                      {homeData?.nama ?? "-"}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      <span
-                        className={[
-                          "px-2 py-1 text-center font-bold rounded-full inline-block",
-                          isMenghuni
-                            ? "text-green-700 bg-green-300 border-green-700 w-full block"
-                            : "text-red-700 bg-red-300 border-red-700 w-full block",
-                        ].join(" ")}
+                    return (
+                      <tr
+                        key={item.id ?? `${item.nomor_rumah}-${index}`}
+                        className="border-t border-line odd:bg-white even:bg-surface"
                       >
-                        {isMenghuni ? "Menghuni" : "Belum"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {(item.tanggal_kurang || [])
-                        .map((t) => new Date(t).getDate())
-                        .join(", ")}
-                    </td>
-                    <td className="px-4 py-2 border text-center">
-                      {item.kekurangan_hari} hari
-                    </td>
-                    <td className="px-4 py-2 border text-right font-bold">
-                      {rupiahFormat(item.kekurangan_hari * 500)}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      <button
-                        className="bg-amber-600 text-white px-3 py-1 rounded hover:bg-amber-800"
-                        onClick={() => {
-                          setSelectedNomorRumah(item.nomor_rumah);
-                          setOpenModalAdd(true);
-                        }}
-                      >
-                        Lunasi
-                      </button>
-                    </td>
-                    <td className="px-4 py-2 border text-center">
-                      <button
-                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-                        onClick={() => {
-                          // TODO: implement WhatsApp notification logic
-                          console.log(`Kirim notifikasi WA ke rumah ${item.nomor_rumah}`);
-                        }}
-                      >
-                        Kirim WA
-                      </button>
+                        <td className="px-4 py-2 text-center">
+                          {index + 1}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          {item.nomor_rumah}
+                        </td>
+                        <td className="px-4 py-2 text-left">
+                          {homeData?.nama ?? "-"}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          <Badge tone={isMenghuni ? "success" : "danger"}>
+                            {isMenghuni ? "Menghuni" : "Belum"}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-2">
+                          {(item.tanggal_kurang || [])
+                            .map((t) => new Date(t).getDate())
+                            .join(", ")}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          {item.kekurangan_hari} hari
+                        </td>
+                        <td className="px-4 py-2 text-right font-bold">
+                          {rupiahFormat(item.kekurangan_hari * 500)}
+                        </td>
+                        <td className="px-4 py-2">
+                          <Button
+                            className="!px-3 !py-1"
+                            onClick={() => {
+                              setSelectedNomorRumah(item.nomor_rumah);
+                              setOpenModalAdd(true);
+                            }}
+                          >
+                            Lunasi
+                          </Button>
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          <Button
+                            variant="success"
+                            className="!px-3 !py-1"
+                            onClick={() => {
+                              // TODO: implement WhatsApp notification logic
+                              console.log(`Kirim notifikasi WA ke rumah ${item.nomor_rumah}`);
+                            }}
+                          >
+                            Kirim WA
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    {/* colSpan menyesuaikan jumlah kolom */}
+                    <td className="px-4 py-6 text-center text-muted" colSpan={9}>
+                      Tidak ada data kekurangan bayar.
                     </td>
                   </tr>
-                );
-              })
-            ) : (
-              <tr>
-                {/* colSpan menyesuaikan jumlah kolom */}
-                <td className="px-4 py-2 border text-center" colSpan={9}>
-                  Tidak ada data kekurangan bayar.
-                </td>
-              </tr>
-            )}
-            <tr className="bg-red-300">
-              <td className="px-4 py-2 border text-right font-bold" colSpan={7}>
-                Total Kekurangan Bayar
-              </td>
-              <td className="px-4 py-2 border text-right font-bold">
-                {rupiahFormat(
-                  filteredData.reduce(
-                    (sum, item) => sum + item.kekurangan_hari * 500,
-                    0
-                  )
                 )}
-              </td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
+                <tr className="border-t border-line bg-red-50 font-bold text-red-900">
+                  <td className="px-4 py-2 text-right" colSpan={7}>
+                    Total Kekurangan Bayar
+                  </td>
+                  <td className="px-4 py-2 text-right">
+                    {rupiahFormat(
+                      filteredData.reduce(
+                        (sum, item) => sum + item.kekurangan_hari * 500,
+                        0
+                      )
+                    )}
+                  </td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </Card>
 
         {
           /* Modal Add Rapel */
           openModalAdd ? (
             <div className="bg-black bg-opacity-50 fixed top-0 left-0 w-full h-full z-40">
-              <div className="fixed top-1/2 left-1/2 w-[90%] transform -translate-x-1/2 -translate-y-1/2 text-center bg-white rounded-lg p-5 z-50">
+              <div className="fixed top-1/2 left-1/2 w-[90%] max-w-lg transform -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-5 shadow-xl">
                 <RapelForm
                   onSuccess={() => getKekuranganBayar()}
                   nomorRumah={selectedNomorRumah}
                   initialPeriod={period}
                 />
-                <button
-                  className="p-4 mb-5 float-right rounded-xl text-white font-bold bg-gray-600 hover:bg-blue-700"
+                <Button
+                  variant="secondary"
+                  className="mt-3 w-full"
                   onClick={() => {
                     setOpenModalAdd(false);
                   }}
                 >
-                  <span>Tutup</span>
-                </button>
+                  Tutup
+                </Button>
               </div>
             </div>
           ) : (

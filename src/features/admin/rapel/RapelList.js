@@ -3,6 +3,10 @@ import { ENDPOINT_BASE_URL, homeList, months } from "../../../shared/config";
 import SimpleModal from "../../../shared/components/SimpleModal";
 import { getDaysInMonth } from "../../../shared/helpers/DateHelper";
 import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
+import Card from "../../../shared/components/ui/Card";
+import Button from "../../../shared/components/ui/Button";
+import Badge from "../../../shared/components/ui/Badge";
+import Spinner from "../../../shared/components/ui/Spinner";
 import RapelForm from "./RapelForm";
 import DetailRapel from "./DetailRapel";
 import DatePicker from "react-datepicker";
@@ -53,120 +57,90 @@ export default function RapelList() {
   }, [selectedMonth]);
 
   return (
-    <div className="m-8">
-      <div className=" bg-blue-50 p-4 rounded-xl">
-        <h1 className="text-2xl text-center font-bold text-blue-900">
-          Daftar Rapel
-        </h1>
-        <br />
-        <span className="text-gray-600">Pilih Bulan</span>
-        <div className="flex flex-row justify-stretch gap-5">
-          <DatePicker
-                selected={selectedMonth}
-                onChange={(date) => setSelectedMonth(date)}
-                dateFormat="MMMM yyyy"
-                showMonthYearPicker // hanya bulan & tahun
-                wrapperClassName="w-full"
-                className="bg-gray-200 rounded-md p-2 w-full"
-              />
+    <div className="space-y-4">
+      <Card>
+        <h1 className="text-xl font-bold text-ink">Daftar Rapel</h1>
+        <label className="mt-4 mb-1 block text-xs font-medium text-muted">
+          Pilih Bulan
+        </label>
+        <DatePicker
+          selected={selectedMonth}
+          onChange={(date) => setSelectedMonth(date)}
+          dateFormat="MMMM yyyy"
+          showMonthYearPicker // hanya bulan & tahun
+          wrapperClassName="w-full sm:w-64"
+          className="w-full rounded-lg border border-line p-2.5 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+        />
+      </Card>
 
-          {/* <button
-            className="pl-4 pr-4 pt-1 pb-1 rounded-xl bg-blue-500 text-white hover:bg-blue-700"
-            onClick={showRapelData}
-          >
-            <span>Tampilkan</span>
-          </button> */}
+      <Card className="p-0">
+        <div className="flex flex-wrap items-center justify-between gap-3 p-5">
+          <h2 className="text-lg font-bold text-ink">
+            {months.find(m => m.value === Number((selectedMonth.getMonth() + 1).toString().padStart(2, "0"))).label} {selectedMonth.getFullYear()}
+          </h2>
+          <Button onClick={() => setOpenModalAdd(true)}>
+            + Tambah Data Rapel
+          </Button>
         </div>
-      </div>
-      <div className="mt-1 bg-blue-50 p-4 rounded-xl">
-        {loading ? (
-          <div className="flex justify-center">
-            <div
-              className="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-blue-600 rounded-full"
-              role="status"
-              aria-label="loading"
-            >
-              <span className="sr-only">Melihat Data...</span>
-            </div>
-            &nbsp; Melihat Data...
-          </div>
-        ) : (
-          ""
-        )}
 
-        {/* data rapel */}
-        <div className="overflow-x-auto p-4">
-          <h2 className="font-bold text-4xl float-left text-blue-700">{months.find(m => m.value === Number((selectedMonth.getMonth() + 1).toString().padStart(2, "0"))).label} {selectedMonth.getFullYear()}</h2>
-          <button
-            className="p-4 mb-5 float-right rounded-xl text-white font-bold bg-blue-600 hover:bg-blue-700"
-            onClick={() => {
-              setOpenModalAdd(true);
-            }}
-          >
-            <span>+ Tambah Data Rapel</span>
-          </button>
-
-          {
-            /* Modal Add Rapel */
-            openModalAdd ? (
-              <div className="bg-black bg-opacity-50 fixed top-0 left-0 w-full h-full z-40">
-                <div className="fixed top-1/2 left-1/2 w-[90%] transform -translate-x-1/2 -translate-y-1/2 text-center bg-white rounded-lg p-5 z-50">
-                  <RapelForm
-                    onSuccess={() => showRapelData()}
-                    initialPeriod={`${selectedMonth.getFullYear()}-${(selectedMonth.getMonth() + 1).toString().padStart(2, "0")}`}
-                  />
-                  <button
-                    className="p-4 mb-5 float-right rounded-xl text-white font-bold bg-gray-600 hover:bg-blue-700"
-                    onClick={() => {
-                      setOpenModalAdd(false);
-                    }}
-                  >
-                    <span>Tutup</span>
-                  </button>
-                </div>
+        {
+          /* Modal Add Rapel */
+          openModalAdd ? (
+            <div className="fixed top-0 left-0 z-40 h-full w-full bg-black/50">
+              <div className="fixed top-1/2 left-1/2 w-[90%] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-5 shadow-xl">
+                <RapelForm
+                  onSuccess={() => showRapelData()}
+                  initialPeriod={`${selectedMonth.getFullYear()}-${(selectedMonth.getMonth() + 1).toString().padStart(2, "0")}`}
+                />
+                <Button
+                  variant="secondary"
+                  className="mt-3 w-full"
+                  onClick={() => setOpenModalAdd(false)}
+                >
+                  Tutup
+                </Button>
               </div>
-            ) : (
-              ""
-            )
-          }
+            </div>
+          ) : (
+            ""
+          )
+        }
 
-          <table className="min-w-full border border-gray-300 rounded-lg overflow-hidden">
-            <thead className="bg-blue-600 text-white">
+        {loading && <Spinner label="Melihat data..." />}
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead className="bg-surface text-center text-xs font-semibold uppercase tracking-wide text-muted">
               <tr>
-                <th className="px-4 py-2 border">No</th>
-                <th className="px-4 py-2 border">Nomor Rumah</th>
-                <th className="px-4 py-2 border">Nama</th>
-                <th className="px-4 py-2 border">Jumlah Hari Rapel</th>
-                <th className="px-4 py-2 border">Aksi</th>
+                <th className="px-4 py-3">No</th>
+                <th className="px-4 py-3">Nomor Rumah</th>
+                <th className="px-4 py-3">Nama</th>
+                <th className="px-4 py-3">Jumlah Hari Rapel</th>
+                <th className="px-4 py-3">Aksi</th>
               </tr>
             </thead>
             <tbody>
               {rapelData.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-4 text-gray-500">
+                  <td colSpan={5} className="px-4 py-6 text-center text-muted">
                     Belum ada data rapel
                   </td>
                 </tr>
               ) : (
                 rapelData.map((item, index) => (
-                  <tr
-                    key={index}
-                    className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
-                  >
-                    <td className="px-4 py-2 border text-center">
-                      {index + 1}
-                    </td>
-                    <td className="px-4 py-2 border text-center">
+                  <tr key={index} className="border-t border-line odd:bg-white even:bg-surface">
+                    <td className="px-4 py-3 text-center">{index + 1}</td>
+                    <td className="px-4 py-3 text-center">
                       {item.nomor_rumah}
                     </td>
-                    <td className="px-4 py-2 border">
+                    <td className="px-4 py-3">
                       {
                         homeList.find(
                           (h) => h.nomor === Number(item.nomor_rumah)
                         )?.nama
                       }
                     </td>
-                    <td className="px-4 py-2 border text-center">
+                    <td className="px-4 py-3 text-center">
                       {`${item.jumlah_rapel} dari ${getDaysInMonth(
                         (selectedMonth.getMonth() + 1).toString().padStart(2, "0"),
                         selectedMonth.getFullYear()
@@ -174,27 +148,26 @@ export default function RapelList() {
 
                       {getDaysInMonth((selectedMonth.getMonth() + 1).toString().padStart(2, "0"), selectedMonth.getFullYear()) ===
                       item.jumlah_rapel ? (
-                        <span className="text-green-600 font-bold p-2 ml-2">
+                        <Badge tone="success" className="ml-2">
                           Lunas
-                        </span>
+                        </Badge>
                       ) : (
-                        <span className="text-red-500 bg-red-300 rounded-full p-2 font-bold ml-2">
-                          Kurang{" "}
-                          {kekurangan(item.jumlah_rapel)}{" "}
-                          Hari ( { rupiahFormat(kekurangan(item.jumlah_rapel) * 500)} )
-                        </span>
+                        <Badge tone="danger" className="ml-2">
+                          Kurang {kekurangan(item.jumlah_rapel)} Hari (
+                          {rupiahFormat(kekurangan(item.jumlah_rapel) * 500)})
+                        </Badge>
                       )}
                     </td>
-                    <td className="px-4 py-1 border text-center">
-                      <button
-                        className="bg-blue-600 w-full text-white p-1 rounded-xl font-bold hover:bg-blue-700"
+                    <td className="px-4 py-3 text-center">
+                      <Button
+                        className="w-full"
                         onClick={() => {
                           setSelectedItem(item);
                           setOpenModalDetail(true);
                         }}
                       >
                         Detail
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))
@@ -218,7 +191,7 @@ export default function RapelList() {
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

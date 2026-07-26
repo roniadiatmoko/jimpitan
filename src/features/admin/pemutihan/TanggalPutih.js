@@ -4,6 +4,8 @@ import DatePicker from "react-datepicker";
 import { format, compareAsc, addDays, setYear as setDateYear } from "date-fns";
 import { id } from "date-fns/locale";
 import { ENDPOINT_BASE_URL } from "../../../shared/config";
+import Card from "../../../shared/components/ui/Card";
+import Button from "../../../shared/components/ui/Button";
 
 export default function TanggalPutih() {
   const currentYear = new Date().getFullYear();
@@ -185,22 +187,25 @@ export default function TanggalPutih() {
     setSelectedEndDate((prev) => setDateYear(prev, nextYear));
   };
 
+  const inputClass =
+    "mt-2 w-full rounded-lg border border-line bg-white px-4 py-3 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
+
   return (
-    <div className="p-6">
-      <div className="mb-6 rounded-3xl border border-blue-200 bg-white p-6 shadow-sm">
+    <div className="space-y-4">
+      <Card>
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Tanggal Putih</h1>
-            <p className="mt-2 text-sm text-slate-600">
+            <h1 className="text-xl font-bold text-ink">Tanggal Putih</h1>
+            <p className="mt-2 text-sm text-muted">
               Kelola tanggal exception dalam setahun yang tidak dihitung sebagai
               kekurangan bayar jimpitan.
             </p>
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
+          <div className="flex items-center gap-2 rounded-full border border-accent/20 bg-accent-soft px-3 py-2 text-sm text-accent">
             <button
               type="button"
               onClick={() => handleYearChange(-1)}
-              className="rounded-full bg-white px-3 py-1 shadow-sm hover:bg-slate-100"
+              className="rounded-full bg-white px-3 py-1 shadow-sm hover:bg-surface"
             >
               ‹
             </button>
@@ -208,7 +213,7 @@ export default function TanggalPutih() {
             <button
               type="button"
               onClick={() => handleYearChange(1)}
-              className="rounded-full bg-white px-3 py-1 shadow-sm hover:bg-slate-100"
+              className="rounded-full bg-white px-3 py-1 shadow-sm hover:bg-surface"
             >
               ›
             </button>
@@ -218,7 +223,7 @@ export default function TanggalPutih() {
         <div className="mt-6 grid gap-4 md:grid-cols-[minmax(260px,1fr)_auto]">
           <div className="grid gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-xs font-medium text-muted">
                 Tanggal Mulai
               </label>
               <DatePicker
@@ -226,11 +231,11 @@ export default function TanggalPutih() {
                 onChange={(date) => date && setSelectedStartDate(date)}
                 dateFormat="dd MMMM yyyy"
                 locale={id}
-                className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm"
+                className={inputClass}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-xs font-medium text-muted">
                 Tanggal Selesai
               </label>
               <DatePicker
@@ -238,56 +243,52 @@ export default function TanggalPutih() {
                 onChange={(date) => date && setSelectedEndDate(date)}
                 dateFormat="dd MMMM yyyy"
                 locale={id}
-                className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm"
+                className={inputClass}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-xs font-medium text-muted">
                 Keterangan
               </label>
               <input
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
                 placeholder="Contoh: Libur nasional"
-                className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm"
+                className={inputClass}
               />
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-muted">
               Hanya rentang tanggal dalam tahun {year} yang dapat ditambahkan.
             </p>
-            <button
-              type="button"
-              onClick={handleAddRange}
-              className="h-14 rounded-2xl bg-blue-700 px-6 text-white shadow hover:bg-blue-800"
-            >
+            <Button onClick={handleAddRange} className="h-12">
               Tambah Rentang
-            </button>
+            </Button>
           </div>
         </div>
-      </div>
+      </Card>
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <Card>
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold text-slate-900">
+            <h2 className="text-lg font-bold text-ink">
               Daftar Tanggal Putih
             </h2>
-            <p className="mt-1 text-sm text-slate-600">
+            <p className="mt-1 text-sm text-muted">
               Tanggal exception yang akan dikecualikan dari perhitungan
               kekurangan bayar.
             </p>
           </div>
-          <div className="text-sm text-slate-500">
+          <div className="text-sm text-muted">
             Total: {visibleDates.length} tanggal
           </div>
         </div>
 
         {loading ? (
-          <div className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-slate-500">
+          <div className="mt-6 rounded-xl border border-dashed border-line bg-surface p-6 text-center text-muted">
             Memuat tanggal putih...
           </div>
         ) : visibleDates.length === 0 ? (
-          <div className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-slate-500">
+          <div className="mt-6 rounded-xl border border-dashed border-line bg-surface p-6 text-center text-muted">
             Belum ada tanggal putih untuk tahun {year}.
           </div>
         ) : (
@@ -295,24 +296,24 @@ export default function TanggalPutih() {
             {visibleDates.map((item) => (
               <div
                 key={item.id || item.tanggal}
-                className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4"
+                className="flex flex-col gap-2 rounded-xl border border-line bg-surface px-4 py-4"
               >
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="font-semibold text-slate-800">
+                  <span className="font-semibold text-ink">
                     {format(new Date(item.tanggal), "EEEE, d MMMM yyyy", {
                       locale: id,
                     })}
                   </span>
-                  <button
-                    type="button"
+                  <Button
+                    variant="danger"
+                    className="!px-4 !py-2"
                     onClick={() => handleDeleteTanggal(item.id)}
-                    className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
                   >
                     Hapus
-                  </button>
+                  </Button>
                 </div>
                 {item.keterangan && (
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-muted">
                     Keterangan: {item.keterangan}
                   </p>
                 )}
@@ -320,7 +321,7 @@ export default function TanggalPutih() {
             ))}
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

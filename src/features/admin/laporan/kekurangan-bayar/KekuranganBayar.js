@@ -2,6 +2,8 @@ import DatePicker from "react-datepicker";
 import { months, ENDPOINT_BASE_URL } from "../../../../shared/config";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Card from "../../../../shared/components/ui/Card";
+import Button from "../../../../shared/components/ui/Button";
 import DetailKekuranganBayar from "./DetailKekuranganBayar";
 
 export default function KekuranganBayar() {
@@ -74,57 +76,46 @@ export default function KekuranganBayar() {
     }, [selectedMonth]);
 
     return (
-        <div className="m-4 bg-white shadow-md p-4 rounded-xl">
-              <h1 className="text-center font-bold text-2xl text-amber-700 mb-10">
+        <div className="space-y-4">
+          <Card>
+              <h1 className="text-xl font-bold text-ink">
                 Laporan Kekurangan Bayar
               </h1>
-              <h2>Pilih Bulan</h2>
+              <label className="mt-4 mb-1 block text-xs font-medium text-muted">Pilih Bulan</label>
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  className="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
-                  onClick={handlePrevMonth}
-                >
+                <Button variant="secondary" onClick={handlePrevMonth}>
                   ◀
-                </button>
+                </Button>
                 <DatePicker
                   selected={selectedMonth}
                   onChange={(date) => setSelectedMonth(date)}
                   dateFormat="MMMM yyyy"
                   showMonthYearPicker // hanya bulan & tahun
                   wrapperClassName="w-56"
-                  className="bg-gray-200 rounded-md p-2 w-full"
+                  className="w-full rounded-lg border border-line p-2.5 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
                 />
-                <button
-                  type="button"
-                  className="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
-                  onClick={handleNextMonth}
-                >
+                <Button variant="secondary" onClick={handleNextMonth}>
                   ▶
-                </button>
+                </Button>
               </div>
-        
+
               <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="text-center sm:text-left">
-                  <span className="text-sm text-gray-500">
-                    Menampilkan laporan kekurangan bayar<br />
+                  <span className="text-sm text-muted">
+                    Menampilkan laporan kekurangan bayar
                   </span>
-                  <span className="text-xl font-bold text-amber-600">
+                  <div className="text-lg font-bold text-ink">
                     {months.find((m) => m.value === selectedMonth.getMonth() + 1).label}{" "}
                     {selectedMonth.getFullYear()}
-                  </span>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  className="inline-flex items-center justify-center rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700"
-                  onClick={() => navigate("/admin/kekurangan-bayar-tahun")}
-                >
+                <Button onClick={() => navigate("/admin/kekurangan-bayar-tahun")}>
                   Rekap dalam Tahun
-                </button>
+                </Button>
               </div>
 
               {pemutihanLoading ? (
-                <div className="mt-4 rounded-xl border border-yellow-300 bg-yellow-50 p-4 text-sm text-yellow-900">
+                <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
                   Memuat tanggal pemutihan...
                 </div>
               ) : pemutihanError ? (
@@ -132,24 +123,23 @@ export default function KekuranganBayar() {
                   {pemutihanError}
                 </div>
               ) : pemutihan.length > 0 ? (
-                <div className="mt-4 rounded-xl border border-blue-300 bg-blue-50 p-4 text-sm text-blue-900">
+                <div className="mt-4 rounded-xl border border-accent/20 bg-accent-soft p-4 text-sm text-accent">
                   <div className="font-semibold">Tanggal Putih Aktif</div>
                   <div>
                     Terdapat {pemutihan.length} tanggal pemutihan pada bulan ini.
                   </div>
                 </div>
               ) : null}
+          </Card>
 
-              <div className="mt-5">
-                <DetailKekuranganBayar
-                  period={
-                    selectedMonth.getFullYear() +
-                    "-" +
-                    (selectedMonth.getMonth() + 1).toString().padStart(2, "0")
-                  }
-                />
-              </div>
-            </div>
+          <DetailKekuranganBayar
+            period={
+              selectedMonth.getFullYear() +
+              "-" +
+              (selectedMonth.getMonth() + 1).toString().padStart(2, "0")
+            }
+          />
+        </div>
     );
 
 }

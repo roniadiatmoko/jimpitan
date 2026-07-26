@@ -33,7 +33,7 @@ export default function SimpleModal({ content, onClose }) {
       >
         {/* Tombol tutup di pojok */}
         <button
-          className="absolute right-3 top-3 rounded-md px-3 py-1 text-white bg-gray-600 hover:bg-blue-700"
+          className="absolute right-3 top-3 rounded-md px-3 py-1 text-sm font-medium text-muted hover:bg-surface hover:text-ink"
           onClick={onClose}
           aria-label="Tutup modal"
         >

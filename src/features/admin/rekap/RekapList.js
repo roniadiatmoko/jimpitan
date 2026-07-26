@@ -3,6 +3,9 @@ import Swal from "sweetalert2";
 import CurrencyInput from "react-currency-input-field";
 import { ENDPOINT_BASE_URL, months } from "../../../shared/config";
 import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
+import Card from "../../../shared/components/ui/Card";
+import Button from "../../../shared/components/ui/Button";
+import Spinner from "../../../shared/components/ui/Spinner";
 
 const pad2 = (n) => String(n).padStart(2, "0");
 
@@ -422,149 +425,140 @@ export default function RekapList() {
     0
   );
 
+  const inputClass =
+    "w-full rounded-lg border border-line p-2.5 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
+
   return (
-    <div className="m-4 bg-white shadow-md p-4 rounded-xl">
-      <h1 className="text-center font-bold text-2xl text-green-700 mb-6">
-        Daftar Rekap Saldo
-      </h1>
+    <div className="space-y-4">
+      <Card>
+        <h1 className="text-xl font-bold text-ink mb-6">
+          Daftar Rekap Saldo
+        </h1>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">
-            Pilih Tahun
-          </label>
-          <select
-            className="w-48 rounded-md border border-gray-300 bg-white px-3 py-2"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-          >
-            {yearOptions.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-medium text-muted">
+              Pilih Tahun
+            </label>
+            <select
+              className="w-48 rounded-lg border border-line bg-white px-3 py-2 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+            >
+              {yearOptions.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={openSyncModal}>
+              Sinkron
+            </Button>
+            <Button onClick={openAddForm}>+ Tambah Rekap</Button>
+          </div>
         </div>
+      </Card>
 
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={openSyncModal}
-            className="bg-purple-600 text-white font-bold px-4 py-2 rounded-lg shadow-md hover:bg-purple-700 transition"
-          >
-            🔁 Sinkron
-          </button>
-          <button
-            type="button"
-            onClick={openAddForm}
-            className="bg-green-600 text-white font-bold px-4 py-2 rounded-lg shadow-md hover:bg-green-700 transition"
-          >
-            + Tambah Rekap
-          </button>
-        </div>
-      </div>
+      {loading && <Spinner label="Memuat data rekap..." />}
 
-      {loading && (
-        <div className="rounded-xl border border-yellow-300 bg-yellow-50 p-4 text-sm text-yellow-900 mb-4">
-          Memuat data rekap...
-        </div>
-      )}
-
-      <div className="overflow-x-auto">
-        <table className="min-w-full border border-gray-300 text-sm">
-          <thead className="bg-green-600 text-white">
-            <tr>
-              <th className="px-3 py-2 border">Tahun</th>
-              <th className="px-3 py-2 border">Bulan</th>
-              <th className="px-3 py-2 border">Saldo Sebelumnya</th>
-              <th className="px-3 py-2 border">Pemasukan</th>
-              <th className="px-3 py-2 border">Pengeluaran</th>
-              <th className="px-3 py-2 border">Sisa Saldo</th>
-              <th className="px-3 py-2 border">Kunci Sinkron</th>
-              <th className="px-3 py-2 border">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.bulan} className="odd:bg-white even:bg-gray-50">
-                <td className="px-3 py-2 border text-center">{year}</td>
-                <td className="px-3 py-2 border text-center">{row.label}</td>
-                <td className="px-3 py-2 border text-right">
-                  {rupiahFormat(row.saldo_sebelumnya)}
-                </td>
-                <td className="px-3 py-2 border text-right">
-                  {rupiahFormat(row.pemasukan)}
-                </td>
-                <td className="px-3 py-2 border text-right">
-                  {rupiahFormat(row.pengeluaran)}
-                </td>
-                <td className="px-3 py-2 border text-right font-semibold">
-                  {rupiahFormat(row.sisa_saldo)}
-                </td>
-                <td className="px-3 py-2 border text-center">
-                  {row.is_kunci_sinkron === 1 ? (
-                    <span className="text-red-700 font-semibold">
-                      🔒 Ya
-                    </span>
-                  ) : (
-                    <span className="text-gray-400">Tidak</span>
-                  )}
-                </td>
-                <td className="px-3 py-2 border text-center">
-                  <button
-                    type="button"
-                    onClick={() => openEditModal(row)}
-                    className="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-md shadow hover:bg-blue-700 transition"
-                  >
-                    ✏️ Perbarui Nominal
-                  </button>
-                </td>
+      <Card className="p-0 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead className="bg-surface text-center text-xs font-semibold uppercase tracking-wide text-muted">
+              <tr>
+                <th className="px-3 py-3">Tahun</th>
+                <th className="px-3 py-3">Bulan</th>
+                <th className="px-3 py-3">Saldo Sebelumnya</th>
+                <th className="px-3 py-3">Pemasukan</th>
+                <th className="px-3 py-3">Pengeluaran</th>
+                <th className="px-3 py-3">Sisa Saldo</th>
+                <th className="px-3 py-3">Kunci Sinkron</th>
+                <th className="px-3 py-3">Aksi</th>
               </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr className="bg-gray-100 font-semibold">
-              <td className="px-3 py-2 border text-center" colSpan={3}>
-                Total Tahun {year}
-              </td>
-              <td className="px-3 py-2 border text-right">
-                {rupiahFormat(totalPemasukan)}
-              </td>
-              <td className="px-3 py-2 border text-right">
-                {rupiahFormat(totalPengeluaran)}
-              </td>
-              <td className="px-3 py-2 border"></td>
-              <td className="px-3 py-2 border"></td>
-              <td className="px-3 py-2 border"></td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.bulan} className="border-t border-line odd:bg-white even:bg-surface">
+                  <td className="px-3 py-2 text-center">{year}</td>
+                  <td className="px-3 py-2 text-center">{row.label}</td>
+                  <td className="px-3 py-2 text-right">
+                    {rupiahFormat(row.saldo_sebelumnya)}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    {rupiahFormat(row.pemasukan)}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    {rupiahFormat(row.pengeluaran)}
+                  </td>
+                  <td className="px-3 py-2 text-right font-semibold">
+                    {rupiahFormat(row.sisa_saldo)}
+                  </td>
+                  <td className="px-3 py-2 text-center">
+                    {row.is_kunci_sinkron === 1 ? (
+                      <span className="font-semibold text-red-700">Ya</span>
+                    ) : (
+                      <span className="text-muted">Tidak</span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 text-center">
+                    <Button
+                      variant="secondary"
+                      className="!px-3 !py-1 text-xs"
+                      onClick={() => openEditModal(row)}
+                    >
+                      Perbarui Nominal
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="border-t border-line bg-surface font-semibold">
+                <td className="px-3 py-2 text-center" colSpan={3}>
+                  Total Tahun {year}
+                </td>
+                <td className="px-3 py-2 text-right">
+                  {rupiahFormat(totalPemasukan)}
+                </td>
+                <td className="px-3 py-2 text-right">
+                  {rupiahFormat(totalPengeluaran)}
+                </td>
+                <td className="px-3 py-2"></td>
+                <td className="px-3 py-2"></td>
+                <td className="px-3 py-2"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </Card>
 
       {showAddForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-md rounded-2xl bg-white shadow-xl p-6">
-            <h2 className="text-xl font-bold text-center text-green-700 mb-4">
+            <h2 className="text-lg font-bold text-center text-ink mb-4">
               Tambah Rekap Manual
             </h2>
 
             <div className="flex flex-col gap-4">
               <div>
-                <label className="block text-gray-700 mb-1">Tahun</label>
+                <label className="block text-xs font-medium text-muted mb-1">Tahun</label>
                 <input
                   type="number"
                   value={formTahun}
                   onChange={(e) => setFormTahun(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded"
+                  className={inputClass}
                   placeholder="Contoh: 2023"
                 />
               </div>
               <div>
-                <label className="block text-gray-700 mb-1">Bulan</label>
+                <label className="block text-xs font-medium text-muted mb-1">Bulan</label>
                 <select
                   value={formBulan}
                   onChange={(e) => setFormBulan(Number(e.target.value))}
-                  className="w-full p-2 border border-gray-300 bg-white rounded"
+                  className={inputClass}
                 >
                   {months.map((m) => (
                     <option key={m.value} value={m.value}>
@@ -574,55 +568,54 @@ export default function RekapList() {
                 </select>
               </div>
               <div>
-                <label className="block text-gray-700 mb-1">Pemasukan</label>
+                <label className="block text-xs font-medium text-muted mb-1">Pemasukan</label>
                 <input
                   type="number"
                   value={formPemasukan}
                   onChange={(e) => setFormPemasukan(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded"
+                  className={inputClass}
                   placeholder="Contoh: 1500000"
                 />
               </div>
               <div>
-                <label className="block text-gray-700 mb-1">Pengeluaran</label>
+                <label className="block text-xs font-medium text-muted mb-1">Pengeluaran</label>
                 <input
                   type="number"
                   value={formPengeluaran}
                   onChange={(e) => setFormPengeluaran(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded"
+                  className={inputClass}
                   placeholder="Contoh: 500000"
                 />
               </div>
               <div>
-                <label className="block text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-muted mb-1">
                   Keterangan (opsional)
                 </label>
                 <input
                   type="text"
                   value={formKeterangan}
                   onChange={(e) => setFormKeterangan(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded"
+                  className={inputClass}
                   placeholder="Contoh: Rekap dari buku kas lama"
                 />
               </div>
             </div>
 
             <div className="flex gap-3 mt-6">
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                className="flex-1"
                 onClick={() => setShowAddForm(false)}
-                className="flex-1 bg-gray-200 text-gray-700 font-bold p-2 rounded-lg hover:bg-gray-300 transition"
               >
                 Batal
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                className="flex-1"
                 onClick={handleTambahRekap}
                 disabled={saving}
-                className="flex-1 bg-green-600 text-white font-bold p-2 rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? "Menyimpan..." : "Simpan"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -631,16 +624,16 @@ export default function RekapList() {
       {showEditModal && editRow && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-md rounded-2xl bg-white shadow-xl p-6">
-            <h2 className="text-xl font-bold text-center text-blue-700 mb-1">
+            <h2 className="text-lg font-bold text-center text-ink mb-1">
               Perbarui Nominal
             </h2>
-            <p className="text-center text-sm text-gray-500 mb-4">
+            <p className="text-center text-sm text-muted mb-4">
               {editRow.label} {year}
             </p>
 
             <div className="flex flex-col gap-4">
               <div>
-                <label className="block text-gray-700 mb-1">Pemasukan</label>
+                <label className="block text-xs font-medium text-muted mb-1">Pemasukan</label>
                 <CurrencyInput
                   id="editPemasukan"
                   name="editPemasukan"
@@ -650,12 +643,12 @@ export default function RekapList() {
                   groupSeparator="."
                   decimalSeparator=","
                   prefix="Rp "
-                  className="w-full p-2 border border-gray-300 rounded"
+                  className={inputClass}
                   onValueChange={(value) => setEditPemasukan(value || "")}
                 />
               </div>
               <div>
-                <label className="block text-gray-700 mb-1">Pengeluaran</label>
+                <label className="block text-xs font-medium text-muted mb-1">Pengeluaran</label>
                 <CurrencyInput
                   id="editPengeluaran"
                   name="editPengeluaran"
@@ -665,83 +658,84 @@ export default function RekapList() {
                   groupSeparator="."
                   decimalSeparator=","
                   prefix="Rp "
-                  className="w-full p-2 border border-gray-300 rounded"
+                  className={inputClass}
                   onValueChange={(value) => setEditPengeluaran(value || "")}
                 />
               </div>
               <div>
-                <label className="block text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-muted mb-1">
                   Keterangan (opsional)
                 </label>
                 <input
                   type="text"
                   value={editKeterangan}
                   onChange={(e) => setEditKeterangan(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded"
+                  className={inputClass}
                   placeholder="Contoh: Koreksi data lampau"
                 />
               </div>
 
               <div>
-                <label className="block text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-muted mb-1">
                   Kunci Sinkron
                 </label>
                 <div className="flex gap-4">
-                  <label className="inline-flex items-center gap-2">
+                  <label className="inline-flex items-center gap-2 text-sm text-ink">
                     <input
                       type="radio"
                       name="editKunciSinkron"
                       checked={editKunciSinkron === true}
                       onChange={() => setEditKunciSinkron(true)}
+                      className="text-accent focus:ring-accent"
                     />
                     Ya
                   </label>
-                  <label className="inline-flex items-center gap-2">
+                  <label className="inline-flex items-center gap-2 text-sm text-ink">
                     <input
                       type="radio"
                       name="editKunciSinkron"
                       checked={editKunciSinkron === false}
                       onChange={() => setEditKunciSinkron(false)}
+                      className="text-accent focus:ring-accent"
                     />
                     Tidak
                   </label>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted mt-1">
                   Jika "Ya", periode ini tidak akan dihitung ulang saat tombol
                   Sinkron dijalankan.
                 </p>
               </div>
 
-              <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
-                <div className="text-xs text-gray-500">
+              <div className="rounded-lg border border-accent/20 bg-accent-soft p-3">
+                <div className="text-xs text-accent/80">
                   Saldo Sebelumnya: {rupiahFormat(editRow.saldo_sebelumnya)}
                 </div>
-                <div className="mt-1 flex justify-between font-semibold text-blue-800">
+                <div className="mt-1 flex justify-between font-semibold text-accent">
                   <span>Perkiraan Sisa Saldo</span>
                   <span>{rupiahFormat(previewSisaSaldo)}</span>
                 </div>
-                <div className="mt-1 text-xs text-gray-500 italic">
+                <div className="mt-1 text-xs text-accent/80 italic">
                   Nilai final dihitung ulang oleh server setelah disimpan.
                 </div>
               </div>
             </div>
 
             <div className="flex gap-3 mt-6">
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                className="flex-1"
                 onClick={() => setShowEditModal(false)}
-                className="flex-1 bg-gray-200 text-gray-700 font-bold p-2 rounded-lg hover:bg-gray-300 transition"
               >
                 Batal
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                className="flex-1"
                 onClick={handleSimpanNominal}
                 disabled={editSaving}
-                className="flex-1 bg-blue-600 text-white font-bold p-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {editSaving ? "Menyimpan..." : "Simpan"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -750,21 +744,21 @@ export default function RekapList() {
       {showSyncModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-md rounded-2xl bg-white shadow-xl p-6">
-            <h2 className="text-xl font-bold text-center text-purple-700 mb-2">
+            <h2 className="text-lg font-bold text-center text-ink mb-2">
               Sinkron Rekap
             </h2>
-            <p className="text-sm text-gray-500 mb-4 text-center">
+            <p className="text-sm text-muted mb-4 text-center">
               Menghitung ulang saldo sebelumnya &amp; sisa saldo untuk semua
               periode secara urut, dari periode awal sampai akhir.
             </p>
 
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-gray-700 mb-1">Dari Tahun</label>
+                <label className="block text-xs font-medium text-muted mb-1">Dari Tahun</label>
                 <select
                   value={syncFromTahun}
                   onChange={(e) => setSyncFromTahun(e.target.value)}
-                  className="w-full p-2 border border-gray-300 bg-white rounded"
+                  className={inputClass}
                 >
                   {yearOptions.map((y) => (
                     <option key={y} value={y}>
@@ -774,11 +768,11 @@ export default function RekapList() {
                 </select>
               </div>
               <div>
-                <label className="block text-gray-700 mb-1">Dari Bulan</label>
+                <label className="block text-xs font-medium text-muted mb-1">Dari Bulan</label>
                 <select
                   value={syncFromBulan}
                   onChange={(e) => setSyncFromBulan(Number(e.target.value))}
-                  className="w-full p-2 border border-gray-300 bg-white rounded"
+                  className={inputClass}
                 >
                   {months.map((m) => (
                     <option key={m.value} value={m.value}>
@@ -788,13 +782,13 @@ export default function RekapList() {
                 </select>
               </div>
               <div>
-                <label className="block text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-muted mb-1">
                   Sampai Tahun
                 </label>
                 <select
                   value={syncToTahun}
                   onChange={(e) => setSyncToTahun(e.target.value)}
-                  className="w-full p-2 border border-gray-300 bg-white rounded"
+                  className={inputClass}
                 >
                   {yearOptions.map((y) => (
                     <option key={y} value={y}>
@@ -804,13 +798,13 @@ export default function RekapList() {
                 </select>
               </div>
               <div>
-                <label className="block text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-muted mb-1">
                   Sampai Bulan
                 </label>
                 <select
                   value={syncToBulan}
                   onChange={(e) => setSyncToBulan(Number(e.target.value))}
-                  className="w-full p-2 border border-gray-300 bg-white rounded"
+                  className={inputClass}
                 >
                   {months.map((m) => (
                     <option key={m.value} value={m.value}>
@@ -822,22 +816,21 @@ export default function RekapList() {
             </div>
 
             <div className="flex gap-3">
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                className="flex-1"
                 onClick={() => setShowSyncModal(false)}
                 disabled={syncing}
-                className="flex-1 bg-gray-200 text-gray-700 font-bold p-2 rounded-lg hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Batal
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                className="flex-1"
                 onClick={handleSinkron}
                 disabled={syncing}
-                className="flex-1 bg-purple-600 text-white font-bold p-2 rounded-lg hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {syncing ? "Memproses..." : "Mulai Sinkron"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

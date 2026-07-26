@@ -2,6 +2,7 @@ import { useState } from "react";
 import CurrencyInput from "react-currency-input-field";
 import DatePicker from "react-datepicker";
 import { ENDPOINT_BASE_URL } from "../../../shared/config";
+import Button from "../../../shared/components/ui/Button";
 import Swal from "sweetalert2";
 
 export default function PengeluaranForm({onSuccess}) {
@@ -46,75 +47,87 @@ export default function PengeluaranForm({onSuccess}) {
     }
   };
 
+  const inputClass =
+    "mt-1 block w-full rounded-lg border border-line p-2.5 text-sm text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
+
   return (
-    <div className="m-8">
-      <h1 className="text-center text-red-700 font-bold text-xl">
+    <div>
+      <h1 className="text-center text-lg font-bold text-ink">
         Tambah Data Pengeluaran
       </h1>
 
-      <div className="py-16">
-        <p className="text-left">Tanggal</p>
-        <DatePicker
-          selected={selectedDate}
-          onChange={(date) => setSelectedDate(date)}
-          dateFormat="dd MMMM yyyy"
-          wrapperClassName="w-full"
-          className="bg-red-100 rounded-lg p-2 w-full"
-        />
+      <div className="mt-6 space-y-4">
+        <div>
+          <p className="text-left text-xs font-medium text-muted">Tanggal</p>
+          <DatePicker
+            selected={selectedDate}
+            onChange={(date) => setSelectedDate(date)}
+            dateFormat="dd MMMM yyyy"
+            wrapperClassName="w-full"
+            className={inputClass}
+          />
+        </div>
 
-        <p className="text-left mt-5">Nominal</p>
-        <CurrencyInput
-          id="nominal"
-          name="nominal"
-          placeholder="Masukkan Nominal (Rp)"
-          defaultValue={0}
-          decimalsLimit={0}
-          groupSeparator="."
-          decimalSeparator=","
-          prefix="Rp "
-          className="mt-1 block w-full rounded-lg border-gray-300 focus:border-blue-500 bg-red-100 focus:ring-blue-500 p-2"
-          onValueChange={(value, name, values) => {
-            setNominal(value);
-          }}
-        />
+        <div>
+          <p className="text-left text-xs font-medium text-muted">Nominal</p>
+          <CurrencyInput
+            id="nominal"
+            name="nominal"
+            placeholder="Masukkan Nominal (Rp)"
+            defaultValue={0}
+            decimalsLimit={0}
+            groupSeparator="."
+            decimalSeparator=","
+            prefix="Rp "
+            className={inputClass}
+            onValueChange={(value, name, values) => {
+              setNominal(value);
+            }}
+          />
+        </div>
 
-        <p className="text-left mt-5">Keterangan</p>
-        <textarea
-          id="keterangan"
-          name="keterangan"
-          rows={4}
-          value={keterangan}
-          onChange={(e) => setKeterangan(e.target.value)}
-          placeholder="Tulis keterangan pengeluaran di sini..."
-          className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 bg-red-100 focus:ring-blue-200 p-3 text-sm"
-        />
+        <div>
+          <p className="text-left text-xs font-medium text-muted">Keterangan</p>
+          <textarea
+            id="keterangan"
+            name="keterangan"
+            rows={4}
+            value={keterangan}
+            onChange={(e) => setKeterangan(e.target.value)}
+            placeholder="Tulis keterangan pengeluaran di sini..."
+            className={inputClass}
+          />
+        </div>
 
-        <p className="text-left mt-5">Penanggung Jawab/Diserahkan ke</p>
-        <input
-          id="penanggung_jawab"
-          name="penanggung_jawab"
-          value={penanggungJawab}
-          onChange={(e) => setPenanggungJawab(e.target.value)}
-          placeholder="Contoh: Budi (No. 10)"
-          className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 bg-red-100 focus:ring-blue-200 p-3 text-sm"
-        />
+        <div>
+          <p className="text-left text-xs font-medium text-muted">
+            Penanggung Jawab/Diserahkan ke
+          </p>
+          <input
+            id="penanggung_jawab"
+            name="penanggung_jawab"
+            value={penanggungJawab}
+            onChange={(e) => setPenanggungJawab(e.target.value)}
+            placeholder="Contoh: Budi (No. 10)"
+            className={inputClass}
+          />
+        </div>
 
-        <p className="text-left mt-5">Bukti Opsional</p>
-        <input
-          id="bukti_foto"
-          name="bukti_foto"
-          value={buktiFoto}
-          onChange={(e) => setBuktiFoto(e.target.value)}
-          placeholder="Sementara berikan link hasil unggahan"
-          className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 bg-red-100 focus:ring-blue-200 p-3 text-sm"
-        />
+        <div>
+          <p className="text-left text-xs font-medium text-muted">Bukti Opsional</p>
+          <input
+            id="bukti_foto"
+            name="bukti_foto"
+            value={buktiFoto}
+            onChange={(e) => setBuktiFoto(e.target.value)}
+            placeholder="Sementara berikan link hasil unggahan"
+            className={inputClass}
+          />
+        </div>
 
-        <button
-          className="p-4 mt-10 float-right rounded-2xl w-full text-white font-bold bg-red-600 hover:bg-red-700"
-          onClick={handleSubmit}
-        >
+        <Button className="w-full" onClick={handleSubmit}>
           Simpan
-        </button>
+        </Button>
       </div>
     </div>
   );
