@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/jimpitan/static/css/main.45663a8d.css",
-    "main.js": "/jimpitan/static/js/main.cb06a2a5.js",
-    "static/js/453.75796b0c.chunk.js": "/jimpitan/static/js/453.75796b0c.chunk.js",
-    "index.html": "/jimpitan/index.html",
-    "main.45663a8d.css.map": "/jimpitan/static/css/main.45663a8d.css.map",
-    "main.cb06a2a5.js.map": "/jimpitan/static/js/main.cb06a2a5.js.map",
-    "453.75796b0c.chunk.js.map": "/jimpitan/static/js/453.75796b0c.chunk.js.map"
+    "main.css": "./static/css/main.45663a8d.css",
+    "main.js": "./static/js/main.2858b8db.js",
+    "static/js/453.75796b0c.chunk.js": "./static/js/453.75796b0c.chunk.js",
+    "index.html": "./index.html",
+    "main.45663a8d.css.map": "./static/css/main.45663a8d.css.map",
+    "main.2858b8db.js.map": "./static/js/main.2858b8db.js.map",
+    "453.75796b0c.chunk.js.map": "./static/js/453.75796b0c.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.45663a8d.css",
-    "static/js/main.cb06a2a5.js"
+    "static/js/main.2858b8db.js"
   ]
 }
