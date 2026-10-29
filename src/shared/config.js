@@ -5,7 +5,8 @@ export const ENDPOINT_BASE_URL =
   process.env.REACT_APP_API_URL ||
   (process.env.NODE_ENV === "development"
     ? "http://localhost:3000"
-    : "https://ee548084-499f-43bb-b451-942060a81754-00-1dz8i3zxrf31f.pike.replit.dev");
+    : "https://ee548084-499f-43bb-b451-942060a81754-00-1dz8i3zxrf31f-vdj0b9mt.pike.replit.dev");
+    
 
 
 export const ENDPOINTS = {
