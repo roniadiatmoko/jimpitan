@@ -1,354 +1,78 @@
-import { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
-import Swal from "sweetalert2";
-import { Routes, Route } from "react-router-dom";
-
-// Mengimpor komponen RapelForm dari file terpisah
-import { ENDPOINT_BASE_URL, homeList } from "../shared/config.js";
-import AdminArea from "../features/admin/AdminArea.js";
-import DetailHarian from "../features/admin/harian/DetailHarian.js";
-import AdminHome from "../features/admin/AdminHome.js";
-import LaporanBulanan from "../features/admin/laporan/LaporanBulanan.js";
-import ServerCheckModal from "../shared/components/ModalServerCheck.js";
-import LoginForm from "../features/auth/LoginForm.js";
-import RapelForm from "../features/admin/rapel/RapelForm.js";
-import RapelList from "../features/admin/rapel/RapelList.js";
-import Pengeluaran from "../features/admin/pengeluaran/Pengeluaran.js";
-import KekuranganBayar from "../features/admin/laporan/kekurangan-bayar/KekuranganBayar.js";
-import KekuranganBayarTahun from "../features/admin/laporan/kekurangan-bayar/KekuranganBayarTahun.js";
-import ListWarga from "../features/admin/warga/ListWarga.js";
-import RefWarga from "../features/admin/warga/RefWarga.js";
-import TanggalPutih from "../features/admin/pemutihan/TanggalPutih.js";
-import RekapList from "../features/admin/rekap/RekapList.js";
-import PresensiRonda from "../features/presensi-ronda/PresensiRonda.js";
-
-const rumahList = homeList;
-
-const getPageFromPath = (path) => {
-  if (path.includes("#/rapel")) {
-    return "rapel-form";
-  }
-
-  if (path.includes("#/rapel-list")) {
-    return "rapel-list";
-  }
-
-  if (path.includes("#/admin")) {
-    return "admin";
-  }
-
-  return "harian";
-};
+import { useEffect } from "react";
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState(
-    getPageFromPath(window.location.hash)
-  );
-  const [tanggal, setTanggal] = useState(new Date());
-  const [terisi, setTerisi] = useState({});
-  const [uangDiambil, setUangDiambil] = useState("");
-  const [keyboardOpen, setKeyboardOpen] = useState(false);
-
-  // State baru untuk menyimpan status rapel harian
-  const [rapelHarianStatus, setRapelHarianStatus] = useState([]);
-
-  const endPoint = ENDPOINT_BASE_URL;
-
   useEffect(() => {
-    const handleHashChange = () => {
-      setCurrentPage(getPageFromPath(window.location.hash));
-    };
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
+    window.location.replace("https://jimpitan-gbk.roniadiatmoko.my.id");
   }, []);
 
-  // Efek untuk mengambil data rapel harian setiap kali tanggal berubah
-  useEffect(() => {
-    const fetchRapelHarianStatus = async () => {
-      const tanggalFormatted = format(tanggal, "yyyy-MM-dd");
-      try {
-        const response = await fetch(
-          `${endPoint}/api/rapel-harian/${tanggalFormatted}`
-        );
-        if (response.ok) {
-          const data = await response.json();
-          // rapelHarianStatus sekarang berupa array nomor_rumah
-          // console.log("Status rapel harian:", data.rapelHouses);
-          setRapelHarianStatus(data.rapelHouses);
-        } else {
-          console.error("Gagal mengambil status rapel harian");
-          setRapelHarianStatus([]);
-        }
-      } catch (error) {
-        console.error("Error fetching rapel status:", error);
-        setRapelHarianStatus([]);
-      }
-    };
-    fetchRapelHarianStatus();
-  }, [tanggal]);
-
-  const toggleRumah = (nomor) => {
-    // MEMO: Logika ini mencegah rumah yang sudah rapel untuk di-centang.
-    // Jika nomor rumah ada di daftar rapel, maka fungsi akan berhenti.
-    if (rapelHarianStatus.includes(String(nomor))) {
-      return;
-    }
-    setTerisi((prev) => ({ ...prev, [nomor]: !prev[nomor] }));
-  };
-
-  const totalSetor = Object.keys(terisi).filter(
-    (nomor) => terisi[nomor]
-  ).length;
-  const totalUang = totalSetor * 500;
-  const isSesuai = parseInt(uangDiambil) === totalUang;
-
-  const simpan = async () => {
-    if (!isSesuai) {
-      Swal.fire("Perhatian", "Jumlah uang diambil tidak sesuai.", "warning");
-      return;
-    }
-
-    // Perbaikan: Pastikan ada data yang dicentang sebelum mencoba menyimpan
-    const terisiRumah = Object.keys(terisi).filter((nomor) => terisi[nomor]);
-    if (terisiRumah.length === 0) {
-      Swal.fire("Kosong", "Belum ada rumah yang dicentang.", "info");
-      return;
-    }
-
-    const dataJimpitan = rumahList.map((r) => ({
-      nomor: String(r.nomor),
-      nama: r.nama,
-      // MEMO: Status disimpan berdasarkan state 'terisi'.
-      // Karena rumah yang sudah rapel tidak bisa di-centang (berkat logika di toggleRumah),
-      // maka statusnya akan otomatis 0 (nol) saat disimpan, sesuai permintaan.
-      status: terisi[r.nomor] ? 1 : 0,
-    }));
-
-    Swal.fire({
-      title: "Menyimpan...",
-      text: "Mohon tunggu sebentar",
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
-
-    try {
-      const response = await fetch(`${endPoint}/api/jimpitan`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          secret_key: "rahasiakita123",
-          tanggal: format(tanggal, "yyyy-MM-dd"),
-          diambil_oleh: "Petugas Ronda",
-          data: dataJimpitan,
-        }),
-      });
-
-      if (response.ok) {
-        Swal.fire("Berhasil!", "Data sudah disimpan.", "success");
-        setTerisi({});
-        setUangDiambil("");
-      } else {
-        throw new Error("Gagal menyimpan");
-      }
-    } catch (err) {
-      console.log(err);
-      Swal.fire("Gagal", "Tidak bisa mengirim data. Periksa koneksi.", "error");
-    }
-  };
-
   return (
-    <div className="min-h-screen pb-96 bg-gray-50">
-      <Routes>
-        {/* ADMIN PAGE */}
-        <Route path="/admin" element={<AdminArea />}>
-          <Route path="login" element={<LoginForm />} />
-
-          <Route>
-            <Route index element={<AdminHome />} /> {/*default /admin */}
-            <Route path="rapel-list" element={<RapelList />} />
-            <Route path="rapel-input" element={<RapelForm />} />
-            <Route path="detail-harian" element={<DetailHarian />} />
-            <Route path="laporan-bulanan" element={<LaporanBulanan />} />
-            <Route path="daftar-rekap" element={<RekapList />} />
-            <Route path="pengeluaran" element={<Pengeluaran />} />
-            <Route path="kekurangan-bayar" element={<KekuranganBayar />} />
-            <Route path="kekurangan-bayar-tahun" element={<KekuranganBayarTahun />} />
-            <Route path="tanggal-putih" element={<TanggalPutih />} />
-            <Route path="list-warga" element={<ListWarga />} />
-            <Route path="ref-warga" element={<RefWarga />} />
-          </Route>
-        </Route>
-      </Routes>
-
-      <ServerCheckModal />
-      {currentPage === "harian" ? (
-        // Tampilan untuk input harian
-        <>
-          <div className="text-center">
-            <div className="bg-green-400 mt-[-15px] p-1 shadow">
-              <h1 className="text-center font-bold mb-4 mt-10 h-20 text-green-800 text-lg">
-                Nge-Jimpit GBK Tempel 2
-              </h1>
-            </div>
-
-            <div className="bg-white p-1 rounded-t-3xl text-center shadow mb-4 mt-[-50px]">
-              <label className="block mb-2 font-medium">Tanggal:</label>
-              <DatePicker
-                selected={tanggal}
-                onChange={(date) => setTanggal(date)}
-                dateFormat="dd-MM-yyyy"
-                locale={id}
-                className="w-full border text-center rounded p-2"
-              />
-              <div className="mt-4 text-lg text-center font-bold text-green-700">
-                <div className="text-red-700 text-xs text-center">
-                  Pastikan tanggal ronda sudah benar sebelum menyimpan!
-                </div>
-                {format(tanggal, "EEEE, d MMMM yyyy", { locale: id })}
-              </div>
-
-              <div className="mt-4 mb-4 bg-red-400 rounded-md p-4">
-                <p className="text-center text-red-900">
-                  <strong>Perhatian:</strong>
-                  &nbsp; Untuk menghindari salah mengisi tanggal. Server akan
-                  ditutup pukul <b>23:59 WIB</b>.
-                  Jika ada kendala bisa WA ke Grup
-                </p>
-              </div>
-
-              <PresensiRonda tanggal={tanggal} />
-
-              <div className="text-2xl font-bold text-green-600 mt-5">Jimpitan</div>
-
-              <table className="w-full bg-white shadow rounded">
-                <thead>
-                  <tr className="bg-gray-200 text-center">
-                    <th className="p-2 text-center">Nomor</th>
-                    <th className="p-2">Nama</th>
-                    <th className="p-2 text-center">Terisi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rumahList.map((r, index) => (
-                    <tr
-                      key={r.nomor}
-                      className={`${
-                        index % 2 === 0 ? "bg-green-200" : "bg-white"
-                      } border-t`}
-                    >
-                      <td className="p-2 text-center font-bold">{r.nomor}</td>
-                      <td className="p-2 text-left">
-                        {r.nama}{" "}
-                        {r.sudah_menghuni === 1 && (
-                          <span className="text-red-600">*</span>
-                        )}
-                      </td>
-                      <td className="p-2 text-center">
-                        {/* Logika untuk menampilkan "Rapel" jika rumah sudah rapel. */}
-                        {rapelHarianStatus.includes(String(r.nomor)) ? (
-                          <span className="font-bold text-blue-600">
-                            Sudah Rapel
-                          </span>
-                        ) : (
-                          <input
-                            type="checkbox"
-                            checked={!!terisi[r.nomor]}
-                            onChange={async (e) => {
-                              const isChecked = e.target.checked;
-                              const result = await Swal.fire({
-                                title: isChecked
-                                  ? `Tandai Jimpitan?`
-                                  : `Hapus Jimpitan?`,
-                                html: isChecked
-                                  ? `Apakah Anda yakin menandai <b>${r.nomor} - ${r.nama} </b>mengisi jimpitan?`
-                                  : `Apakah Anda yakin menghapus jimpitan Rumah <b>${r.nomor} - ${r.nama} </b>?`,
-                                icon: "question",
-                                showCancelButton: true,
-                                confirmButtonText: "Ya",
-                                cancelButtonText: "Batal",
-                                confirmButtonColor: "#3085d6",
-                                cancelButtonColor: "#d33",
-                              });
-                              if (result.isConfirmed) {
-                                toggleRumah(r.nomor);
-                              }
-                            }}
-                            className="w-6 h-6 accent-blue-500"
-                          />
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className="mt-5 mb-5 p-4 bg-orange-200 rounded-xl text-left">
-                <p>Keterangan:</p>
-                <p>
-                  <span className="text-red-700 font-bold">*</span> = Rumah
-                  sudah dihuni wajib jimpitan
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="fixed bottom-0 left-0 right-0 bg-green-900 text-white p-4 border-t rounded-t-3xl shadow-md flex flex-col sm:flex-row justify-between items-center gap-2">
-            <div>
-              💰 Total Seharusnya:{" "}
-              <strong>
-                {totalSetor} × 500 = Rp {totalUang.toLocaleString()}
-              </strong>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <label>Masukkan Total Uang Yang Diambil:</label>
-              <input
-                type="number"
-                value={uangDiambil}
-                onChange={(e) => setUangDiambil(e.target.value)}
-                onFocus={() => setKeyboardOpen(true)}
-                onBlur={() => setKeyboardOpen(false)}
-                className="p-1 border rounded w-50 text-black"
-                placeholder="Masukkan jimpitan hari ini"
-              />
-            </div>
-
-            {keyboardOpen ? (
-              <div>
-                <div className="text-red-300 text-sm text-center">
-                  *Masukkan tanpa titik tanpa koma
-                </div>
-                <div className="text-red-800 text-sm text-center bg-red-200 p-2 rounded">
-                  Jika uang yang diambil tidak sesuai dengan checklist. <br />
-                  Petugas ronda harus melengkapi kekurangannya.
-                </div>
-              </div>
-            ) : (
-              ""
-            )}
-            <button
-              onClick={simpan}
-              disabled={!isSesuai || totalSetor === 0}
-              className={`px-4 py-2 mt-5 w-full text-white rounded ${
-                isSesuai && totalSetor > 0
-                  ? "bg-green-600"
-                  : "bg-gray-400 cursor-not-allowed"
-              }`}
-            >
-              {isSesuai ? "Simpan Jimpitan" : "Jumlah Tidak Sesuai"}
-            </button>
-          </div>
-        </>
-      ) : (
-        // Tampilan untuk halaman rapel
-        // <RapelForm />
-        ""
-      )}
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        padding: "20px",
+        boxSizing: "border-box",
+        textAlign: "center",
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      }}
+    >
+      <div
+        style={{
+          background: "#1e293b",
+          maxWidth: "460px",
+          width: "100%",
+          padding: "36px 28px",
+          borderRadius: "16px",
+          border: "1px solid rgba(255,255,255,0.1)",
+          color: "#f8fafc",
+          boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
+        }}
+      >
+        <div style={{ fontSize: "42px", marginBottom: "16px" }}>🏮</div>
+        <h1 style={{ fontSize: "22px", fontWeight: "700", marginBottom: "10px", color: "#ffffff" }}>
+          Aplikasi Jimpitan Telah Berpindah
+        </h1>
+        <p style={{ color: "#94a3b8", fontSize: "15px", lineHeight: "1.6", marginBottom: "20px" }}>
+          Sistem kas jimpitan warga <strong>GBK Tempel 2</strong> telah beralih ke server baru yang lebih cepat dan aman.
+        </p>
+        <a
+          href="https://jimpitan-gbk.roniadiatmoko.my.id"
+          style={{
+            display: "block",
+            background: "#2563eb",
+            color: "#ffffff",
+            padding: "14px 20px",
+            borderRadius: "10px",
+            fontWeight: "600",
+            fontSize: "16px",
+            textDecoration: "none",
+            marginBottom: "20px",
+            boxShadow: "0 4px 14px rgba(37, 99, 235, 0.4)",
+          }}
+        >
+          Buka Jimpitan Baru Sekarang ↗
+        </a>
+        <div style={{ color: "#64748b", fontSize: "13px" }}>
+          Sedang mengalihkan Anda secara otomatis...<br />
+          Jika tidak beralih, klik tombol di atas atau kunjungi:<br />
+          <code
+            style={{
+              display: "inline-block",
+              marginTop: "6px",
+              padding: "4px 8px",
+              background: "rgba(15, 23, 42, 0.6)",
+              borderRadius: "6px",
+              color: "#38bdf8",
+              fontFamily: "monospace",
+            }}
+          >
+            https://jimpitan-gbk.roniadiatmoko.my.id
+          </code>
+        </div>
+      </div>
     </div>
   );
 }
