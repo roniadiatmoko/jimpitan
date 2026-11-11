@@ -226,7 +226,7 @@ export default function TanggalPutih() {
               <label className="block text-xs font-medium text-muted">
                 Tanggal Mulai
               </label>
-              <DatePicker
+              <DatePicker customInput={<input inputMode="none" onKeyDown={(e) => e.preventDefault()} autoComplete="off" />}
                 selected={selectedStartDate}
                 onChange={(date) => date && setSelectedStartDate(date)}
                 dateFormat="dd MMMM yyyy"
@@ -238,7 +238,7 @@ export default function TanggalPutih() {
               <label className="block text-xs font-medium text-muted">
                 Tanggal Selesai
               </label>
-              <DatePicker
+              <DatePicker customInput={<input inputMode="none" onKeyDown={(e) => e.preventDefault()} autoComplete="off" />}
                 selected={selectedEndDate}
                 onChange={(date) => date && setSelectedEndDate(date)}
                 dateFormat="dd MMMM yyyy"

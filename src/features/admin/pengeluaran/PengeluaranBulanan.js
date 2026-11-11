@@ -7,6 +7,7 @@ import Card from "../../../shared/components/ui/Card";
 import Button from "../../../shared/components/ui/Button";
 import Spinner from "../../../shared/components/ui/Spinner";
 import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
+import Swal from "sweetalert2";
 
 export default function PengeluaranBulanan({ period }) {
   const [loading, setLoading] = useState(false);
@@ -14,6 +15,8 @@ export default function PengeluaranBulanan({ period }) {
   const [openModalPengeluaran, setModalAddPengeluaran] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [openModalDetail, setOpenModalDetail] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+  const [openModalEdit, setOpenModalEdit] = useState(false);
 
   const defaultPeriod =
     new Date().getFullYear() +
@@ -24,28 +27,36 @@ export default function PengeluaranBulanan({ period }) {
 
   const showPengeluaran = async () => {
     setLoading(true);
-    //get api request here
     try {
       const res = await fetch(
         `${ENDPOINT_BASE_URL}/api/pengeluaran/${currentPeriod}`
       );
       const data = await res.json();
 
-      setDataPengeluaran(data.pengeluaran);
-      console.log(`${ENDPOINT_BASE_URL}/api/pengeluaran/${period}`);
+      setDataPengeluaran(data.pengeluaran || []);
       setModalAddPengeluaran(false);
+      setOpenModalEdit(false);
+      setEditItem(null);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching pengeluaran:", error);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "Hapus data pengeluaran ini? Data akan dihapus permanen."
-    );
-    if (!confirmed) return;
+    const result = await Swal.fire({
+      title: "Hapus Pengeluaran?",
+      text: "Data pengeluaran ini akan dihapus secara permanen.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#64748b",
+      confirmButtonText: "Ya, Hapus!",
+      cancelButtonText: "Batal",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       const res = await fetch(`${ENDPOINT_BASE_URL}/api/pengeluaran/${id}`, {
@@ -57,9 +68,10 @@ export default function PengeluaranBulanan({ period }) {
       }
 
       setDataPengeluaran((prev) => prev.filter((item) => item.id !== id));
+      Swal.fire("Terhapus!", "Data pengeluaran berhasil dihapus.", "success");
     } catch (error) {
       console.error(error);
-      window.alert("Gagal menghapus data pengeluaran. Silakan coba lagi.");
+      Swal.fire("Gagal!", error.message || "Gagal menghapus data pengeluaran.", "error");
     }
   };
 
@@ -83,25 +95,56 @@ export default function PengeluaranBulanan({ period }) {
         + Tambah Data Pengeluaran
       </Button>
 
-      {
-        /* Modal Tambah Pengeluaran */
-        openModalPengeluaran && (
-          <SimpleModal
-            content={<PengeluaranForm onSuccess={() => showPengeluaran()} />}
-            onClose={() => setModalAddPengeluaran(false)}
-          />
-        )
-      }
+      {/* Modal Tambah Pengeluaran */}
+      {openModalPengeluaran && (
+        <SimpleModal
+          content={
+            <PengeluaranForm
+              onSuccess={() => showPengeluaran()}
+              onCancel={() => setModalAddPengeluaran(false)}
+            />
+          }
+          onClose={() => setModalAddPengeluaran(false)}
+        />
+      )}
 
-      {
-        /* Modal Detail Pengeluaran */
-        openModalDetail && (
-          <SimpleModal
-            content={<DetailPengeluaran pengeluaran={selectedItem} />}
-            onClose={() => setOpenModalDetail(false)}
-          />
-        )
-      }
+      {/* Modal Edit Pengeluaran */}
+      {openModalEdit && (
+        <SimpleModal
+          content={
+            <PengeluaranForm
+              initialData={editItem}
+              onSuccess={() => showPengeluaran()}
+              onCancel={() => {
+                setOpenModalEdit(false);
+                setEditItem(null);
+              }}
+            />
+          }
+          onClose={() => {
+            setOpenModalEdit(false);
+            setEditItem(null);
+          }}
+        />
+      )}
+
+      {/* Modal Detail Pengeluaran */}
+      {openModalDetail && (
+        <SimpleModal
+          content={
+            <DetailPengeluaran
+              pengeluaran={selectedItem}
+              onEdit={(item) => {
+                setOpenModalDetail(false);
+                setEditItem(item);
+                setOpenModalEdit(true);
+              }}
+              onClose={() => setOpenModalDetail(false)}
+            />
+          }
+          onClose={() => setOpenModalDetail(false)}
+        />
+      )}
 
       {loading ? (
         <Spinner />
@@ -129,14 +172,17 @@ export default function PengeluaranBulanan({ period }) {
                 ) : (
                   dataPengeluaran.map((pengeluaran, index) => {
                     return (
-                      <tr key={pengeluaran.id} className="border-t border-line odd:bg-white even:bg-surface">
+                      <tr
+                        key={pengeluaran.id}
+                        className="border-t border-line odd:bg-white even:bg-surface"
+                      >
                         <td className="px-4 py-2 text-center">
                           {index + 1}
                         </td>
-                        <td className="px-4 py-2">
+                        <td className="px-4 py-2 font-medium">
                           {pengeluaran.tanggal.toString().split("T")[0]}
                         </td>
-                        <td className="px-4 py-2 text-right">
+                        <td className="px-4 py-2 text-right font-semibold text-red-600">
                           {rupiahFormat(pengeluaran.nominal)}
                         </td>
                         <td className="px-4 py-2">
@@ -149,7 +195,7 @@ export default function PengeluaranBulanan({ period }) {
                           <div className="flex gap-2">
                             <Button
                               variant="secondary"
-                              className="!px-3 !py-1"
+                              className="!px-3 !py-1 text-xs"
                               onClick={() => {
                                 setSelectedItem(pengeluaran);
                                 setOpenModalDetail(true);
@@ -158,8 +204,17 @@ export default function PengeluaranBulanan({ period }) {
                               Detail
                             </Button>
                             <Button
+                              className="!px-3 !py-1 text-xs"
+                              onClick={() => {
+                                setEditItem(pengeluaran);
+                                setOpenModalEdit(true);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                            <Button
                               variant="danger"
-                              className="!px-3 !py-1"
+                              className="!px-3 !py-1 text-xs"
                               onClick={() => handleDelete(pengeluaran.id)}
                             >
                               Hapus
@@ -172,9 +227,9 @@ export default function PengeluaranBulanan({ period }) {
                 )}
                 <tr className="border-t border-line bg-surface font-semibold">
                   <td colSpan={2} className="px-4 py-2 text-center">
-                    Total{" "}
+                    Total
                   </td>
-                  <td className="px-4 py-2 text-right">
+                  <td className="px-4 py-2 text-right font-bold text-red-600">
                     {rupiahFormat(totalPengeluaran)}
                   </td>
                   <td></td>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
 import Select from "react-select";
 import { ENDPOINT_BASE_URL, homeList, months } from "../../../shared/config";
@@ -15,22 +15,60 @@ const parsePeriodToDate = (period) => {
   return new Date(year, month - 1, 1);
 };
 
-export default function RapelForm({ onSuccess, nomorRumah = null, initialPeriod }) {
+export default function RapelForm({
+  onSuccess,
+  onCancel,
+  nomorRumah = null,
+  initialPeriod,
+  wargaList: propWargaList,
+}) {
+  const [wargaList, setWargaList] = useState(propWargaList || homeList);
   const [rapelNominal, setRapelNominal] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(
     parsePeriodToDate(initialPeriod) || new Date()
   );
   const [selectedHouse, setSelectedHouse] = useState("");
+  const [isLunaskan, setIsLunaskan] = useState(false);
+  const [loadingKebutuhan, setLoadingKebutuhan] = useState(false);
+  const [kebutuhanInfo, setKebutuhanInfo] = useState(null);
 
-  const houseOptions = homeList.map((h) => ({
-    value: h.nomor,
-    label: `${h.nomor} - ${h.nama}`,
-  }));
+  // Ambil ref-warga terkini jika belum diberikan via props
+  useEffect(() => {
+    if (propWargaList && propWargaList.length > 0) {
+      setWargaList(propWargaList);
+      return;
+    }
+
+    const fetchRefWarga = async () => {
+      try {
+        const res = await fetch(`${ENDPOINT_BASE_URL}/api/ref-warga`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.status === "OK" && Array.isArray(json.data) && json.data.length > 0) {
+            const sorted = [...json.data].sort(
+              (a, b) => Number(a.nomor) - Number(b.nomor)
+            );
+            setWargaList(sorted);
+          }
+        }
+      } catch (err) {
+        console.warn("Gagal memuat ref-warga di RapelForm:", err);
+      }
+    };
+    fetchRefWarga();
+  }, [propWargaList]);
+
+  const houseOptions = useMemo(() => {
+    return wargaList.map((h) => ({
+      value: Number(h.nomor),
+      label: `No. ${h.nomor} — ${h.nama}`,
+    }));
+  }, [wargaList]);
 
   useEffect(() => {
     if (nomorRumah) {
       const match = houseOptions.find(
-        (opt) => opt.value === Number(nomorRumah),
+        (opt) => opt.value === Number(nomorRumah)
       );
       if (match) setSelectedHouse(match.value);
     }
@@ -43,138 +81,258 @@ export default function RapelForm({ onSuccess, nomorRumah = null, initialPeriod 
     }
   }, [initialPeriod]);
 
+  // Efek untuk otomatis mengambil kebutuhan nominal lunas saat checklist "Lunaskan bulan ini" aktif
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!isLunaskan || !selectedHouse) {
+      if (!isLunaskan) setKebutuhanInfo(null);
+      return;
+    }
+
+    const fetchKebutuhan = async () => {
+      setLoadingKebutuhan(true);
+      try {
+        const periodStr = `${selectedMonth.getFullYear()}-${(
+          selectedMonth.getMonth() + 1
+        )
+          .toString()
+          .padStart(2, "0")}`;
+        const res = await fetch(
+          `${ENDPOINT_BASE_URL}/api/rapel/kebutuhan-lunas/${selectedHouse}/${periodStr}`
+        );
+        const data = await res.json();
+        if (!cancelled && data.status === "OK") {
+          setKebutuhanInfo(data);
+          setRapelNominal(String(data.nominal_lunas));
+        }
+      } catch (err) {
+        console.error("Gagal mengambil kebutuhan lunas:", err);
+      } finally {
+        if (!cancelled) setLoadingKebutuhan(false);
+      }
+    };
+
+    fetchKebutuhan();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isLunaskan, selectedHouse, selectedMonth]);
+
   const handleRapelSubmit = async () => {
     if (!selectedHouse) {
-      Swal.fire("Perhatian", "Nomor rumah harus diisi.", "warning");
+      Swal.fire("Pilih Rumah!", "Silakan pilih nomor rumah terlebih dahulu.", "error");
       return;
     }
 
-    if (!rapelNominal) {
-      Swal.fire("Perhatian", "Nominal harus diisi.", "warning");
+    if (!rapelNominal || parseInt(rapelNominal) <= 0) {
+      Swal.fire("Isi Nominal!", "Nominal rapel harus lebih dari 0.", "error");
       return;
     }
 
-    Swal.fire({
-      title: "Menyimpan...",
-      text: "Mencatat rapel, mohon tunggu",
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
+    if (parseInt(rapelNominal) % 500 !== 0) {
+      Swal.fire(
+        "Nominal Tidak Valid!",
+        "Nominal rapel harus kelipatan Rp 500.",
+        "warning"
+      );
+      return;
+    }
 
     try {
-      const monthToSearch = selectedMonth.getFullYear() + "-" + (selectedMonth.getMonth() + 1).toString().padStart(2, "0");
+      const formattedMonth = `${selectedMonth.getFullYear()}-${(
+        selectedMonth.getMonth() + 1
+      )
+        .toString()
+        .padStart(2, "0")}`;
 
       const response = await fetch(`${ENDPOINT_BASE_URL}/api/rapel`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          secret_key: "rahasiakita123",
           nomor_rumah: selectedHouse,
           nominal: parseInt(rapelNominal),
-          bulan: monthToSearch,
+          bulan: formattedMonth,
         }),
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        Swal.fire("Berhasil!", result.message, "success");
-        setSelectedHouse("");
+        Swal.fire({
+          title: "Berhasil!",
+          text: `Rapel untuk rumah no ${selectedHouse} berhasil disimpan.`,
+          icon: "success",
+        });
         setRapelNominal("");
+        setIsLunaskan(false);
+        setKebutuhanInfo(null);
         onSuccess?.();
       } else {
         throw new Error(result.message || "Gagal mencatat rapel");
       }
     } catch (err) {
-      console.log(err);
-      Swal.fire("Gagal", err.message, "error");
+      console.error(err);
+      Swal.fire("Gagal Disimpan!", err.message, "error");
     }
   };
 
+  const selectedMonthObj = months.find(
+    (m) => m.value === selectedMonth.getMonth() + 1
+  );
+  const daysCount = getDaysInMonth(
+    (selectedMonth.getMonth() + 1).toString().padStart(2, "0"),
+    selectedMonth.getFullYear()
+  );
+
   return (
     <div>
-      <h2 className="mb-4 text-center text-lg font-bold text-ink">
-        Formulir Rapel Jimpitan
-      </h2>
-      <div className="flex flex-col sm:flex-row gap-4 mb-4">
-        <div className="flex-1">
-          <label className="mb-1 block text-xs font-medium text-muted">Nomor Rumah</label>
+      {/* Header Modal */}
+      <div className="text-center mb-6">
+        <h1 className="text-xl font-bold text-ink">Formulir Rapel Jimpitan</h1>
+        <p className="mt-1 text-xs text-muted">
+          Catat pelunasan jimpitan warga secara fleksibel per bulan
+        </p>
+      </div>
 
+      {/* Grid 3 Kolom Responsif */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {/* Kolom 1: Nomor Rumah */}
+        <div className="flex flex-col">
+          <label className="mb-1.5 block text-xs font-semibold text-ink">
+            Nomor Rumah <span className="text-red-500">*</span>
+          </label>
           <Select
+            placeholder="Pilih Rumah..."
             options={houseOptions}
-            value={houseOptions.find(
-              (o) => String(o.value) === String(nomorRumah),
-            )}
-            defaultValue={houseOptions.find(
-              (o) => o.value === Number(nomorRumah),
-            )}
-            onChange={(opt) => setSelectedHouse(opt.value)}
-            isSearchable
-            placeholder="Pilih Rumah ..."
-            menuPlacement="auto" // drop-up
-            menuPortalTarget={document.body} // render di body -> tidak ketutup taskbar
+            value={
+              houseOptions.find((opt) => opt.value === selectedHouse) || null
+            }
+            onChange={(selected) => setSelectedHouse(selected ? selected.value : "")}
+            isClearable
+            className="text-sm"
             styles={{
-              menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-              container: (base) => ({ ...base, width: "300px" }), // sesuaikan
+              control: (base, state) => ({
+                ...base,
+                borderRadius: "0.5rem",
+                borderColor: state.isFocused ? "#2563eb" : "#cbd5e1",
+                boxShadow: state.isFocused ? "0 0 0 2px rgba(37,99,235,0.2)" : "none",
+                minHeight: "42px",
+              }),
             }}
           />
         </div>
-        <div className="flex-1">
-          <label className="mb-1 block text-xs font-medium text-muted">Nominal</label>
+
+        {/* Kolom 2: Nominal */}
+        <div className="flex flex-col">
+          <label className="mb-1.5 block text-xs font-semibold text-ink">
+            Nominal Rapel <span className="text-red-500">*</span>
+          </label>
           <input
             type="number"
             value={rapelNominal}
-            onChange={(e) => setRapelNominal(e.target.value)}
-            className="w-full rounded-lg border border-line p-2.5 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-            placeholder="Contoh: 7000"
+            onChange={(e) => {
+              setRapelNominal(e.target.value);
+              if (isLunaskan) setIsLunaskan(false);
+            }}
+            className="w-full rounded-lg border border-line p-2.5 text-ink text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+            placeholder="Contoh: 15000"
           />
-        </div>
-        <div className="flex-1">
-          <label className="mb-1 block text-xs font-medium text-muted">Bulan</label>
-          {/* <select
-            className="w-full p-2 border border-gray-300 bg-white rounded"
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-          >
-            {months.map((month) => {
-              return (
-                <option value={month.value} key={month.value}>
-                  {month.label}
-                </option>
-              );
-            })}
-          </select> */}
 
+          {/* Checklist Lunaskan Bulan Ini */}
+          <div className="mt-2.5 flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="checkbox-lunaskan"
+              checked={isLunaskan}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setIsLunaskan(checked);
+                if (checked && !selectedHouse) {
+                  Swal.fire({
+                    title: "Pilih Rumah Terlebih Dahulu",
+                    text: "Silakan pilih nomor rumah terlebih dahulu agar sistem dapat menghitung kebutuhan rapel pelunasan.",
+                    icon: "info",
+                  });
+                }
+              }}
+              className="h-4 w-4 rounded border-line text-accent focus:ring-accent cursor-pointer"
+            />
+            <label
+              htmlFor="checkbox-lunaskan"
+              className="text-xs font-semibold text-ink cursor-pointer select-none flex items-center gap-1.5"
+            >
+              <span>Lunaskan bulan ini</span>
+              {loadingKebutuhan && (
+                <span className="text-[10px] text-muted font-normal animate-pulse">
+                  (menghitung...)
+                </span>
+              )}
+            </label>
+          </div>
+
+          {/* Keterangan kebutuhan lunas */}
+          {kebutuhanInfo && (
+            <div className="mt-1.5 text-xs">
+              {kebutuhanInfo.sisa_hari === 0 ? (
+                <span className="font-semibold text-emerald-600 block">
+                  ✨ Rumah ini sudah LUNAS untuk bulan ini (0 hari kosong).
+                </span>
+              ) : (
+                <span className="text-accent font-medium block">
+                  Kurang <b>{kebutuhanInfo.sisa_hari} hari</b> ({rupiahFormat(kebutuhanInfo.nominal_lunas)}) untuk lunas penuh.
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Kolom 3: Bulan */}
+        <div className="flex flex-col">
+          <label className="mb-1.5 block text-xs font-semibold text-ink">
+            Periode Bulan <span className="text-red-500">*</span>
+          </label>
           <DatePicker
+            customInput={
+              <input
+                inputMode="none"
+                onKeyDown={(e) => e.preventDefault()}
+                autoComplete="off"
+              />
+            }
             selected={selectedMonth}
             onChange={(date) => setSelectedMonth(date)}
             dateFormat="MMMM yyyy"
-            showMonthYearPicker // hanya bulan & tahun
+            showMonthYearPicker
             wrapperClassName="w-full"
-            className="w-full rounded-lg border border-line p-2.5 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+            className="w-full rounded-lg border border-line p-2.5 text-ink text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 cursor-pointer"
           />
         </div>
       </div>
-      <div className="text-center text-sm text-muted mb-4">
-        Bulan {months.find((m) => m.value === Number((selectedMonth.getMonth() + 1).toString().padStart(2, "0"))).label}{" "}
-        terdapat {getDaysInMonth((selectedMonth.getMonth() + 1).toString().padStart(2, "0"), new Date().getFullYear())} hari
-        (
-        {rupiahFormat(
-          getDaysInMonth((selectedMonth.getMonth() + 1).toString().padStart(2, "0"), new Date().getFullYear()) * 500,
-        )}
-        ).
+
+      {/* Ringkasan Informasi */}
+      <div className="rounded-xl border border-blue-100 bg-blue-50/70 p-4 text-center text-xs text-blue-950 mb-6 leading-relaxed">
+        Bulan <b>{selectedMonthObj?.label} {selectedMonth.getFullYear()}</b> terdapat <b>{daysCount} hari</b> ({rupiahFormat(daysCount * 500)}).
         <br />
-        Nominal rapel akan mengisi{" "}
-        <span className="font-bold">
-          {rapelNominal ? Math.floor(parseInt(rapelNominal) / 500) : 0}
+        Nominal di atas akan mengisi{" "}
+        <span className="font-bold text-accent">
+          {rapelNominal ? Math.floor(parseInt(rapelNominal) / 500) : 0} hari
         </span>{" "}
-        hari jimpitan kosong.
+        jimpitan kosong.
       </div>
-      <Button onClick={handleRapelSubmit} className="w-full">
-        Simpan Rapel
-      </Button>
+
+      {/* Tombol Aksi */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <Button onClick={handleRapelSubmit} className="flex-1 py-3 text-sm font-semibold">
+          Simpan Rapel
+        </Button>
+        {onCancel && (
+          <Button variant="secondary" onClick={onCancel} className="py-3 px-6 text-sm">
+            Tutup
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

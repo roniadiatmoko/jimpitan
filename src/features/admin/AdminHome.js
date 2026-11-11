@@ -52,7 +52,7 @@ const shortcuts = [
     icon: IconRekap,
   },
   {
-    to: "kekurangan-bayar",
+    to: "kekurangan-bayar-tahun",
     label: "Kekurangan Bayar",
     desc: "Pantau rumah dengan kekurangan pembayaran.",
     icon: IconKekurangan,

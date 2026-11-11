@@ -26,3 +26,9 @@ yarn-error.log*
 /.agents
 /.claude
 /skills-lock.json
+
+# env files
+.env
+.env.*
+!.env.example
+*.log

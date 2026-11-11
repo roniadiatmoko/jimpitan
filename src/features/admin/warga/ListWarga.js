@@ -37,8 +37,8 @@ export default function ListWarga() {
         </h1>
 
         <div className="flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center mb-5">
-          <Button onClick={() => navigate("/admin/ref-warga")}>
-            Detail Database Warga
+          <Button onClick={() => navigate("/admin/ref-warga")} className="flex items-center gap-1.5">
+            <span>←</span> Data Referensi Warga (Utama)
           </Button>
           <div className="grid w-full gap-4 sm:grid-cols-2 lg:w-auto">
             <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-4 text-center">

@@ -14,13 +14,13 @@ export default function Pengeluaran() {
         <h1 className="text-xl font-bold text-ink">Pengeluaran</h1>
 
         <label className="mt-4 mb-1 block text-xs font-medium text-muted">Pilih Bulan</label>
-        <DatePicker
+        <DatePicker customInput={<input inputMode="none" onKeyDown={(e) => e.preventDefault()} autoComplete="off" />}
           selected={selectedMonth}
           onChange={(date) => setSelectedMonth(date)}
           dateFormat="MMMM yyyy"
           showMonthYearPicker // hanya bulan & tahun
           wrapperClassName="w-full sm:w-64"
-          className="w-full rounded-lg border border-line p-2.5 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          className="w-full rounded-lg border border-line p-2.5 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 cursor-pointer"
         />
 
         <div className="mt-4">

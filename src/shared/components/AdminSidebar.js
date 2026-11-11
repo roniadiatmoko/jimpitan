@@ -14,6 +14,9 @@ import {
   IconMenu,
   IconClose,
   IconLogout,
+  IconWhatsApp,
+  IconCloudSync,
+  IconUpdate,
 } from "./icons";
 
 const navItems = [
@@ -21,12 +24,15 @@ const navItems = [
   { to: "detail-harian", label: "Hitung Ulang Harian", icon: IconHitungUlang },
   { to: "pengeluaran", label: "Pengeluaran", icon: IconPengeluaran },
   { to: "laporan-bulanan", label: "Rekap Bulanan", icon: IconLaporan },
-  { to: "daftar-rekap", label: "Daftar Rekap", icon: IconRekap },
-  { to: "kekurangan-bayar", label: "Kekurangan Bayar", icon: IconKekurangan },
+  { to: "daftar-rekap", label: "Laporan Tahunan", icon: IconRekap },
+  { to: "kekurangan-bayar-tahun", label: "Kekurangan Bayar", icon: IconKekurangan },
+  { to: "status-whatsapp", label: "Status WhatsApp", icon: IconWhatsApp },
+  { to: "sinkron-cloud", label: "Sinkronisasi Cloud", icon: IconCloudSync },
+  { to: "update-aplikasi", label: "Update Aplikasi", icon: IconUpdate },
 ];
 
 const dataItems = [
-  { to: "list-warga", label: "Warga", icon: IconWarga },
+  { to: "ref-warga", label: "Warga", icon: IconWarga },
   { to: "tanggal-putih", label: "Tanggal Putih", icon: IconKalender },
   { to: "template-broadcast", label: "Template Broadcast", icon: IconBroadcast },
 ];
@@ -74,7 +80,7 @@ function SidebarContent({
   );
   const [flyoutPos, setFlyoutPos] = useState(null);
 
-  const isActive = (slug) => pathname.endsWith(`/${slug}`);
+  const isActive = (slug) => pathname.endsWith(`/${slug}`) || (slug === "kekurangan-bayar-tahun" && pathname.includes("kekurangan-bayar"));
   const dataActive = dataItems.some((item) => isActive(item.to));
 
   const closeDataMenu = () => {

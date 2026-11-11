@@ -1,20 +1,66 @@
-// export const ENDPOINT_BASE_URL = 'https://ee548084-499f-43bb-b451-942060a81754-00-1dz8i3zxrf31f.pike.replit.dev';
-// export const ENDPOINT_BASE_URL = 'http://localhost:3000'
+export const PRIMARY_API = "https://api-jimpitan.roniadiatmoko.my.id";
+export const LOCAL_API = "http://localhost:3000";
+export const REPLIT_API =
+  "https://ee548084-499f-43bb-b451-942060a81754-00-1dz8i3zxrf31f-vdj0b9mt.pike.replit.dev";
 
-export const ENDPOINT_BASE_URL =
+export let ENDPOINT_BASE_URL =
   process.env.REACT_APP_API_URL ||
-  (process.env.NODE_ENV === "development"
-    ? "http://localhost:3000"
-    : "https://ee548084-499f-43bb-b451-942060a81754-00-1dz8i3zxrf31f-vdj0b9mt.pike.replit.dev");
-    
+  (typeof window !== "undefined" &&
+  (window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1") &&
+  window.location.protocol !== "https:"
+    ? LOCAL_API
+    : PRIMARY_API);
 
+export function setEndpointBaseUrl(url) {
+  ENDPOINT_BASE_URL = url;
+}
+
+export async function checkAndSelectBackend() {
+  const isHttps =
+    typeof window !== "undefined" && window.location.protocol === "https:";
+  const isLocalhost =
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1");
+
+  // Jika halaman dibuka via localhost (development), prioritaskan LOCAL_API (http://localhost:3000)
+  // Jika dibuka via domain publik (https), prioritaskan PRIMARY_API (Cloudflare Tunnel)
+  const candidates = isLocalhost && !isHttps
+    ? [LOCAL_API, PRIMARY_API, REPLIT_API]
+    : [PRIMARY_API, REPLIT_API];
+
+  for (const candidate of candidates) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const res = await fetch(`${candidate}/ping`, {
+        method: "GET",
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        setEndpointBaseUrl(candidate);
+        console.log(`[Jimpitan] Backend aktif terhubung: ${candidate}`);
+        return { success: true, url: candidate };
+      }
+    } catch (err) {
+      console.warn(`[Jimpitan] Gagal koneksi ke ${candidate}:`, err.message);
+    }
+  }
+
+  // Jika tidak ada yang merespons /ping, fallback ke PRIMARY_API
+  setEndpointBaseUrl(PRIMARY_API);
+  return { success: false, url: PRIMARY_API };
+}
 
 export const ENDPOINTS = {
     jimpitan: `${ENDPOINT_BASE_URL}/jimpitan`,
     admin: `${ENDPOINT_BASE_URL}/#/admin`,
     rapel: `${ENDPOINT_BASE_URL}/#/rapel`,
     rapelList: `${ENDPOINT_BASE_URL}/#/rapel-list`
-}
+};
 
 export const SALDO_MULAI = 1200000;
 

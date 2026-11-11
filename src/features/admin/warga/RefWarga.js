@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ENDPOINT_BASE_URL } from "../../../shared/config";
 import Card from "../../../shared/components/ui/Card";
@@ -14,6 +15,7 @@ const initialFormState = {
 };
 
 export default function RefWarga() {
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -156,12 +158,32 @@ export default function RefWarga() {
   return (
     <div className="space-y-4">
       <Card>
-        <h1 className="text-xl font-bold text-ink">
-          Detail Database Warga
-        </h1>
-        <p className="text-sm text-muted">
-          Kelola referensi warga lengkap dengan CRUD.
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-bold text-ink">
+              Data Referensi Warga
+            </h1>
+            <p className="text-sm text-muted">
+              Kelola data warga perumahan, status huni, tanggal huni, dan nomor WhatsApp.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="secondary"
+              className="flex items-center gap-1.5 text-xs !py-2 !px-3"
+              onClick={() => navigate("/admin/list-warga")}
+              title="Buka arsip / riwayat data statis warga"
+            >
+              <span>📜</span> Riwayat Data Statis
+            </Button>
+            <Button
+              onClick={openAddModal}
+              className="flex items-center gap-1.5 text-xs !py-2 !px-3.5"
+            >
+              <span>+</span> Tambah Warga
+            </Button>
+          </div>
+        </div>
       </Card>
 
       <Card>
@@ -189,7 +211,7 @@ export default function RefWarga() {
 
       {showFormModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+          <div className="w-full max-w-3xl lg:max-w-4xl overflow-y-auto rounded-2xl bg-white p-8 shadow-2xl border border-line">
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold text-ink">

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
-export default function SimpleModal({ content, onClose }) {
-  // (Opsional tapi bagus) Kunci scroll body saat modal terbuka
+export default function SimpleModal({ content, onClose, maxWidth }) {
+  // Kunci scroll body saat modal terbuka
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -19,36 +19,31 @@ export default function SimpleModal({ content, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-40 bg-black/50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
       aria-modal="true"
       role="dialog"
       onClick={(e) => {
-        // klik backdrop untuk menutup (jangan menutup saat klik isi modal)
         if (e.target === e.currentTarget) onClose?.();
       }}
     >
       <div
-        className="relative w-full max-w-2xl bg-white rounded-lg shadow-xl
-                   max-h-[90vh] overflow-y-auto"
+        className={`relative w-full ${
+          maxWidth || "max-w-3xl lg:max-w-4xl"
+        } bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto border border-line`}
       >
         {/* Tombol tutup di pojok */}
         <button
-          className="absolute right-3 top-3 rounded-md px-3 py-1 text-sm font-medium text-muted hover:bg-surface hover:text-ink"
+          className="absolute right-4 top-4 z-10 flex items-center justify-center rounded-lg bg-surface px-3 py-1.5 text-xs font-semibold text-muted hover:bg-slate-200 hover:text-ink transition"
           onClick={onClose}
           aria-label="Tutup modal"
         >
-          Tutup
+          ✕ Tutup
         </button>
 
-        {/* Konten scrollable */}
-        <div className="p-5 pt-12">
+        {/* Konten modal */}
+        <div className="p-6 sm:p-8 pt-12">
           {content}
         </div>
-
-        {/* Footer (opsional). Bisa dibuat sticky */}
-        {/* <div className="sticky bottom-0 bg-white p-4 border-t">
-          <button className="px-4 py-2 rounded-md text-white bg-blue-600" onClick={onClose}>Tutup</button>
-        </div> */}
       </div>
     </div>
   );

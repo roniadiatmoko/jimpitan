@@ -1,13 +1,29 @@
 import DatePicker from "react-datepicker";
 import { months, ENDPOINT_BASE_URL } from "../../../../shared/config";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Card from "../../../../shared/components/ui/Card";
 import Button from "../../../../shared/components/ui/Button";
 import DetailKekuranganBayar from "./DetailKekuranganBayar";
 
 export default function KekuranganBayar() {
-    const [selectedMonth, setSelectedMonth] = useState(new Date());
+    const [searchParams] = useSearchParams();
+    const initialPeriod = searchParams.get("period"); // contoh: "2026-11"
+
+    const [selectedMonth, setSelectedMonth] = useState(() => {
+      if (initialPeriod) {
+        const [y, m] = initialPeriod.split("-").map(Number);
+        if (y && m) return new Date(y, m - 1, 1);
+      }
+      return new Date();
+    });
+
+    useEffect(() => {
+      if (initialPeriod) {
+        const [y, m] = initialPeriod.split("-").map(Number);
+        if (y && m) setSelectedMonth(new Date(y, m - 1, 1));
+      }
+    }, [initialPeriod]);
     const [pemutihan, setPemutihan] = useState([]);
     const [pemutihanLoading, setPemutihanLoading] = useState(false);
     const [pemutihanError, setPemutihanError] = useState("");
@@ -86,13 +102,13 @@ export default function KekuranganBayar() {
                 <Button variant="secondary" onClick={handlePrevMonth}>
                   ◀
                 </Button>
-                <DatePicker
+                <DatePicker customInput={<input inputMode="none" onKeyDown={(e) => e.preventDefault()} autoComplete="off" />}
                   selected={selectedMonth}
                   onChange={(date) => setSelectedMonth(date)}
                   dateFormat="MMMM yyyy"
                   showMonthYearPicker // hanya bulan & tahun
                   wrapperClassName="w-56"
-                  className="w-full rounded-lg border border-line p-2.5 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                  className="w-full rounded-lg border border-line p-2.5 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 cursor-pointer"
                 />
                 <Button variant="secondary" onClick={handleNextMonth}>
                   ▶
@@ -109,8 +125,12 @@ export default function KekuranganBayar() {
                     {selectedMonth.getFullYear()}
                   </div>
                 </div>
-                <Button onClick={() => navigate("/admin/kekurangan-bayar-tahun")}>
-                  Rekap dalam Tahun
+                <Button
+                  variant="secondary"
+                  className="flex items-center gap-1.5"
+                  onClick={() => navigate("/admin/kekurangan-bayar-tahun")}
+                >
+                  <span>⬅</span> Rekap Kekurangan per Tahun
                 </Button>
               </div>
 

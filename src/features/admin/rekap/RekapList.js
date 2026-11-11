@@ -6,6 +6,8 @@ import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
 import Card from "../../../shared/components/ui/Card";
 import Button from "../../../shared/components/ui/Button";
 import Spinner from "../../../shared/components/ui/Spinner";
+import SimpleModal from "../../../shared/components/SimpleModal";
+import CetakLaporanTutupBuku from "./CetakLaporanTutupBuku";
 
 const pad2 = (n) => String(n).padStart(2, "0");
 
@@ -16,6 +18,7 @@ export default function RekapList() {
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showPrintModal, setShowPrintModal] = useState(false);
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [editRow, setEditRow] = useState(null);
@@ -432,7 +435,7 @@ export default function RekapList() {
     <div className="space-y-4">
       <Card>
         <h1 className="text-xl font-bold text-ink mb-6">
-          Daftar Rekap Saldo
+          Laporan Tahunan
         </h1>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -453,7 +456,14 @@ export default function RekapList() {
             </select>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="secondary"
+              className="flex items-center gap-1.5"
+              onClick={() => setShowPrintModal(true)}
+            >
+              <span>🖨️</span> Cetak Tutup Buku
+            </Button>
             <Button variant="secondary" onClick={openSyncModal}>
               Sinkron
             </Button>
@@ -537,7 +547,7 @@ export default function RekapList() {
 
       {showAddForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-xl p-6">
+          <div className="w-full max-w-xl sm:max-w-2xl rounded-2xl bg-white shadow-2xl p-7 border border-line">
             <h2 className="text-lg font-bold text-center text-ink mb-4">
               Tambah Rekap Manual
             </h2>
@@ -623,7 +633,7 @@ export default function RekapList() {
 
       {showEditModal && editRow && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-xl p-6">
+          <div className="w-full max-w-xl sm:max-w-2xl rounded-2xl bg-white shadow-2xl p-7 border border-line">
             <h2 className="text-lg font-bold text-center text-ink mb-1">
               Perbarui Nominal
             </h2>
@@ -743,7 +753,7 @@ export default function RekapList() {
 
       {showSyncModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-xl p-6">
+          <div className="w-full max-w-xl sm:max-w-2xl rounded-2xl bg-white shadow-2xl p-7 border border-line">
             <h2 className="text-lg font-bold text-center text-ink mb-2">
               Sinkron Rekap
             </h2>
@@ -834,6 +844,23 @@ export default function RekapList() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal Cetak Laporan Keuangan Tutup Buku */}
+      {showPrintModal && (
+        <SimpleModal
+          maxWidth="max-w-4xl lg:max-w-5xl"
+          content={
+            <CetakLaporanTutupBuku
+              year={year}
+              rows={rows}
+              totalPemasukan={totalPemasukan}
+              totalPengeluaran={totalPengeluaran}
+              onClose={() => setShowPrintModal(false)}
+            />
+          }
+          onClose={() => setShowPrintModal(false)}
+        />
       )}
     </div>
   );

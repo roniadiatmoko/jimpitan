@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { ENDPOINT_BASE_URL, homeList, months } from "../../../shared/config";
 import SimpleModal from "../../../shared/components/SimpleModal";
 import { getDaysInMonth } from "../../../shared/helpers/DateHelper";
-import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
 import Card from "../../../shared/components/ui/Card";
 import Button from "../../../shared/components/ui/Button";
 import Badge from "../../../shared/components/ui/Badge";
@@ -14,16 +13,37 @@ import DatePicker from "react-datepicker";
 export default function RapelList() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [rapelData, setRapelData] = useState([]);
+  const [wargaList, setWargaList] = useState(homeList);
   const [loading, setLoading] = useState(false);
   const [openModalAdd, setOpenModalAdd] = useState(false);
   const [openModalDetail, setOpenModalDetail] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
+  // Ambil data referensi warga terkini dari API
+  useEffect(() => {
+    const fetchRefWarga = async () => {
+      try {
+        const res = await fetch(`${ENDPOINT_BASE_URL}/api/ref-warga`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.status === "OK" && Array.isArray(json.data) && json.data.length > 0) {
+            setWargaList(json.data);
+          }
+        }
+      } catch (err) {
+        console.warn("Gagal memuat ref-warga di RapelList:", err);
+      }
+    };
+    fetchRefWarga();
+  }, []);
+
   const showRapelData = async () => {
     setLoading(true);
-    //get api request here
     try {
-      const monthToSearch = selectedMonth.getFullYear() + "-" + (selectedMonth.getMonth() + 1).toString().padStart(2, "0");
+      const monthToSearch =
+        selectedMonth.getFullYear() +
+        "-" +
+        (selectedMonth.getMonth() + 1).toString().padStart(2, "0");
       const res = await fetch(
         `${ENDPOINT_BASE_URL}/api/rapel-bulanan/${monthToSearch}`,
         {
@@ -39,22 +59,34 @@ export default function RapelList() {
       }
 
       const data = await res.json();
-      setRapelData(data.rapelBulanan);
-      // console.log(rapelData);
+      setRapelData(data.rapelBulanan || []);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching rapel bulanan:", error);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const kekurangan = (jumlahHariRapel) => {
-    return getDaysInMonth((selectedMonth.getMonth() + 1).toString().padStart(2, "0"), selectedMonth.getFullYear()) - jumlahHariRapel;
-  }
+    return (
+      getDaysInMonth(
+        (selectedMonth.getMonth() + 1).toString().padStart(2, "0"),
+        selectedMonth.getFullYear()
+      ) - jumlahHariRapel
+    );
+  };
 
   useEffect(() => {
     showRapelData();
   }, [selectedMonth]);
+
+  const getNamaWarga = (item) => {
+    if (item.nama) return item.nama;
+    const found = wargaList.find(
+      (h) => Number(h.nomor) === Number(item.nomor_rumah)
+    );
+    return found?.nama || `Rumah No. ${item.nomor_rumah}`;
+  };
 
   return (
     <div className="space-y-4">
@@ -64,47 +96,62 @@ export default function RapelList() {
           Pilih Bulan
         </label>
         <DatePicker
+          customInput={
+            <input
+              inputMode="none"
+              onKeyDown={(e) => e.preventDefault()}
+              autoComplete="off"
+            />
+          }
           selected={selectedMonth}
           onChange={(date) => setSelectedMonth(date)}
           dateFormat="MMMM yyyy"
-          showMonthYearPicker // hanya bulan & tahun
+          showMonthYearPicker
           wrapperClassName="w-full sm:w-64"
-          className="w-full rounded-lg border border-line p-2.5 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          className="w-full rounded-lg border border-line p-2.5 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 cursor-pointer"
         />
       </Card>
 
       <Card className="p-0">
         <div className="flex flex-wrap items-center justify-between gap-3 p-5">
           <h2 className="text-lg font-bold text-ink">
-            {months.find(m => m.value === Number((selectedMonth.getMonth() + 1).toString().padStart(2, "0"))).label} {selectedMonth.getFullYear()}
+            {
+              months.find(
+                (m) =>
+                  m.value ===
+                  Number(
+                    (selectedMonth.getMonth() + 1).toString().padStart(2, "0")
+                  )
+              )?.label
+            }{" "}
+            {selectedMonth.getFullYear()}
           </h2>
           <Button onClick={() => setOpenModalAdd(true)}>
             + Tambah Data Rapel
           </Button>
         </div>
 
-        {
-          /* Modal Add Rapel */
-          openModalAdd ? (
-            <div className="fixed top-0 left-0 z-40 h-full w-full bg-black/50">
-              <div className="fixed top-1/2 left-1/2 w-[90%] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-5 shadow-xl">
-                <RapelForm
-                  onSuccess={() => showRapelData()}
-                  initialPeriod={`${selectedMonth.getFullYear()}-${(selectedMonth.getMonth() + 1).toString().padStart(2, "0")}`}
-                />
-                <Button
-                  variant="secondary"
-                  className="mt-3 w-full"
-                  onClick={() => setOpenModalAdd(false)}
-                >
-                  Tutup
-                </Button>
-              </div>
-            </div>
-          ) : (
-            ""
-          )
-        }
+        {/* Modal Add Rapel */}
+        {openModalAdd && (
+          <SimpleModal
+            content={
+              <RapelForm
+                wargaList={wargaList}
+                onSuccess={() => {
+                  setOpenModalAdd(false);
+                  showRapelData();
+                }}
+                onCancel={() => setOpenModalAdd(false)}
+                initialPeriod={`${selectedMonth.getFullYear()}-${(
+                  selectedMonth.getMonth() + 1
+                )
+                  .toString()
+                  .padStart(2, "0")}`}
+              />
+            }
+            onClose={() => setOpenModalAdd(false)}
+          />
+        )}
 
         {loading && <Spinner label="Melihat data..." />}
 
@@ -114,7 +161,7 @@ export default function RapelList() {
               <tr>
                 <th className="px-4 py-3">No</th>
                 <th className="px-4 py-3">Nomor Rumah</th>
-                <th className="px-4 py-3">Nama</th>
+                <th className="px-4 py-3 text-left">Nama Warga</th>
                 <th className="px-4 py-3">Jumlah Hari Rapel</th>
                 <th className="px-4 py-3">Aksi</th>
               </tr>
@@ -127,67 +174,71 @@ export default function RapelList() {
                   </td>
                 </tr>
               ) : (
-                rapelData.map((item, index) => (
-                  <tr key={index} className="border-t border-line odd:bg-white even:bg-surface">
-                    <td className="px-4 py-3 text-center">{index + 1}</td>
-                    <td className="px-4 py-3 text-center">
-                      {item.nomor_rumah}
-                    </td>
-                    <td className="px-4 py-3">
-                      {
-                        homeList.find(
-                          (h) => h.nomor === Number(item.nomor_rumah)
-                        )?.nama
-                      }
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      {`${item.jumlah_rapel} dari ${getDaysInMonth(
-                        (selectedMonth.getMonth() + 1).toString().padStart(2, "0"),
-                        selectedMonth.getFullYear()
-                      )} `}
+                rapelData.map((item, index) => {
+                  const daysInM = getDaysInMonth(
+                    (selectedMonth.getMonth() + 1).toString().padStart(2, "0"),
+                    selectedMonth.getFullYear()
+                  );
+                  const isLunas = daysInM === item.jumlah_rapel;
 
-                      {getDaysInMonth((selectedMonth.getMonth() + 1).toString().padStart(2, "0"), selectedMonth.getFullYear()) ===
-                      item.jumlah_rapel ? (
-                        <Badge tone="success" className="ml-2">
-                          Lunas
-                        </Badge>
-                      ) : (
-                        <Badge tone="danger" className="ml-2">
-                          Kurang {kekurangan(item.jumlah_rapel)} Hari (
-                          {rupiahFormat(kekurangan(item.jumlah_rapel) * 500)})
-                        </Badge>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <Button
-                        className="w-full"
-                        onClick={() => {
-                          setSelectedItem(item);
-                          setOpenModalDetail(true);
-                        }}
-                      >
-                        Detail
-                      </Button>
-                    </td>
-                  </tr>
-                ))
+                  return (
+                    <tr
+                      key={index}
+                      className="border-t border-line odd:bg-white even:bg-surface"
+                    >
+                      <td className="px-4 py-3 text-center">{index + 1}</td>
+                      <td className="px-4 py-3 text-center font-bold text-ink">
+                        {item.nomor_rumah}
+                      </td>
+                      <td className="px-4 py-3 font-medium text-ink">
+                        {getNamaWarga(item)}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {`${item.jumlah_rapel} dari ${daysInM} `}
+
+                        {isLunas ? (
+                          <Badge tone="success" className="ml-2">
+                            Lunas
+                          </Badge>
+                        ) : (
+                          <Badge tone="danger" className="ml-2">
+                            Kurang {kekurangan(item.jumlah_rapel)} hari
+                          </Badge>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <Button
+                          variant="secondary"
+                          className="!px-3 !py-1 text-xs"
+                          onClick={() => {
+                            setSelectedItem(item);
+                            setOpenModalDetail(true);
+                          }}
+                        >
+                          Detail
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
 
-              {
-                /* Modal Detail Rapel */
-                openModalDetail && (
-                  <SimpleModal
-                    content={
-                      <DetailRapel
-                        nomorRumah={selectedItem.nomor_rumah}
-                        year={selectedMonth.getFullYear()}
-                        month={(selectedMonth.getMonth() + 1).toString().padStart(2, "0")}
-                      />
-                    }
-                    onClose={() => setOpenModalDetail(false)}
-                  />
-                )
-              }
+              {/* Modal Detail Rapel */}
+              {openModalDetail && selectedItem && (
+                <SimpleModal
+                  content={
+                    <DetailRapel
+                      nomorRumah={selectedItem.nomor_rumah}
+                      namaWarga={getNamaWarga(selectedItem)}
+                      year={selectedMonth.getFullYear()}
+                      month={(selectedMonth.getMonth() + 1)
+                        .toString()
+                        .padStart(2, "0")}
+                    />
+                  }
+                  onClose={() => setOpenModalDetail(false)}
+                />
+              )}
             </tbody>
           </table>
         </div>

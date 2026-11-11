@@ -3,6 +3,7 @@ import { ENDPOINT_BASE_URL, homeList } from "../../../../shared/config";
 import { rupiahFormat } from "../../../../shared/helpers/MoneyHeper";
 import html2canvas from "html2canvas";
 import RapelForm from "../../rapel/RapelForm";
+import SimpleModal from "../../../../shared/components/SimpleModal";
 import Card from "../../../../shared/components/ui/Card";
 import Button from "../../../../shared/components/ui/Button";
 import Badge from "../../../../shared/components/ui/Badge";
@@ -75,12 +76,31 @@ export default function KekuranganBayar({
     getKekuranganBayar();
   }, [period, reloadFlag]);
 
+    const [wargaList, setWargaList] = useState(homeList);
+
+  useEffect(() => {
+    const fetchRef = async () => {
+      try {
+        const res = await fetch(`${ENDPOINT_BASE_URL}/api/ref-warga`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.status === "OK" && Array.isArray(json.data) && json.data.length > 0) {
+            setWargaList(json.data);
+          }
+        }
+      } catch (e) {
+        console.warn("Gagal memuat ref-warga:", e);
+      }
+    };
+    fetchRef();
+  }, []);
+
   // Optimasi: nomor -> data rumah
   const homeMap = useMemo(() => {
     const map = {};
-    for (const h of homeList) map[Number(h.nomor)] = h;
+    for (const h of wargaList) map[Number(h.nomor)] = h;
     return map;
-  }, [homeList]);
+  }, [wargaList]);
 
   // Terapkan filter status
   const filteredData = useMemo(() => {
@@ -254,27 +274,21 @@ export default function KekuranganBayar({
 
         {
           /* Modal Add Rapel */
-          openModalAdd ? (
-            <div className="bg-black bg-opacity-50 fixed top-0 left-0 w-full h-full z-40">
-              <div className="fixed top-1/2 left-1/2 w-[90%] max-w-lg transform -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-5 shadow-xl">
+          openModalAdd && (
+            <SimpleModal
+              content={
                 <RapelForm
-                  onSuccess={() => getKekuranganBayar()}
+                  onSuccess={() => {
+                    setOpenModalAdd(false);
+                    getKekuranganBayar();
+                  }}
+                  onCancel={() => setOpenModalAdd(false)}
                   nomorRumah={selectedNomorRumah}
                   initialPeriod={period}
                 />
-                <Button
-                  variant="secondary"
-                  className="mt-3 w-full"
-                  onClick={() => {
-                    setOpenModalAdd(false);
-                  }}
-                >
-                  Tutup
-                </Button>
-              </div>
-            </div>
-          ) : (
-            ""
+              }
+              onClose={() => setOpenModalAdd(false)}
+            />
           )
         }
       </div>

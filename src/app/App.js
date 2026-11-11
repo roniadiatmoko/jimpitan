@@ -8,6 +8,7 @@ import { Routes, Route } from "react-router-dom";
 
 // Mengimpor komponen RapelForm dari file terpisah
 import { ENDPOINT_BASE_URL, homeList } from "../shared/config.js";
+import { rupiahFormat } from "../shared/helpers/MoneyHeper.js";
 import AdminArea from "../features/admin/AdminArea.js";
 import DetailHarian from "../features/admin/harian/DetailHarian.js";
 import AdminHome from "../features/admin/AdminHome.js";
@@ -21,11 +22,13 @@ import KekuranganBayar from "../features/admin/laporan/kekurangan-bayar/Kekurang
 import KekuranganBayarTahun from "../features/admin/laporan/kekurangan-bayar/KekuranganBayarTahun.js";
 import ListWarga from "../features/admin/warga/ListWarga.js";
 import RefWarga from "../features/admin/warga/RefWarga.js";
+import StatusWhatsApp from "../features/admin/whatsapp/StatusWhatsApp.js";
+import SinkronCloud from "../features/admin/cloud-sync/SinkronCloud.js";
+import UpdateAplikasi from "../features/admin/system/UpdateAplikasi.js";
 import TanggalPutih from "../features/admin/pemutihan/TanggalPutih.js";
 import RekapList from "../features/admin/rekap/RekapList.js";
 import PresensiRonda from "../features/presensi-ronda/PresensiRonda.js";
 
-const rumahList = homeList;
 
 const getPageFromPath = (path) => {
   if (path.includes("#/rapel")) {
@@ -55,7 +58,86 @@ export default function App() {
   // State baru untuk menyimpan status rapel harian
   const [rapelHarianStatus, setRapelHarianStatus] = useState([]);
 
-  const endPoint = ENDPOINT_BASE_URL;
+  const [endPoint, setEndPoint] = useState(ENDPOINT_BASE_URL);
+  const [rumahList, setRumahList] = useState(homeList);
+
+  useEffect(() => {
+    const fetchRefWarga = async () => {
+      try {
+        const response = await fetch(`${endPoint}/api/ref-warga`);
+        if (response.ok) {
+          const result = await response.json();
+          if (
+            result.status === "OK" &&
+            Array.isArray(result.data) &&
+            result.data.length > 0
+          ) {
+            const sorted = [...result.data].sort(
+              (a, b) => Number(a.nomor) - Number(b.nomor)
+            );
+            setRumahList(sorted);
+          }
+        }
+      } catch (err) {
+        console.warn("Gagal mengambil data ref-warga dinamis, menggunakan fallback statis:", err);
+      }
+    };
+    fetchRefWarga();
+  }, [endPoint]);
+  const [saldoData, setSaldoData] = useState(null);
+  const [loadingSaldo, setLoadingSaldo] = useState(true);
+
+  const fetchSaldoTerkini = async () => {
+    setLoadingSaldo(true);
+    try {
+      const res = await fetch(`${endPoint}/api/saldo-terkini`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          setSaldoData(json.data);
+          return;
+        }
+      }
+      // Fallback untuk backend lawas
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = String(now.getMonth() + 1).padStart(2, "0");
+      const fallbackRes = await fetch(`${endPoint}/api/rekap/${currentYear}/${currentMonth}`);
+      if (fallbackRes.ok) {
+        const fallbackJson = await fallbackRes.json();
+        setSaldoData({
+          sisa_saldo: fallbackJson.data?.sisa_saldo || 0,
+          tanggal_terakhir_diupdate: null,
+          bulan: `${currentYear}-${currentMonth}`,
+        });
+      }
+    } catch (err) {
+      console.error("Gagal mengambil saldo terkini:", err);
+    } finally {
+      setLoadingSaldo(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSaldoTerkini();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [endPoint]);
+
+  const formatTanggalTerakhir = (tglStr) => {
+    if (!tglStr) return "-";
+    try {
+      const cleanDate = tglStr.length >= 10 ? tglStr.substring(0, 10) : tglStr;
+      const [y, m, d] = cleanDate.split("-");
+      if (y && m && d) {
+        const dateObj = new Date(Number(y), Number(m) - 1, Number(d));
+        return format(dateObj, "EEEE, d MMMM yyyy", { locale: id });
+      }
+      return tglStr;
+    } catch {
+      return tglStr;
+    }
+  };
+
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -88,7 +170,7 @@ export default function App() {
       }
     };
     fetchRapelHarianStatus();
-  }, [tanggal]);
+  }, [tanggal, endPoint]);
 
   const toggleRumah = (nomor) => {
     // MEMO: Logika ini mencegah rumah yang sudah rapel untuk di-centang.
@@ -183,167 +265,363 @@ export default function App() {
             <Route path="tanggal-putih" element={<TanggalPutih />} />
             <Route path="list-warga" element={<ListWarga />} />
             <Route path="ref-warga" element={<RefWarga />} />
+            <Route path="status-whatsapp" element={<StatusWhatsApp />} />
+            <Route path="sinkron-cloud" element={<SinkronCloud />} />
+            <Route path="update-aplikasi" element={<UpdateAplikasi />} />
           </Route>
         </Route>
       </Routes>
 
-      <ServerCheckModal />
+      <ServerCheckModal onBackendReady={setEndPoint} />
       {currentPage === "harian" ? (
         // Tampilan untuk input harian
-        <>
-          <div className="text-center">
-            <div className="bg-green-400 mt-[-15px] p-1 shadow">
-              <h1 className="text-center font-bold mb-4 mt-10 h-20 text-green-800 text-lg">
+        <div className="max-w-xl mx-auto px-3 sm:px-4 pt-3 pb-80">
+          {/* Header Card */}
+          <div className="bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 text-white rounded-3xl p-5 sm:p-6 shadow-xl shadow-emerald-900/15 mb-4 relative overflow-hidden">
+            <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-teal-400/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-xs font-medium text-emerald-100">
+                  <span>🌙</span> Petugas Ronda Malam
+                </div>
+                <button
+                  type="button"
+                  onClick={fetchSaldoTerkini}
+                  title="Muat ulang informasi saldo terkini"
+                  className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-100 hover:text-white bg-white/15 hover:bg-white/25 backdrop-blur-md px-2.5 py-1 rounded-full transition active:scale-95 border border-white/20 cursor-pointer"
+                >
+                  <svg
+                    className={`w-3 h-3 ${loadingSaldo ? "animate-spin" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2.5"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                  <span>{loadingSaldo ? "Memuat..." : "Refresh"}</span>
+                </button>
+              </div>
+
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
                 Nge-Jimpit GBK Tempel 2
               </h1>
+              <p className="text-xs text-emerald-100/80 mt-1 mb-4">
+                Pencatatan jimpitan harian warga secara transparan dan tertib
+              </p>
+
+              {/* Saldo Terkini Glassmorphism Card */}
+              <div className="bg-white/15 backdrop-blur-md border border-white/25 rounded-2xl p-4 text-left shadow-lg">
+                <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-emerald-200">
+                  <span className="flex items-center gap-1.5">
+                    <span>💰</span> Sisa Saldo Kas Terkini
+                  </span>
+                  <span className="bg-emerald-400/25 text-emerald-100 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-300/30">
+                    Kas Jimpitan
+                  </span>
+                </div>
+
+                <div className="mt-2 flex items-baseline">
+                  {loadingSaldo ? (
+                    <div className="h-8 w-44 bg-white/20 rounded animate-pulse my-1"></div>
+                  ) : (
+                    <div className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                      {rupiahFormat(saldoData?.sisa_saldo ?? 0)}
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-2.5 pt-2.5 border-t border-white/15 flex flex-wrap items-center justify-between gap-1 text-[11px] text-emerald-100">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-emerald-300">📅</span>
+                    <span>
+                      Terakhir diupdate:{" "}
+                      <strong className="text-white font-semibold">
+                        {saldoData?.tanggal_terakhir_diupdate
+                          ? formatTanggalTerakhir(saldoData.tanggal_terakhir_diupdate)
+                          : "-"}
+                      </strong>
+                    </span>
+                  </div>
+                  {saldoData?.bulan && (
+                    <span className="text-emerald-200/80 text-[10px]">
+                      Periode {format(new Date(saldoData.bulan + "-01"), "MMMM yyyy", { locale: id })}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tanggal Ronda Card */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  Tanggal Ronda
+                </span>
+                <div className="text-base sm:text-lg font-bold text-slate-800">
+                  {format(tanggal, "EEEE, d MMMM yyyy", { locale: id })}
+                </div>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-xl font-bold border border-emerald-100">
+                🗓️
+              </div>
             </div>
 
-            <div className="bg-white p-1 rounded-t-3xl text-center shadow mb-4 mt-[-50px]">
-              <label className="block mb-2 font-medium">Tanggal:</label>
-              <DatePicker
+            <div className="relative">
+              <DatePicker customInput={<input inputMode="none" onKeyDown={(e) => e.preventDefault()} autoComplete="off" />}
                 selected={tanggal}
                 onChange={(date) => setTanggal(date)}
                 dateFormat="dd-MM-yyyy"
                 locale={id}
-                className="w-full border text-center rounded p-2"
+                className="w-full py-2.5 px-4 text-center font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition cursor-pointer"
               />
-              <div className="mt-4 text-lg text-center font-bold text-green-700">
-                <div className="text-red-700 text-xs text-center">
-                  Pastikan tanggal ronda sudah benar sebelum menyimpan!
-                </div>
-                {format(tanggal, "EEEE, d MMMM yyyy", { locale: id })}
-              </div>
+            </div>
 
-              <div className="mt-4 mb-4 bg-red-400 rounded-md p-4">
-                <p className="text-center text-red-900">
-                  <strong>Perhatian:</strong>
-                  &nbsp; Untuk menghindari salah mengisi tanggal. Server akan
-                  ditutup pukul <b>23:59 WIB</b>.
-                  Jika ada kendala bisa WA ke Grup
+            <div className="flex items-center justify-center gap-1.5 mt-2.5 text-xs text-amber-700 font-medium bg-amber-50 py-1.5 px-3 rounded-lg border border-amber-200/60 text-center">
+              <span>⚠️</span> Pastikan tanggal ronda sudah benar sebelum menyimpan!
+            </div>
+
+            {/* Info Jam Server */}
+            <div className="mt-3 bg-rose-50 border border-rose-200/70 rounded-xl p-3 text-xs text-rose-900 flex items-start gap-2.5">
+              <span className="text-base leading-none">⏰</span>
+              <div className="leading-relaxed">
+                <strong className="font-semibold text-rose-950">Perhatian:</strong> Server otomatis ditutup pukul <b>23:59 WIB</b> untuk mencegah salah input tanggal. Hubungi grup WA jika butuh bantuan.
+              </div>
+            </div>
+          </div>
+
+          {/* Komponen Presensi Ronda */}
+          <div className="mb-4">
+            <PresensiRonda tanggal={tanggal} />
+          </div>
+
+          {/* Jimpitan Checklist Card */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden mb-6">
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+              <div>
+                <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                  Daftar Jimpitan Rumah
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Centang kotak bila warga telah mengisi jimpitan
                 </p>
               </div>
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                {totalSetor} Tercentang
+              </span>
+            </div>
 
-              <PresensiRonda tanggal={tanggal} />
-
-              <div className="text-2xl font-bold text-green-600 mt-5">Jimpitan</div>
-
-              <table className="w-full bg-white shadow rounded">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-gray-200 text-center">
-                    <th className="p-2 text-center">Nomor</th>
-                    <th className="p-2">Nama</th>
-                    <th className="p-2 text-center">Terisi</th>
+                  <tr className="bg-slate-100/75 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200/60">
+                    <th className="py-3 px-3 text-center w-16">No</th>
+                    <th className="py-3 px-3">Penghuni Rumah</th>
+                    <th className="py-3 px-3 text-center w-28">Status</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {rumahList.map((r, index) => (
-                    <tr
-                      key={r.nomor}
-                      className={`${
-                        index % 2 === 0 ? "bg-green-200" : "bg-white"
-                      } border-t`}
-                    >
-                      <td className="p-2 text-center font-bold">{r.nomor}</td>
-                      <td className="p-2 text-left">
-                        {r.nama}{" "}
-                        {r.sudah_menghuni === 1 && (
-                          <span className="text-red-600">*</span>
-                        )}
-                      </td>
-                      <td className="p-2 text-center">
-                        {/* Logika untuk menampilkan "Rapel" jika rumah sudah rapel. */}
-                        {rapelHarianStatus.includes(String(r.nomor)) ? (
-                          <span className="font-bold text-blue-600">
-                            Sudah Rapel
+                <tbody className="divide-y divide-slate-100 text-sm">
+                  {rumahList.map((r, index) => {
+                    const isRapel = rapelHarianStatus.includes(String(r.nomor));
+                    const isChecked = !!terisi[r.nomor];
+                    const isStriped = index % 2 !== 0;
+
+                    return (
+                      <tr
+                        key={r.nomor}
+                        className={`transition-colors border-b border-slate-200/60 ${
+                          isChecked
+                            ? "bg-emerald-100/90 font-medium border-l-4 border-l-emerald-600"
+                            : isRapel
+                            ? isStriped
+                              ? "bg-slate-100/80 text-slate-400"
+                              : "bg-slate-50/60 text-slate-400"
+                            : isStriped
+                            ? "bg-slate-100/80 hover:bg-slate-200/60"
+                            : "bg-white hover:bg-slate-50"
+                        }`}
+                      >
+                        <td className="py-3 px-3 text-center">
+                          <span
+                            className={`inline-flex items-center justify-center w-8 h-8 rounded-xl font-bold text-xs ${
+                              isChecked
+                                ? "bg-emerald-700 text-white shadow-sm"
+                                : isRapel
+                                ? "bg-slate-200 text-slate-500"
+                                : isStriped
+                                ? "bg-slate-200 text-slate-800"
+                                : "bg-slate-100 text-slate-700"
+                            }`}
+                          >
+                            {r.nomor}
                           </span>
-                        ) : (
-                          <input
-                            type="checkbox"
-                            checked={!!terisi[r.nomor]}
-                            onChange={async (e) => {
-                              const isChecked = e.target.checked;
-                              const result = await Swal.fire({
-                                title: isChecked
-                                  ? `Tandai Jimpitan?`
-                                  : `Hapus Jimpitan?`,
-                                html: isChecked
-                                  ? `Apakah Anda yakin menandai <b>${r.nomor} - ${r.nama} </b>mengisi jimpitan?`
-                                  : `Apakah Anda yakin menghapus jimpitan Rumah <b>${r.nomor} - ${r.nama} </b>?`,
-                                icon: "question",
-                                showCancelButton: true,
-                                confirmButtonText: "Ya",
-                                cancelButtonText: "Batal",
-                                confirmButtonColor: "#3085d6",
-                                cancelButtonColor: "#d33",
-                              });
-                              if (result.isConfirmed) {
-                                toggleRumah(r.nomor);
-                              }
-                            }}
-                            className="w-6 h-6 accent-blue-500"
-                          />
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="py-3 px-3">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-semibold text-slate-800 text-sm">
+                              {r.nama}
+                            </span>
+                            {r.sudah_menghuni === 1 && (
+                              <span
+                                title="Rumah sudah dihuni (wajib jimpitan)"
+                                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700"
+                              >
+                                Wajib
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 px-3 text-center">
+                          {isRapel ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                              ✓ Rapel
+                            </span>
+                          ) : (
+                            <label className="inline-flex items-center justify-center cursor-pointer p-1">
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={async (e) => {
+                                  const checked = e.target.checked;
+                                  const result = await Swal.fire({
+                                    title: checked
+                                      ? "Tandai Jimpitan?"
+                                      : "Hapus Jimpitan?",
+                                    html: checked
+                                      ? `Apakah Anda yakin menandai <b>Rumah ${r.nomor} (${r.nama})</b> mengisi jimpitan?`
+                                      : `Apakah Anda yakin menghapus tanda jimpitan <b>Rumah ${r.nomor} (${r.nama})</b>?`,
+                                    icon: "question",
+                                    showCancelButton: true,
+                                    confirmButtonText: "Ya, lanjutkan",
+                                    cancelButtonText: "Batal",
+                                    confirmButtonColor: "#059669",
+                                    cancelButtonColor: "#64748b",
+                                  });
+                                  if (result.isConfirmed) {
+                                    toggleRumah(r.nomor);
+                                  }
+                                }}
+                                className="w-6 h-6 rounded-lg text-emerald-600 border-slate-300 focus:ring-emerald-500 focus:ring-offset-0 cursor-pointer transition"
+                              />
+                            </label>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
-              <div className="mt-5 mb-5 p-4 bg-orange-200 rounded-xl text-left">
-                <p>Keterangan:</p>
-                <p>
-                  <span className="text-red-700 font-bold">*</span> = Rumah
-                  sudah dihuni wajib jimpitan
-                </p>
-              </div>
+            </div>
+
+            {/* Keterangan */}
+            <div className="p-3.5 bg-slate-50 border-t border-slate-100 text-xs text-slate-600 flex items-center gap-2">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700">
+                Wajib
+              </span>
+              <span>= Rumah sudah berpenghuni tetap dan wajib mengisi jimpitan.</span>
             </div>
           </div>
 
-          <div className="fixed bottom-0 left-0 right-0 bg-green-900 text-white p-4 border-t rounded-t-3xl shadow-md flex flex-col sm:flex-row justify-between items-center gap-2">
-            <div>
-              💰 Total Seharusnya:{" "}
-              <strong>
-                {totalSetor} × 500 = Rp {totalUang.toLocaleString()}
-              </strong>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <label>Masukkan Total Uang Yang Diambil:</label>
-              <input
-                type="number"
-                value={uangDiambil}
-                onChange={(e) => setUangDiambil(e.target.value)}
-                onFocus={() => setKeyboardOpen(true)}
-                onBlur={() => setKeyboardOpen(false)}
-                className="p-1 border rounded w-50 text-black"
-                placeholder="Masukkan jimpitan hari ini"
-              />
-            </div>
+          {/* Sticky Floating Action Bar di Bawah */}
+          <div className="fixed bottom-0 left-0 right-0 z-30 pointer-events-none">
+            <div className="max-w-xl mx-auto px-3 sm:px-4 pb-3 sm:pb-4 pointer-events-auto">
+              <div className="bg-slate-900/95 backdrop-blur-md text-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-800">
+                {/* Ringkasan Setoran */}
+                <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                  <div>
+                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                      Total Checklist
+                    </span>
+                    <div className="text-xs text-slate-300">
+                      {totalSetor} rumah × Rp 500
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xl sm:text-2xl font-black text-emerald-400 font-mono">
+                      Rp {totalUang.toLocaleString("id-ID")}
+                    </div>
+                  </div>
+                </div>
 
-            {keyboardOpen ? (
-              <div>
-                <div className="text-red-300 text-sm text-center">
-                  *Masukkan tanpa titik tanpa koma
+                {/* Input Hitungan Uang Fisik */}
+                <div className="mt-3">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-medium text-slate-300">
+                      Uang Fisik yang Diambil:
+                    </label>
+                    {uangDiambil !== "" && (
+                      <span
+                        className={`text-[11px] font-semibold ${
+                          isSesuai ? "text-emerald-400" : "text-rose-400"
+                        }`}
+                      >
+                        {isSesuai
+                          ? "✅ Nominal Pas"
+                          : `⚠️ Selisih: Rp ${Math.abs(
+                              parseInt(uangDiambil || 0) - totalUang
+                            ).toLocaleString("id-ID")}`}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-bold text-sm">
+                      Rp
+                    </span>
+                    <input
+                      type="number"
+                      value={uangDiambil}
+                      onChange={(e) => setUangDiambil(e.target.value)}
+                      onFocus={() => setKeyboardOpen(true)}
+                      onBlur={() => setKeyboardOpen(false)}
+                      className={`w-full pl-11 pr-4 py-2.5 bg-slate-800 text-white font-mono text-base font-bold rounded-xl border focus:outline-none focus:ring-2 transition ${
+                        uangDiambil === ""
+                          ? "border-slate-700 focus:ring-emerald-500"
+                          : isSesuai
+                          ? "border-emerald-500 focus:ring-emerald-500 bg-emerald-950/20 text-emerald-300"
+                          : "border-rose-500 focus:ring-rose-500 bg-rose-950/20 text-rose-300"
+                      }`}
+                      placeholder="Masukkan total uang fisik"
+                    />
+                  </div>
+
+                  {keyboardOpen && (
+                    <div className="mt-2 p-2 rounded-lg bg-slate-800/90 text-[11px] text-amber-300 border border-amber-500/30">
+                      * Masukkan angka saja tanpa titik atau koma. Jika uang tidak sesuai checklist, petugas ronda melengkapi kekurangannya.
+                    </div>
+                  )}
                 </div>
-                <div className="text-red-800 text-sm text-center bg-red-200 p-2 rounded">
-                  Jika uang yang diambil tidak sesuai dengan checklist. <br />
-                  Petugas ronda harus melengkapi kekurangannya.
-                </div>
+
+                {/* Tombol Simpan */}
+                <button
+                  onClick={simpan}
+                  disabled={!isSesuai || totalSetor === 0}
+                  className={`w-full mt-3.5 py-3 px-4 rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg transition active:scale-[0.99] ${
+                    isSesuai && totalSetor > 0
+                      ? "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-emerald-500/25 cursor-pointer"
+                      : "bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed"
+                  }`}
+                >
+                  <span>{isSesuai && totalSetor > 0 ? "💾" : "🔒"}</span>
+                  {isSesuai && totalSetor > 0
+                    ? "Simpan Jimpitan"
+                    : totalSetor === 0
+                    ? "Centang Rumah Terlebih Dahulu"
+                    : "Jumlah Uang Belum Sesuai"}
+                </button>
               </div>
-            ) : (
-              ""
-            )}
-            <button
-              onClick={simpan}
-              disabled={!isSesuai || totalSetor === 0}
-              className={`px-4 py-2 mt-5 w-full text-white rounded ${
-                isSesuai && totalSetor > 0
-                  ? "bg-green-600"
-                  : "bg-gray-400 cursor-not-allowed"
-              }`}
-            >
-              {isSesuai ? "Simpan Jimpitan" : "Jumlah Tidak Sesuai"}
-            </button>
+            </div>
           </div>
-        </>
+        </div>
       ) : (
         // Tampilan untuk halaman rapel
         // <RapelForm />

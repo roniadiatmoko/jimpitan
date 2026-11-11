@@ -10,6 +10,10 @@ import Badge from "../../../shared/components/ui/Badge";
 import Spinner from "../../../shared/components/ui/Spinner";
 import HitungULangHarianForm from "./HitungUlangHarianForm";
 import Swal from "sweetalert2";
+import Select from "react-select";
+import ModalStatusRumah from "./ModalStatusRumah";
+import ModalLihatTanggal from "./ModalLihatTanggal";
+import { homeList } from "../../../shared/config";
 
 export default function DetailNominalHitungUlangHarian({ period }) {
   const [loading, setLoading] = useState(true);
@@ -26,6 +30,41 @@ export default function DetailNominalHitungUlangHarian({ period }) {
   const [balanceFilter, setBalanceFilter] = useState("all"); // all | Balance | Surplus | Defisit | Belum Dihitung Ulang
   const [copySuccessBelum, setCopySuccessBelum] = useState("");
   const [copySuccessDefisit, setCopySuccessDefisit] = useState("");
+
+  const [wargaList, setWargaList] = useState(homeList);
+  const [openModalStatusRumah, setOpenModalStatusRumah] = useState(false);
+  const [selectedRumahStatus, setSelectedRumahStatus] = useState(null);
+  const [selectedNamaWargaStatus, setSelectedNamaWargaStatus] = useState("");
+  const [selectedRumahDropdown, setSelectedRumahDropdown] = useState("");
+
+  const [openModalLihatTanggal, setOpenModalLihatTanggal] = useState(false);
+  const [selectedTanggalLihat, setSelectedTanggalLihat] = useState(null);
+
+  useEffect(() => {
+    const fetchRefWarga = async () => {
+      try {
+        const res = await fetch(`${ENDPOINT_BASE_URL}/api/ref-warga`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.status === "OK" && Array.isArray(json.data) && json.data.length > 0) {
+            const sorted = [...json.data].sort((a, b) => Number(a.nomor) - Number(b.nomor));
+            setWargaList(sorted);
+          }
+        }
+      } catch (err) {
+        console.warn("Gagal memuat ref-warga:", err);
+      }
+    };
+    fetchRefWarga();
+  }, []);
+
+  const houseOptions = useMemo(() => {
+    return wargaList.map((h) => ({
+      value: String(h.nomor),
+      label: `No. ${h.nomor} — ${h.nama}`,
+      nama: h.nama,
+    }));
+  }, [wargaList]);
 
   const filteredRows = useMemo(() => {
     if (balanceFilter === "all") return rows;
@@ -337,6 +376,54 @@ export default function DetailNominalHitungUlangHarian({ period }) {
         </Card>
       </div>
 
+      {/* Card Cek Status Isi / Tidak Per Rumah */}
+      <Card className="mb-4 border-blue-200 bg-gradient-to-r from-blue-50/70 to-indigo-50/70">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-sm font-bold text-ink flex items-center gap-2">
+              <span>🏠</span> Cek Status Pengisian Rumah (Tanggal Ronda)
+            </h3>
+            <p className="text-xs text-muted mt-0.5">
+              Pilih rumah untuk melihat status isi atau tidaknya pada tanggal-tanggal yang sudah diisikan petugas ronda.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+            <div className="w-full sm:w-72">
+              <Select
+                placeholder="Pilih Nomor Rumah..."
+                options={houseOptions}
+                value={houseOptions.find((opt) => opt.value === selectedRumahDropdown) || null}
+                onChange={(selected) => setSelectedRumahDropdown(selected ? selected.value : "")}
+                isClearable
+                className="text-xs"
+                styles={{
+                  control: (base, state) => ({
+                    ...base,
+                    minHeight: "38px",
+                    borderRadius: "0.5rem",
+                    borderColor: state.isFocused ? "#2563eb" : "#cbd5e1",
+                  }),
+                }}
+              />
+            </div>
+            <Button
+              type="button"
+              className="whitespace-nowrap text-xs !py-2.5 !px-4 flex items-center justify-center gap-1.5"
+              disabled={!selectedRumahDropdown}
+              onClick={() => {
+                const found = wargaList.find((w) => String(w.nomor) === String(selectedRumahDropdown));
+                setSelectedRumahStatus(selectedRumahDropdown);
+                setSelectedNamaWargaStatus(found?.nama || "");
+                setOpenModalStatusRumah(true);
+              }}
+            >
+              <span>👁️</span> Lihat Status Rumah
+            </Button>
+          </div>
+        </div>
+      </Card>
+
       <div className="mb-4 flex items-center gap-3">
         <label className="text-sm font-medium text-ink">Filter Balance:</label>
         <select
@@ -398,20 +485,33 @@ export default function DetailNominalHitungUlangHarian({ period }) {
                       Rp {r.selisih.toLocaleString("id-ID")}
                     </td>
                     <td className="px-4 py-2">
-                      <Button
-                        variant="secondary"
-                        className="w-full"
-                        onClick={() => {
-                          setOpenModalEdit(true);
-                          setSelectedDate(
-                            format(r.tanggal, "yyyy-MM-dd", { locale: id })
-                          );
-                          setSelectedNominalHarian(r.nominalHarian);
-                          setSelectedNominalHitungUlang(r.nominalHitungUlang);
-                        }}
-                      >
-                        Update
-                      </Button>
+                      <div className="flex gap-1.5">
+                        <Button
+                          variant="secondary"
+                          className="flex-1 !px-2.5 !py-1 text-xs"
+                          onClick={() => {
+                            setSelectedTanggalLihat(
+                              format(r.tanggal, "yyyy-MM-dd")
+                            );
+                            setOpenModalLihatTanggal(true);
+                          }}
+                        >
+                          Lihat
+                        </Button>
+                        <Button
+                          className="flex-1 !px-2.5 !py-1 text-xs"
+                          onClick={() => {
+                            setOpenModalEdit(true);
+                            setSelectedDate(
+                              format(r.tanggal, "yyyy-MM-dd", { locale: id })
+                            );
+                            setSelectedNominalHarian(r.nominalHarian);
+                            setSelectedNominalHitungUlang(r.nominalHitungUlang);
+                          }}
+                        >
+                          Update
+                        </Button>
+                      </div>
                     </td>
                     <td className="px-4 py-2 text-center">
                       <Button
@@ -458,7 +558,7 @@ export default function DetailNominalHitungUlangHarian({ period }) {
       </Card>
 
       {
-        /* Modal Add Rapel */
+        /* Modal Update Hitung Ulang */
         openModalEdit ? (
           <SimpleModal
             content={
@@ -478,6 +578,56 @@ export default function DetailNominalHitungUlangHarian({ period }) {
           ""
         )
       }
+
+      {/* Modal Status Rumah (Hanya Tanggal yang Diisi Petugas Ronda) */}
+      {openModalStatusRumah && selectedRumahStatus && (
+        <SimpleModal
+          maxWidth="max-w-3xl"
+          content={
+            <ModalStatusRumah
+              nomorRumah={selectedRumahStatus}
+              namaWarga={selectedNamaWargaStatus}
+              period={period}
+              wargaList={wargaList}
+              onClose={() => {
+                setOpenModalStatusRumah(false);
+                setSelectedRumahStatus(null);
+              }}
+            />
+          }
+          onClose={() => {
+            setOpenModalStatusRumah(false);
+            setSelectedRumahStatus(null);
+          }}
+        />
+      )}
+
+      {/* Modal Lihat Tanggal */}
+      {openModalLihatTanggal && selectedTanggalLihat && (
+        <SimpleModal
+          maxWidth="max-w-3xl"
+          content={
+            <ModalLihatTanggal
+              tanggal={selectedTanggalLihat}
+              wargaList={wargaList}
+              onClose={() => {
+                setOpenModalLihatTanggal(false);
+                setSelectedTanggalLihat(null);
+              }}
+              onLihatRumah={(nomor, nama) => {
+                setOpenModalLihatTanggal(false);
+                setSelectedRumahStatus(nomor);
+                setSelectedNamaWargaStatus(nama);
+                setOpenModalStatusRumah(true);
+              }}
+            />
+          }
+          onClose={() => {
+            setOpenModalLihatTanggal(false);
+            setSelectedTanggalLihat(null);
+          }}
+        />
+      )}
     </div>
   );
 }
