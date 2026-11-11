@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import AdminSidebar from "../../shared/components/AdminSidebar";
 import WhatsAppHeaderStatus from "../../shared/components/WhatsAppHeaderStatus";
+import EnvBadge from "../../shared/components/EnvBadge";
 
 const SIDEBAR_COLLAPSED_KEY = "adminSidebarCollapsed";
 
@@ -46,7 +47,8 @@ export default function AdminPanel({ onLogout }) {
               {format(new Date(), "EEEE, d MMMM yyyy", { locale: id })}
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <EnvBadge />
             <WhatsAppHeaderStatus />
             <div className="h-5 w-[1px] bg-line" />
             <div className="flex items-center gap-3">

@@ -1,3 +1,4 @@
+import EnvBadge from "./EnvBadge";
 import WhatsAppHeaderStatus from "./WhatsAppHeaderStatus";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -258,6 +259,7 @@ export default function AdminSidebar({ onLogout, collapsed, onToggleCollapse }) 
           <span className="text-base font-bold text-white">Jimpitan</span>
         </Link>
         <div className="flex items-center gap-2">
+          <EnvBadge isMobile />
           <WhatsAppHeaderStatus isMobile />
           <button
             type="button"
