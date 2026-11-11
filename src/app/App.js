@@ -31,16 +31,22 @@ import RekapList from "../features/admin/rekap/RekapList.js";
 import PresensiRonda from "../features/presensi-ronda/PresensiRonda.js";
 
 
-const getPageFromPath = (path) => {
-  if (path.includes("#/rapel")) {
-    return "rapel-form";
+const getPageFromPath = (path, pathname = typeof window !== "undefined" ? window.location.pathname : "") => {
+  const combined = `${path || ""} ${pathname || ""}`;
+
+  if (combined.includes("keuangan-rumah")) {
+    return "keuangan-rumah";
   }
 
-  if (path.includes("#/rapel-list")) {
+  if (combined.includes("#/rapel-list") || combined.includes("/rapel-list")) {
     return "rapel-list";
   }
 
-  if (path.includes("#/admin")) {
+  if (combined.includes("#/rapel") || combined.includes("/rapel")) {
+    return "rapel-form";
+  }
+
+  if (combined.includes("#/admin") || combined.includes("/admin")) {
     return "admin";
   }
 
@@ -141,11 +147,23 @@ export default function App() {
 
 
   useEffect(() => {
+    // Redirect otomatis jika pengguna mengakses /keuangan-rumah tanpa tanda pagar hash
+    if (
+      window.location.pathname.includes("keuangan-rumah") &&
+      !window.location.hash.includes("keuangan-rumah")
+    ) {
+      window.location.replace("/#/keuangan-rumah");
+    }
+
     const handleHashChange = () => {
       setCurrentPage(getPageFromPath(window.location.hash));
     };
     window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
+    window.addEventListener("popstate", handleHashChange);
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+      window.removeEventListener("popstate", handleHashChange);
+    };
   }, []);
 
   // Efek untuk mengambil data rapel harian setiap kali tanggal berubah
@@ -247,7 +265,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen pb-96 bg-gray-50">
+    <div className={`min-h-screen bg-gray-50 ${currentPage === "harian" ? "pb-96" : "pb-12"}`}>
       <Routes>
         <Route path="/keuangan-rumah" element={<KeuanganRumah />} />
         {/* ADMIN PAGE */}
@@ -276,7 +294,7 @@ export default function App() {
       </Routes>
 
       <ServerCheckModal onBackendReady={setEndPoint} />
-      {currentPage === "harian" ? (
+      {currentPage === "harian" && (
         // Tampilan untuk input harian
         <div className="max-w-xl mx-auto px-3 sm:px-4 pt-3 pb-80">
           {/* Header Card */}
@@ -625,10 +643,6 @@ export default function App() {
             </div>
           </div>
         </div>
-      ) : (
-        // Tampilan untuk halaman rapel
-        // <RapelForm />
-        ""
       )}
     </div>
   );
