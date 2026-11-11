@@ -31,7 +31,27 @@ import RekapList from "../features/admin/rekap/RekapList.js";
 import PresensiRonda from "../features/presensi-ronda/PresensiRonda.js";
 
 
+const isKeuanganSubdomain = () => {
+  if (typeof window === "undefined") return false;
+  const host = window.location.hostname.toLowerCase();
+  if (host === "localhost" || host === "127.0.0.1" || host.includes("jimpitan-gbk")) {
+    return false;
+  }
+  const parts = host.split(".");
+  const subdomain = parts.length > 2 ? parts[0] : host;
+  return (
+    subdomain.includes("keuangan") ||
+    subdomain.includes("rumah") ||
+    subdomain.includes("keluarga") ||
+    subdomain.includes("family")
+  );
+};
+
 const getPageFromPath = (path, pathname = typeof window !== "undefined" ? window.location.pathname : "") => {
+  if (isKeuanganSubdomain()) {
+    return "keuangan-rumah";
+  }
+
   const combined = `${path || ""} ${pathname || ""}`;
 
   if (combined.includes("keuangan-rumah")) {
@@ -147,6 +167,14 @@ export default function App() {
 
 
   useEffect(() => {
+    // Jika dibuka lewat subdomain khusus keuangan/rumah tangga
+    if (isKeuanganSubdomain()) {
+      if (!window.location.hash.includes("keuangan-rumah")) {
+        window.location.replace("#/keuangan-rumah");
+      }
+      setCurrentPage("keuangan-rumah");
+    }
+
     // Redirect otomatis jika pengguna mengakses /keuangan-rumah tanpa tanda pagar hash
     if (
       window.location.pathname.includes("keuangan-rumah") &&

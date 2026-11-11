@@ -320,7 +320,14 @@ export default function KeuanganRumah() {
       {!isInsideAdmin && (
         <div className="flex items-center justify-between pb-1">
           <a
-            href="#/"
+            href={
+              typeof window !== "undefined" &&
+              !window.location.hostname.includes("jimpitan-gbk") &&
+              window.location.hostname !== "localhost" &&
+              window.location.hostname !== "127.0.0.1"
+                ? "https://jimpitan-gbk.roniadiatmoko.my.id"
+                : "#/"
+            }
             className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-emerald-700 font-semibold transition"
           >
             <span>←</span> Kembali ke Jimpitan Warga
