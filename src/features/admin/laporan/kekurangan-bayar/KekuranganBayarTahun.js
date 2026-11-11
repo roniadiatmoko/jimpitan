@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ENDPOINT_BASE_URL, homeList, months } from "../../../../shared/config";
+import { ENDPOINT_BASE_URL, homeList, months, API_SECRET_KEY } from "../../../../shared/config";
 import { rupiahFormat } from "../../../../shared/helpers/MoneyHeper";
 import Card from "../../../../shared/components/ui/Card";
 import Button from "../../../../shared/components/ui/Button";
@@ -347,7 +347,7 @@ export default function KekuranganBayarTahun() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          secret_key: "rahasiakita123",
+          secret_key: API_SECRET_KEY,
           nomor_rumah: selectedDetail.nomor_rumah,
           nominal: formValues.nominal,
           daftar_bulan: selectedPaymentSummary.selectedList.map((m) => m.periodStr),
@@ -535,7 +535,7 @@ export default function KekuranganBayarTahun() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          secret_key: "rahasiakita123",
+          secret_key: API_SECRET_KEY,
           pesan,
           no_hp: refWarga.no_hp,
         }),

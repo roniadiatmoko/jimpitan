@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
 import CurrencyInput from "react-currency-input-field";
-import { ENDPOINT_BASE_URL, months } from "../../../shared/config";
+import { ENDPOINT_BASE_URL, months, API_SECRET_KEY } from "../../../shared/config";
 import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
 import Card from "../../../shared/components/ui/Card";
 import Button from "../../../shared/components/ui/Button";
@@ -138,7 +138,7 @@ export default function RekapList() {
           pemasukan: Number(formPemasukan),
           pengeluaran: Number(formPengeluaran),
           keterangan,
-          secret_key: "rahasiakita123",
+          secret_key: API_SECRET_KEY,
         }),
       });
 
@@ -219,7 +219,7 @@ export default function RekapList() {
           pengeluaran: Number(editPengeluaran),
           keterangan,
           is_kunci_sinkron: editKunciSinkron ? 1 : 0,
-          secret_key: "rahasiakita123",
+          secret_key: API_SECRET_KEY,
         }),
       });
 
@@ -373,7 +373,7 @@ export default function RekapList() {
                 pemasukan,
                 pengeluaran,
                 keterangan: `Sinkron ulang ${namaBulan} ${tahun}`,
-                secret_key: "rahasiakita123",
+                secret_key: API_SECRET_KEY,
               }),
             });
             const postJson = await postRes.json();

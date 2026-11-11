@@ -7,7 +7,7 @@ import Swal from "sweetalert2";
 import { Routes, Route } from "react-router-dom";
 
 // Mengimpor komponen RapelForm dari file terpisah
-import { ENDPOINT_BASE_URL, homeList } from "../shared/config.js";
+import { ENDPOINT_BASE_URL, homeList, API_SECRET_KEY } from "../shared/config.js";
 import { rupiahFormat } from "../shared/helpers/MoneyHeper.js";
 import AdminArea from "../features/admin/AdminArea.js";
 import DetailHarian from "../features/admin/harian/DetailHarian.js";
@@ -244,7 +244,7 @@ export default function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          secret_key: "rahasiakita123",
+          secret_key: API_SECRET_KEY,
           tanggal: format(tanggal, "yyyy-MM-dd"),
           diambil_oleh: "Petugas Ronda",
           data: dataJimpitan,

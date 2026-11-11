@@ -135,10 +135,8 @@ export const homeList = [
   { nomor: 68, nama: "Ikhwan", sudah_menghuni: 0, tanggal_huni: "0000-00-00" },
 ];
 
-export const userAccount = [
-  { username: "menterijimpitan", password: "menterijimpitan", fullname: "Menteri Jimpitan" },
-  { username: "ketua", password: "kepalasuku", fullname: "Ketua Paguyuban" },
-];
+export const API_SECRET_KEY =
+  process.env.REACT_APP_API_SECRET_KEY || "rahasiakita123";
 
 export const months = [
   { value: 1, label: 'Januari' },

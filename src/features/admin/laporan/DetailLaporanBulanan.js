@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { rupiahFormat } from "../../../shared/helpers/MoneyHeper";
-import { ENDPOINT_BASE_URL, homeList, months } from "../../../shared/config";
+import { ENDPOINT_BASE_URL, homeList, months, API_SECRET_KEY } from "../../../shared/config";
 import Card from "../../../shared/components/ui/Card";
 import Button from "../../../shared/components/ui/Button";
 import Spinner from "../../../shared/components/ui/Spinner";
@@ -161,7 +161,7 @@ export default function LaporanBulananAccordion({
           pemasukan: totalSemua,
           pengeluaran: pengeluaranBulan,
           keterangan,
-          secret_key: "rahasiakita123",
+          secret_key: API_SECRET_KEY,
         }),
       });
 

@@ -110,7 +110,7 @@ export default function StatusWhatsApp() {
       html:
         '<div class="text-left space-y-3">' +
         '<div><label class="text-xs font-semibold text-gray-600 block mb-1">Nomor Tujuan (Opsional, kosongkan untuk grup testing):</label>' +
-        '<input id="swal-phone" class="swal2-input !mt-0 !w-full !text-sm" placeholder="Contoh: 089673378055"></div>' +
+        '<input id="swal-phone" class="swal2-input !mt-0 !w-full !text-sm" placeholder="Contoh: 081234567890"></div>' +
         '<div><label class="text-xs font-semibold text-gray-600 block mb-1">Pesan:</label>' +
         '<textarea id="swal-msg" class="swal2-textarea !mt-0 !w-full !text-sm" rows="3" placeholder="Tulis pesan tes..."></textarea></div>' +
         '</div>',

@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import DatePicker from "react-datepicker";
 import { format, compareAsc, addDays, setYear as setDateYear } from "date-fns";
 import { id } from "date-fns/locale";
-import { ENDPOINT_BASE_URL } from "../../../shared/config";
+import { ENDPOINT_BASE_URL, API_SECRET_KEY } from "../../../shared/config";
 import Card from "../../../shared/components/ui/Card";
 import Button from "../../../shared/components/ui/Button";
 
@@ -105,7 +105,7 @@ export default function TanggalPutih() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            secret_key: "rahasiakita123",
+            secret_key: API_SECRET_KEY,
             rowsToSave,
           }),
         },
@@ -153,7 +153,7 @@ export default function TanggalPutih() {
         {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ secret_key: "rahasiakita123" }),
+          body: JSON.stringify({ secret_key: API_SECRET_KEY }),
         },
       );
       const result = await response.json();

@@ -1,30 +1,52 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { userAccount } from "../../shared/config";
+import { ENDPOINT_BASE_URL } from "../../shared/config";
 
 export default function LoginForm({ onLoginSuccess }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const account = userAccount.find(
-      (user) => user.username === username && user.password === password
-    );
-
-    if (!account) {
-      setError("Username atau kata sandi salah. Coba lagi.");
+    if (!username.trim() || !password.trim()) {
+      setError("Silakan isi username dan kata sandi.");
       return;
     }
 
-    localStorage.setItem("token", "true");
-    localStorage.setItem("username", username);
-    localStorage.setItem("fullname", account.fullname);
+    setLoading(true);
+    setError("");
 
-    navigate("/admin", { replace: true });
-    onLoginSuccess?.();
+    try {
+      const res = await fetch(`${ENDPOINT_BASE_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: username.trim(),
+          password: password.trim(),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.status === "OK") {
+        localStorage.setItem("token", data.token || "true");
+        localStorage.setItem("username", data.user?.username || username);
+        localStorage.setItem("fullname", data.user?.fullname || username);
+
+        navigate("/admin", { replace: true });
+        onLoginSuccess?.();
+      } else {
+        setError(data.message || "Username atau kata sandi salah. Coba lagi.");
+      }
+    } catch (err) {
+      console.error("Gagal login:", err);
+      setError("Gagal terhubung ke server login. Coba lagi beberapa saat lagi.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -76,9 +98,10 @@ export default function LoginForm({ onLoginSuccess }) {
 
           <button
             type="submit"
-            className="mt-4 w-full rounded-lg bg-accent p-3 font-semibold text-white transition hover:bg-accent/90"
+            disabled={loading}
+            className="mt-4 w-full rounded-lg bg-accent p-3 font-semibold text-white transition hover:bg-accent/90 disabled:opacity-60 flex items-center justify-center gap-2"
           >
-            Masuk
+            {loading ? "Memproses..." : "Masuk"}
           </button>
         </form>
       </div>

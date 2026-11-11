@@ -7,8 +7,6 @@ import Card from "../../shared/components/ui/Card";
 import Button from "../../shared/components/ui/Button";
 import Spinner from "../../shared/components/ui/Spinner";
 
-const VALID_PINS = ["8055", "2287", "1234"];
-
 const KATEGORI_PENGELUARAN = [
   "Pangan / Dapur",
   "Tagihan & Utilitas",
@@ -57,6 +55,7 @@ export default function KeuanganRumah() {
   );
   const [pinInput, setPinInput] = useState("");
   const [pinError, setPinError] = useState("");
+  const [verifyingPin, setVerifyingPin] = useState(false);
 
   // Filter State
   const [selectedYear, setSelectedYear] = useState(String(currentYear));
@@ -85,15 +84,34 @@ export default function KeuanganRumah() {
     return Array.from({ length }, (_, idx) => String(start + idx));
   }, [currentYear]);
 
-  // Handle PIN Unlock
-  const handleUnlock = (e) => {
+  // Handle PIN Unlock via API Backend
+  const handleUnlock = async (e) => {
     e?.preventDefault();
-    if (VALID_PINS.includes(pinInput.trim())) {
-      setIsUnlocked(true);
-      sessionStorage.setItem("keuangan_rumah_unlocked", "true");
-      setPinError("");
-    } else {
-      setPinError("PIN keamanan tidak tepat. Silakan coba lagi.");
+    if (!pinInput.trim()) {
+      setPinError("Silakan masukkan PIN keamanan.");
+      return;
+    }
+    setVerifyingPin(true);
+    setPinError("");
+    try {
+      const res = await fetch(`${ENDPOINT_BASE_URL}/api/keuangan-rumah/verify-pin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pin: pinInput.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok && data.status === "OK" && data.valid) {
+        setIsUnlocked(true);
+        sessionStorage.setItem("keuangan_rumah_unlocked", "true");
+        setPinError("");
+      } else {
+        setPinError(data.message || "PIN keamanan tidak tepat. Silakan coba lagi.");
+      }
+    } catch (err) {
+      console.error("Gagal verifikasi PIN:", err);
+      setPinError("Gagal terhubung ke server untuk verifikasi PIN.");
+    } finally {
+      setVerifyingPin(false);
     }
   };
 
@@ -271,8 +289,18 @@ export default function KeuanganRumah() {
               )}
             </div>
 
-            <Button type="submit" className="w-full !py-3 text-sm font-bold">
-              Buka Catatan Keuangan 🔓
+            <Button
+              type="submit"
+              disabled={verifyingPin}
+              className="w-full !py-3 text-sm font-bold flex items-center justify-center gap-2"
+            >
+              {verifyingPin ? (
+                <>
+                  <Spinner size="sm" /> Memverifikasi PIN...
+                </>
+              ) : (
+                "Buka Catatan Keuangan 🔓"
+              )}
             </Button>
           </form>
 
