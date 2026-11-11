@@ -34,10 +34,17 @@ export default function FormTambahPersonilRonda({
     setErrorMsg("");
 
     try {
-      const tanggalKirim =
-        tanggal instanceof Date
-          ? tanggal.toISOString().slice(0, 10) // yyyy-mm-dd
-          : tanggal;
+      const tanggalKirim = (() => {
+        if (!tanggal) return "";
+        try {
+          return format(
+            tanggal instanceof Date ? tanggal : new Date(tanggal),
+            "yyyy-MM-dd"
+          );
+        } catch {
+          return String(tanggal).slice(0, 10);
+        }
+      })();
 
       const homesPayload = selectedHomes.map((nomor) => {
         const item = homeList.find((h) => h.nomor === nomor);

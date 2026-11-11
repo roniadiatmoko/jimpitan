@@ -45,6 +45,14 @@ function formatTanggalIndo(dateStr) {
   }
 }
 
+function getTodayLocalDateStr() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 export default function KeuanganRumah() {
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1;
@@ -69,7 +77,7 @@ export default function KeuanganRumah() {
 
   // Modal Input Manual
   const [showModalAdd, setShowModalAdd] = useState(false);
-  const [formTanggal, setFormTanggal] = useState(new Date().toISOString().split("T")[0]);
+  const [formTanggal, setFormTanggal] = useState(getTodayLocalDateStr());
   const [formJenis, setFormJenis] = useState("pengeluaran");
   const [formKategori, setFormKategori] = useState(KATEGORI_PENGELUARAN[0]);
   const [formNominal, setFormNominal] = useState("");
@@ -383,7 +391,7 @@ export default function KeuanganRumah() {
             <Button
               className="text-xs !py-2 !px-3 font-semibold flex items-center gap-1.5"
               onClick={() => {
-                setFormTanggal(new Date().toISOString().split("T")[0]);
+                setFormTanggal(getTodayLocalDateStr());
                 setShowModalAdd(true);
               }}
             >

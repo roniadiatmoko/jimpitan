@@ -54,10 +54,12 @@ export default function PengeluaranForm({
         : `${ENDPOINT_BASE_URL}/api/pengeluaran`;
       const method = isEdit ? "PUT" : "POST";
 
-      const formattedDate =
-        selectedDate instanceof Date
-          ? selectedDate.toISOString()
-          : new Date(selectedDate).toISOString();
+      const d =
+        selectedDate instanceof Date ? selectedDate : new Date(selectedDate);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      const formattedDate = `${y}-${m}-${day}`;
 
       const response = await fetch(url, {
         method,

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { format } from "date-fns";
 import SimpleModal from "../../shared/components/SimpleModal";
 import FormTambahPersonilRonda from "./FormTambahPersonilRonda";
 import { ENDPOINT_BASE_URL } from "../../shared/config";
@@ -11,10 +12,17 @@ export default function PresensiRonda({ tanggal }) {
   const [loadingList, setLoadingList] = useState(false);
   const [errorList, setErrorList] = useState("");
 
-  const tanggalStr =
-    tanggal instanceof Date
-      ? tanggal.toISOString().slice(0, 10)
-      : String(tanggal).slice(0, 10);
+  const tanggalStr = (() => {
+    if (!tanggal) return "";
+    try {
+      return format(
+        tanggal instanceof Date ? tanggal : new Date(tanggal),
+        "yyyy-MM-dd"
+      );
+    } catch {
+      return String(tanggal).slice(0, 10);
+    }
+  })();
 
   const fetchPersonilRonda = async () => {
     setLoadingList(true);
