@@ -27,6 +27,7 @@ import {
 const navItems = [
   { to: "rapel-list", label: "Daftar Rapel", icon: IconRapel },
   { to: "detail-harian", label: "Hitung Ulang Harian", icon: IconHitungUlang },
+  { to: "jadwal-ronda", label: "Jadwal Ronda", icon: IconJadwal },
   { to: "pengeluaran", label: "Pengeluaran", icon: IconPengeluaran },
   { to: "laporan-bulanan", label: "Rekap Bulanan", icon: IconLaporan },
   { to: "daftar-rekap", label: "Laporan Tahunan", icon: IconRekap },
@@ -37,7 +38,6 @@ const navItems = [
 ];
 
 const dataItems = [
-  { to: "jadwal-ronda", label: "Jadwal Ronda", icon: IconJadwal },
   { to: "ref-warga", label: "Warga", icon: IconWarga },
   { to: "tanggal-putih", label: "Tanggal Putih", icon: IconKalender },
   { to: "template-broadcast", label: "Template Broadcast", icon: IconBroadcast },

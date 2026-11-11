@@ -8,7 +8,7 @@ import Spinner from "../../../shared/components/ui/Spinner";
 const HARI_LIST = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
 
 export default function JadwalRonda() {
-  const [activeHari, setActiveHari] = useState("Senin");
+  const [activeTab, setActiveTab] = useState("Semua"); // "Semua" atau salah satu hari
   const [jadwalList, setJadwalList] = useState([]);
   const [wargaList, setWargaList] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -18,6 +18,10 @@ export default function JadwalRonda() {
   const [selectedHomes, setSelectedHomes] = useState([]);
   const [saving, setSaving] = useState(false);
   const [searchWarga, setSearchWarga] = useState("");
+  const [targetHariAdd, setTargetHariAdd] = useState("Senin");
+
+  // Filter pencarian tabel
+  const [filterQuery, setFilterQuery] = useState("");
 
   const fetchJadwal = async () => {
     try {
@@ -53,12 +57,7 @@ export default function JadwalRonda() {
     fetchWarga();
   }, []);
 
-  // Filter jadwal hari aktif
-  const personilHariAktif = useMemo(() => {
-    return jadwalList.filter((j) => j.hari === activeHari);
-  }, [jadwalList, activeHari]);
-
-  // Hitung jumlah per hari untuk badge di tab
+  // Hitung jumlah personil per hari
   const countPerHari = useMemo(() => {
     const counts = {};
     HARI_LIST.forEach((h) => (counts[h] = 0));
@@ -68,19 +67,47 @@ export default function JadwalRonda() {
     return counts;
   }, [jadwalList]);
 
-  // Daftar nomor rumah yang SUDAH masuk jadwal hari aktif
-  const existingNomorInActiveHari = useMemo(() => {
-    return new Set(personilHariAktif.map((p) => String(p.nomor_rumah)));
-  }, [personilHariAktif]);
+  // Data per hari terkelompok
+  const jadwalGrouped = useMemo(() => {
+    const grouped = {};
+    HARI_LIST.forEach((h) => (grouped[h] = []));
+    jadwalList.forEach((j) => {
+      if (grouped[j.hari]) {
+        grouped[j.hari].push(j);
+      }
+    });
+    return grouped;
+  }, [jadwalList]);
 
-  // Daftar warga yang tersedia untuk ditambahkan (bisa dicari)
+  // Personil yang tampil di tab saat ini (dengan filter pencarian)
+  const displayedPersonil = useMemo(() => {
+    let list = activeTab === "Semua" ? jadwalList : (jadwalGrouped[activeTab] || []);
+    if (filterQuery.trim()) {
+      const q = filterQuery.toLowerCase();
+      list = list.filter(
+        (p) =>
+          String(p.nomor_rumah).includes(q) ||
+          (p.nama_penghuni || "").toLowerCase().includes(q) ||
+          p.hari.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [activeTab, jadwalList, jadwalGrouped, filterQuery]);
+
+  // Nomor rumah yang sudah ada di hari target add
+  const existingNomorInTarget = useMemo(() => {
+    const targetGroup = jadwalGrouped[targetHariAdd] || [];
+    return new Set(targetGroup.map((p) => String(p.nomor_rumah)));
+  }, [jadwalGrouped, targetHariAdd]);
+
+  // Warga yang tersedia untuk ditambahkan
   const availableWarga = useMemo(() => {
     return wargaList.filter((w) => {
       const namaMatch = (w.nama || "").toLowerCase().includes(searchWarga.toLowerCase());
       const noMatch = String(w.nomor).includes(searchWarga);
-      return (namaMatch || noMatch) && !existingNomorInActiveHari.has(String(w.nomor));
+      return (namaMatch || noMatch) && !existingNomorInTarget.has(String(w.nomor));
     });
-  }, [wargaList, searchWarga, existingNomorInActiveHari]);
+  }, [wargaList, searchWarga, existingNomorInTarget]);
 
   const toggleSelectHome = (nomor) => {
     setSelectedHomes((prev) =>
@@ -102,7 +129,7 @@ export default function JadwalRonda() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            hari: activeHari,
+            hari: targetHariAdd,
             nomor_rumah: String(nomor),
             nama_penghuni: item?.nama || `Rumah ${nomor}`,
           }),
@@ -112,7 +139,7 @@ export default function JadwalRonda() {
       Swal.fire({
         icon: "success",
         title: "Berhasil!",
-        text: `${selectedHomes.length} warga ditambahkan ke jadwal ${activeHari}.`,
+        text: `${selectedHomes.length} warga ditambahkan ke jadwal ${targetHariAdd}.`,
         timer: 1500,
         showConfirmButton: false,
       });
@@ -129,10 +156,10 @@ export default function JadwalRonda() {
     }
   };
 
-  const handleHapusPersonil = async (id, nama, nomorRumah) => {
+  const handleHapusPersonil = async (id, nama, nomorRumah, hari) => {
     const konfirm = await Swal.fire({
       title: "Hapus Petugas?",
-      text: `Hapus No. ${nomorRumah} (${nama}) dari jadwal ronda ${activeHari}?`,
+      text: `Hapus No. ${nomorRumah} (${nama}) dari jadwal hari ${hari}?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#ef4444",
@@ -163,52 +190,163 @@ export default function JadwalRonda() {
     }
   };
 
+  // Pindah Hari Petugas
+  const handlePindahHari = async (item) => {
+    const options = {};
+    HARI_LIST.filter((h) => h !== item.hari).forEach((h) => {
+      options[h] = h;
+    });
+
+    const { value: hariTujuan } = await Swal.fire({
+      title: "Pindahkan Hari Ronda",
+      text: `Pindahkan No. ${item.nomor_rumah} (${item.nama_penghuni}) dari ${item.hari} ke hari:`,
+      input: "select",
+      inputOptions: options,
+      inputPlaceholder: "Pilih hari tujuan...",
+      showCancelButton: true,
+      confirmButtonText: "Pindahkan",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#0284c7",
+    });
+
+    if (!hariTujuan) return;
+
+    try {
+      // Hapus dari hari lama
+      await fetch(`${ENDPOINT_BASE_URL}/api/ronda/jadwal/${item.id}`, {
+        method: "DELETE",
+      });
+      // Tambah ke hari baru
+      await fetch(`${ENDPOINT_BASE_URL}/api/ronda/jadwal`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          hari: hariTujuan,
+          nomor_rumah: String(item.nomor_rumah),
+          nama_penghuni: item.nama_penghuni,
+        }),
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil Dipindahkan!",
+        text: `No. ${item.nomor_rumah} sekarang bertugas di hari ${hariTujuan}.`,
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      fetchJadwal();
+    } catch (err) {
+      Swal.fire("Gagal", "Terjadi kesalahan saat memindahkan hari.", "error");
+    }
+  };
+
+  // Salin Teks Format WhatsApp
+  const handleSalinJadwalWA = () => {
+    let text = `*JADWAL PETUGAS RONDA MALAM*\n`;
+    text += `*Perumahan Griya Bhina Karya Tempel 2*\n`;
+    text += `===============================\n\n`;
+
+    HARI_LIST.forEach((hari) => {
+      const list = jadwalGrouped[hari] || [];
+      text += `*HARI ${hari.toUpperCase()}* (${list.length} Orang):\n`;
+      if (list.length === 0) {
+        text += `  _(Belum ada jadwal)_\n`;
+      } else {
+        list.forEach((p, idx) => {
+          text += `  ${idx + 1}. No. ${p.nomor_rumah} - ${p.nama_penghuni}\n`;
+        });
+      }
+      text += `\n`;
+    });
+
+    text += `===============================\n`;
+    text += `_Mohon hadir tepat waktu demi keamanan lingkungan bersama. Terima kasih._ 🙏🌙`;
+
+    navigator.clipboard.writeText(text);
+    Swal.fire({
+      icon: "success",
+      title: "Jadwal Disalin!",
+      text: "Teks jadwal ronda mingguan siap di-paste ke grup WhatsApp warga.",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-800">
-            Jadwal Petugas Ronda
+            Manajemen Jadwal Ronda
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Atur regu ronda mingguan. Personil jadwal ini akan otomatis tercentang di formulir jimpitan.
+            Kelola regu piket ronda mingguan warga (Senin s.d. Minggu). Jadwal ini otomatis tampil dan tercentang saat input jimpitan.
           </p>
         </div>
-        <Button
-          onClick={() => {
-            setSelectedHomes([]);
-            setSearchWarga("");
-            setShowModalAdd(true);
-          }}
-          className="flex items-center gap-2 self-start sm:self-auto bg-emerald-600 hover:bg-emerald-700"
-        >
-          <span>➕</span>
-          <span>Tambah Petugas {activeHari}</span>
-        </Button>
+        <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+          <Button
+            variant="secondary"
+            onClick={handleSalinJadwalWA}
+            className="flex items-center gap-1.5 text-xs sm:text-sm !py-2.5 !px-3.5 border border-slate-300"
+          >
+            <span>📋</span>
+            <span>Salin Format WA</span>
+          </Button>
+
+          <Button
+            onClick={() => {
+              setTargetHariAdd(activeTab === "Semua" ? "Senin" : activeTab);
+              setSelectedHomes([]);
+              setSearchWarga("");
+              setShowModalAdd(true);
+            }}
+            className="flex items-center gap-1.5 text-xs sm:text-sm !py-2.5 !px-3.5 bg-emerald-600 hover:bg-emerald-700"
+          >
+            <span>➕</span>
+            <span>Tambah Petugas</span>
+          </Button>
+        </div>
       </div>
 
-      {/* Tab Hari (Senin - Minggu) */}
+      {/* Tab Navigasi Hari */}
       <div className="flex overflow-x-auto gap-2 pb-1 border-b border-slate-200">
+        <button
+          onClick={() => setActiveTab("Semua")}
+          className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition flex items-center gap-2 ${
+            activeTab === "Semua"
+              ? "bg-slate-800 text-white shadow-sm"
+              : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+          }`}
+        >
+          <span>Semua Hari</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+              activeTab === "Semua" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+            }`}
+          >
+            {jadwalList.length}
+          </span>
+        </button>
+
         {HARI_LIST.map((hari) => {
-          const isActive = hari === activeHari;
+          const isActive = hari === activeTab;
           const count = countPerHari[hari] || 0;
           return (
             <button
               key={hari}
-              onClick={() => setActiveHari(hari)}
+              onClick={() => setActiveTab(hari)}
               className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition flex items-center gap-2 ${
                 isActive
                   ? "bg-emerald-600 text-white shadow-sm"
-                  : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80"
+                  : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
               }`}
             >
               <span>{hari}</span>
               <span
                 className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                  isActive
-                    ? "bg-white/20 text-white"
-                    : "bg-slate-100 text-slate-500"
+                  isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
                 }`}
               >
                 {count}
@@ -218,17 +356,65 @@ export default function JadwalRonda() {
         })}
       </div>
 
-      {/* Tabel Personil Hari Terpilih */}
+      {/* Ringkasan Matriks 7 Hari jika Tab Semua */}
+      {activeTab === "Semua" && !filterQuery && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {HARI_LIST.map((hari) => {
+            const list = jadwalGrouped[hari] || [];
+            return (
+              <div
+                key={hari}
+                onClick={() => setActiveTab(hari)}
+                className="bg-white rounded-2xl border border-slate-200 p-4 hover:border-emerald-400 hover:shadow-md transition cursor-pointer group"
+              >
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100 mb-2">
+                  <span className="font-bold text-slate-800 group-hover:text-emerald-700 transition">
+                    {hari}
+                  </span>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    {list.length} Warga
+                  </span>
+                </div>
+                <div className="space-y-1 max-h-36 overflow-y-auto text-xs">
+                  {list.length === 0 ? (
+                    <p className="text-slate-400 italic py-2">Belum ada jadwal</p>
+                  ) : (
+                    list.map((p) => (
+                      <div key={p.id} className="flex items-center justify-between text-slate-600 py-0.5">
+                        <span className="font-mono font-bold text-emerald-700">No. {p.nomor_rumah}</span>
+                        <span className="truncate ml-2 text-slate-800">{p.nama_penghuni}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Tabel Detail Jadwal */}
       <Card>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <div>
             <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-              Regu Ronda Hari {activeHari}
+              {activeTab === "Semua" ? "Daftar Seluruh Petugas Ronda" : `Regu Ronda Hari ${activeTab}`}
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Total {personilHariAktif.length} personil terdaftar untuk giliran ronda malam {activeHari}.
+              Total {displayedPersonil.length} personil terdaftar
+              {activeTab !== "Semua" ? ` untuk malam ${activeTab}` : ""}.
             </p>
+          </div>
+
+          <div className="w-full sm:w-64">
+            <input
+              type="text"
+              placeholder="Cari nomor, nama, atau hari..."
+              value={filterQuery}
+              onChange={(e) => setFilterQuery(e.target.value)}
+              className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
           </div>
         </div>
 
@@ -236,14 +422,14 @@ export default function JadwalRonda() {
           <div className="py-12 flex justify-center">
             <Spinner />
           </div>
-        ) : personilHariAktif.length === 0 ? (
+        ) : displayedPersonil.length === 0 ? (
           <div className="py-12 text-center text-slate-400">
             <p className="text-3xl mb-2">📋</p>
             <p className="text-sm font-semibold text-slate-600">
-              Belum ada petugas ronda untuk hari {activeHari}.
+              Tidak ada petugas ronda yang ditemukan.
             </p>
             <p className="text-xs mt-1">
-              Klik tombol <b>"+ Tambah Petugas {activeHari}"</b> di atas untuk memasukkan warga.
+              Klik tombol <b>"+ Tambah Petugas"</b> di atas untuk menambahkan warga ke regu ronda.
             </p>
           </div>
         ) : (
@@ -252,35 +438,57 @@ export default function JadwalRonda() {
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-[11px] font-bold">
                 <tr>
                   <th className="py-3 px-4 w-12 text-center">No</th>
+                  {activeTab === "Semua" && <th className="py-3 px-4">Hari</th>}
                   <th className="py-3 px-4">Rumah</th>
                   <th className="py-3 px-4">Nama Warga</th>
-                  <th className="py-3 px-4 text-center w-24">Aksi</th>
+                  <th className="py-3 px-4 text-center w-28">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {personilHariAktif.map((item, idx) => (
+                {displayedPersonil.map((item, idx) => (
                   <tr key={item.id} className="hover:bg-slate-50/80 transition">
                     <td className="py-3 px-4 text-center font-bold text-slate-400">
                       {idx + 1}
                     </td>
+                    {activeTab === "Semua" && (
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <span className="inline-block px-2.5 py-0.5 rounded-md font-bold text-xs bg-slate-100 text-slate-700">
+                          {item.hari}
+                        </span>
+                      </td>
+                    )}
                     <td className="py-3 px-4 whitespace-nowrap">
-                      <span className="inline-block px-2.5 py-1 rounded-lg font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      <span className="inline-block px-2.5 py-1 rounded-lg font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono">
                         No. {item.nomor_rumah}
                       </span>
                     </td>
                     <td className="py-3 px-4 font-semibold text-slate-800">
                       {item.nama_penghuni || "-"}
                     </td>
-                    <td className="py-3 px-4 text-center">
-                      <button
-                        onClick={() =>
-                          handleHapusPersonil(item.id, item.nama_penghuni, item.nomor_rumah)
-                        }
-                        title="Hapus dari jadwal"
-                        className="text-slate-400 hover:text-rose-600 transition p-1.5 rounded-lg hover:bg-rose-50"
-                      >
-                        🗑️
-                      </button>
+                    <td className="py-3 px-4 text-center whitespace-nowrap">
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => handlePindahHari(item)}
+                          title="Pindahkan ke hari lain"
+                          className="text-slate-400 hover:text-sky-600 transition p-1.5 rounded-lg hover:bg-sky-50"
+                        >
+                          🔄
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleHapusPersonil(
+                              item.id,
+                              item.nama_penghuni,
+                              item.nomor_rumah,
+                              item.hari
+                            )
+                          }
+                          title="Hapus dari jadwal"
+                          className="text-slate-400 hover:text-rose-600 transition p-1.5 rounded-lg hover:bg-rose-50"
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -297,10 +505,10 @@ export default function JadwalRonda() {
             <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
               <div>
                 <h3 className="text-base font-bold text-slate-800">
-                  Tambah Petugas Ronda {activeHari}
+                  Tambah Petugas Ronda
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Pilih warga yang akan dimasukkan ke regu piket {activeHari}.
+                  Pilih hari giliran piket dan centang warga yang ditugaskan.
                 </p>
               </div>
               <button
@@ -309,6 +517,27 @@ export default function JadwalRonda() {
               >
                 ✕
               </button>
+            </div>
+
+            {/* Pilihan Hari Target */}
+            <div className="mb-3">
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Pilih Hari Ronda:
+              </label>
+              <select
+                value={targetHariAdd}
+                onChange={(e) => {
+                  setTargetHariAdd(e.target.value);
+                  setSelectedHomes([]);
+                }}
+                className="w-full text-xs sm:text-sm p-2.5 rounded-xl border border-slate-200 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                {HARI_LIST.map((h) => (
+                  <option key={h} value={h}>
+                    Hari {h}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Pencarian Warga */}
@@ -323,10 +552,10 @@ export default function JadwalRonda() {
             </div>
 
             {/* Checklist Warga */}
-            <div className="overflow-y-auto flex-1 pr-1 space-y-1.5 mb-4 max-h-64 border border-slate-100 rounded-xl p-2 bg-slate-50/50">
+            <div className="overflow-y-auto flex-1 pr-1 space-y-1.5 mb-4 max-h-60 border border-slate-100 rounded-xl p-2 bg-slate-50/50">
               {availableWarga.length === 0 ? (
                 <p className="text-center text-xs text-slate-400 py-6">
-                  Tidak ada warga yang dapat ditambahkan (semua sudah ada di jadwal atau tidak cocok pencarian).
+                  Tidak ada warga yang tersedia (semua sudah ada di jadwal {targetHariAdd} atau tidak cocok pencarian).
                 </p>
               ) : (
                 availableWarga.map((w) => {
@@ -345,7 +574,7 @@ export default function JadwalRonda() {
                         <input
                           type="checkbox"
                           checked={isChecked}
-                          onChange={() => {}} // dikontrol oleh label onClick
+                          onChange={() => {}}
                           className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 pointer-events-none"
                         />
                         <span>
@@ -361,7 +590,7 @@ export default function JadwalRonda() {
             {/* Footer Modal */}
             <div className="flex items-center justify-between border-t border-slate-200 pt-3">
               <span className="text-xs text-slate-500 font-medium">
-                {selectedHomes.length} warga dipilih
+                {selectedHomes.length} warga dipilih untuk {targetHariAdd}
               </span>
               <div className="flex gap-2">
                 <Button
@@ -376,7 +605,7 @@ export default function JadwalRonda() {
                   disabled={saving || selectedHomes.length === 0}
                   className="bg-emerald-600 hover:bg-emerald-700"
                 >
-                  {saving ? "Menyimpan..." : "Tambahkan"}
+                  {saving ? "Menyimpan..." : `Tambahkan ke ${targetHariAdd}`}
                 </Button>
               </div>
             </div>

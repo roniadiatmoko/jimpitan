@@ -16,6 +16,7 @@ import {
   IconKekurangan,
   IconWarga,
   IconKalender,
+  IconJadwal,
 } from "../../shared/components/icons";
 
 const pad2 = (n) => String(n).padStart(2, "0");
@@ -32,6 +33,12 @@ const shortcuts = [
     label: "Hitung Ulang Harian",
     desc: "Koreksi setoran jimpitan harian per rumah.",
     icon: IconHitungUlang,
+  },
+  {
+    to: "jadwal-ronda",
+    label: "Jadwal Ronda",
+    desc: "Atur regu jadwal piket ronda mingguan warga (Senin s.d. Minggu).",
+    icon: IconJadwal,
   },
   {
     to: "pengeluaran",
