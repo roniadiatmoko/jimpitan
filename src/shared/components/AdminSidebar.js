@@ -12,6 +12,7 @@ import {
   IconKekurangan,
   IconWarga,
   IconKalender,
+  IconJadwal,
   IconBroadcast,
   IconChevron,
   IconMenu,
@@ -36,6 +37,7 @@ const navItems = [
 ];
 
 const dataItems = [
+  { to: "jadwal-ronda", label: "Jadwal Ronda", icon: IconJadwal },
   { to: "ref-warga", label: "Warga", icon: IconWarga },
   { to: "tanggal-putih", label: "Tanggal Putih", icon: IconKalender },
   { to: "template-broadcast", label: "Template Broadcast", icon: IconBroadcast },

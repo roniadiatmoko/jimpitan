@@ -29,6 +29,7 @@ import KeuanganRumah from "../features/keuangan-rumah/KeuanganRumah.js";
 import TanggalPutih from "../features/admin/pemutihan/TanggalPutih.js";
 import RekapList from "../features/admin/rekap/RekapList.js";
 import PresensiRonda from "../features/presensi-ronda/PresensiRonda.js";
+import JadwalRonda from "../features/admin/jadwal-ronda/JadwalRonda.js";
 
 
 const isKeuanganSubdomain = () => {
@@ -110,6 +111,7 @@ export default function App() {
   const [terisi, setTerisi] = useState({});
   const [uangDiambil, setUangDiambil] = useState("");
   const [keyboardOpen, setKeyboardOpen] = useState(false);
+  const [personilRondaTercentang, setPersonilRondaTercentang] = useState([]);
 
   // State baru untuk menyimpan status rapel harian
   const [rapelHarianStatus, setRapelHarianStatus] = useState([]);
@@ -285,6 +287,11 @@ export default function App() {
       status: terisi[r.nomor] ? 1 : 0,
     }));
 
+    const personilPayload = (personilRondaTercentang || []).map((p) => ({
+      nomor_rumah: String(p.nomor_rumah),
+      nama_penghuni: p.nama_penghuni || "",
+    }));
+
     Swal.fire({
       title: "Menyimpan...",
       text: "Mohon tunggu sebentar",
@@ -305,11 +312,12 @@ export default function App() {
           tanggal: format(tanggal, "yyyy-MM-dd"),
           diambil_oleh: "Petugas Ronda",
           data: dataJimpitan,
+          personil_ronda: personilPayload,
         }),
       });
 
       if (response.ok) {
-        Swal.fire("Berhasil!", "Data sudah disimpan.", "success");
+        Swal.fire("Berhasil!", "Data jimpitan dan presensi ronda sudah disimpan.", "success");
         setTerisi({});
         setUangDiambil("");
       } else {
@@ -340,6 +348,7 @@ export default function App() {
             <Route path="kekurangan-bayar" element={<KekuranganBayar />} />
             <Route path="kekurangan-bayar-tahun" element={<KekuranganBayarTahun />} />
             <Route path="tanggal-putih" element={<TanggalPutih />} />
+            <Route path="jadwal-ronda" element={<JadwalRonda />} />
             <Route path="list-warga" element={<ListWarga />} />
             <Route path="ref-warga" element={<RefWarga />} />
             <Route path="status-whatsapp" element={<StatusWhatsApp />} />
@@ -463,7 +472,10 @@ export default function App() {
 
           {/* Komponen Presensi Ronda */}
           <div className="mb-4">
-            <PresensiRonda tanggal={tanggal} />
+            <PresensiRonda
+              tanggal={tanggal}
+              onChangePersonil={setPersonilRondaTercentang}
+            />
           </div>
 
           {/* Jimpitan Checklist Card */}

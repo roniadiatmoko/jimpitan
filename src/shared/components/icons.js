@@ -75,6 +75,15 @@ export function IconWarga(props) {
   );
 }
 
+export function IconJadwal(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M16 2v4M8 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />
+      <path d="m9 16 2 2 4-4" />
+    </svg>
+  );
+}
+
 export function IconKalender(props) {
   return (
     <svg {...base} {...props}>
