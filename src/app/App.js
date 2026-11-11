@@ -140,7 +140,11 @@ export default function App() {
 
 
   useEffect(() => {
-    window.location.replace("https://jimpitan-gbk.roniadiatmoko.my.id");
+    const handleHashChange = () => {
+      setCurrentPage(getPageFromPath(window.location.hash));
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
   // Efek untuk mengambil data rapel harian setiap kali tanggal berubah
