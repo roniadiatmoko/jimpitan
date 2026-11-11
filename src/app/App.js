@@ -25,6 +25,7 @@ import RefWarga from "../features/admin/warga/RefWarga.js";
 import StatusWhatsApp from "../features/admin/whatsapp/StatusWhatsApp.js";
 import SinkronCloud from "../features/admin/cloud-sync/SinkronCloud.js";
 import UpdateAplikasi from "../features/admin/system/UpdateAplikasi.js";
+import KeuanganRumah from "../features/keuangan-rumah/KeuanganRumah.js";
 import TanggalPutih from "../features/admin/pemutihan/TanggalPutih.js";
 import RekapList from "../features/admin/rekap/RekapList.js";
 import PresensiRonda from "../features/presensi-ronda/PresensiRonda.js";
@@ -248,6 +249,7 @@ export default function App() {
   return (
     <div className="min-h-screen pb-96 bg-gray-50">
       <Routes>
+        <Route path="/keuangan-rumah" element={<KeuanganRumah />} />
         {/* ADMIN PAGE */}
         <Route path="/admin" element={<AdminArea />}>
           <Route path="login" element={<LoginForm />} />
@@ -268,6 +270,7 @@ export default function App() {
             <Route path="status-whatsapp" element={<StatusWhatsApp />} />
             <Route path="sinkron-cloud" element={<SinkronCloud />} />
             <Route path="update-aplikasi" element={<UpdateAplikasi />} />
+            <Route path="keuangan-rumah" element={<KeuanganRumah />} />
           </Route>
         </Route>
       </Routes>
