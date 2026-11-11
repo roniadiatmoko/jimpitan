@@ -105,17 +105,24 @@ function SidebarContent({
           collapsed ? "justify-center px-3" : "px-5"
         }`}
       >
-        <LogoMark />
-        {!collapsed && (
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-base font-bold leading-tight text-white">
-              Jimpitan
+        <Link
+          to="/admin"
+          onClick={onNavigate}
+          title="Ke Dashboard Admin"
+          className="flex min-w-0 flex-1 items-center gap-2 transition hover:opacity-80"
+        >
+          <LogoMark />
+          {!collapsed && (
+            <div className="min-w-0 flex-1 text-left">
+              <div className="truncate text-base font-bold leading-tight text-white">
+                Jimpitan
+              </div>
+              <div className="truncate text-xs font-medium text-slate-400">
+                GBK Tempel 2
+              </div>
             </div>
-            <div className="truncate text-xs font-medium text-slate-400">
-              GBK Tempel 2
-            </div>
-          </div>
-        )}
+          )}
+        </Link>
         {onToggleCollapse && (
           <button
             type="button"
@@ -241,10 +248,14 @@ export default function AdminSidebar({ onLogout, collapsed, onToggleCollapse }) 
     <>
       {/* Mobile top bar */}
       <div className="flex items-center justify-between bg-ink px-4 py-3 md:hidden">
-        <div className="flex items-center gap-2">
+        <Link
+          to="/admin"
+          title="Ke Dashboard Admin"
+          className="flex items-center gap-2 transition hover:opacity-80"
+        >
           <LogoMark size={28} />
           <span className="text-base font-bold text-white">Jimpitan</span>
-        </div>
+        </Link>
         <button
           type="button"
           onClick={() => setOpen(true)}
