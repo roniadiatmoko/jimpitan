@@ -246,7 +246,7 @@ export default function JadwalRonda() {
 
   // Salin Teks Format WhatsApp
   const handleSalinJadwalWA = () => {
-    let text = `*JADWAL PETUGAS RONDA MALAM*\n`;
+    let text = `*JADWAL PUNGGAWA RONDA MALAM*\n`;
     text += `*Perumahan Griya Bhina Karya Tempel 2*\n`;
     text += `===============================\n\n`;
 
@@ -282,10 +282,10 @@ export default function JadwalRonda() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-800">
-            Manajemen Jadwal Ronda
+            Jadwal Punggawa Ronda
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Kelola regu piket ronda mingguan warga (Senin s.d. Minggu). Jadwal ini otomatis tampil dan tercentang saat input jimpitan.
+            Kelola regu piket punggawa ronda mingguan warga (Senin s.d. Minggu). Jadwal ini otomatis tampil dan tercentang saat input jimpitan.
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
@@ -308,7 +308,7 @@ export default function JadwalRonda() {
             className="flex items-center gap-1.5 text-xs sm:text-sm !py-2.5 !px-3.5 bg-emerald-600 hover:bg-emerald-700"
           >
             <span>➕</span>
-            <span>Tambah Petugas</span>
+            <span>Tambah Punggawa</span>
           </Button>
         </div>
       </div>
@@ -429,10 +429,10 @@ export default function JadwalRonda() {
           <div className="py-12 text-center text-slate-400">
             <p className="text-3xl mb-2">📋</p>
             <p className="text-sm font-semibold text-slate-600">
-              Tidak ada petugas ronda yang ditemukan.
+              Tidak ada punggawa ronda yang ditemukan.
             </p>
             <p className="text-xs mt-1">
-              Klik tombol <b>"+ Tambah Petugas"</b> di atas untuk menambahkan warga ke regu ronda.
+              Klik tombol <b>"+ Tambah Punggawa"</b> di atas untuk menambahkan warga ke regu ronda.
             </p>
           </div>
         ) : (
@@ -508,7 +508,7 @@ export default function JadwalRonda() {
             <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
               <div>
                 <h3 className="text-base font-bold text-slate-800">
-                  Tambah Petugas Ronda
+                  Tambah Punggawa Ronda
                 </h3>
                 <p className="text-xs text-slate-500">
                   Pilih hari giliran piket dan centang warga yang ditugaskan.

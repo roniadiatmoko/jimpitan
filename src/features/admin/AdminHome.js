@@ -36,8 +36,8 @@ const shortcuts = [
   },
   {
     to: "jadwal-ronda",
-    label: "Jadwal Ronda",
-    desc: "Atur regu jadwal piket ronda mingguan warga (Senin s.d. Minggu).",
+    label: "Jadwal Punggawa Ronda",
+    desc: "Atur regu jadwal piket punggawa ronda mingguan warga (Senin s.d. Minggu).",
     icon: IconJadwal,
   },
   {

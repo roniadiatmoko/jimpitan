@@ -27,7 +27,7 @@ import {
 const navItems = [
   { to: "rapel-list", label: "Daftar Rapel", icon: IconRapel },
   { to: "detail-harian", label: "Hitung Ulang Harian", icon: IconHitungUlang },
-  { to: "jadwal-ronda", label: "Jadwal Ronda", icon: IconJadwal },
+  { to: "jadwal-ronda", label: "Punggawa Ronda", icon: IconJadwal },
   { to: "pengeluaran", label: "Pengeluaran", icon: IconPengeluaran },
   { to: "laporan-bulanan", label: "Rekap Bulanan", icon: IconLaporan },
   { to: "daftar-rekap", label: "Laporan Tahunan", icon: IconRekap },
