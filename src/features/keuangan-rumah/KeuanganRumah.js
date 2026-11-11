@@ -217,12 +217,25 @@ export default function KeuanganRumah() {
     return transaksiList.filter((t) => t.jenis === filterJenis);
   }, [transaksiList, filterJenis]);
 
+  const isInsideAdmin =
+    typeof window !== "undefined" && window.location.hash.includes("/admin");
+
   // ==========================================
   // RENDER: TAMPILAN TERKUNCI (PIN SCREEN)
   // ==========================================
   if (!isUnlocked) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center p-4">
+      <div className="min-h-[85vh] flex flex-col items-center justify-center p-4">
+        {!isInsideAdmin && (
+          <div className="mb-4">
+            <a
+              href="#/"
+              className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-emerald-700 font-semibold transition"
+            >
+              <span>←</span> Kembali ke Jimpitan Warga
+            </a>
+          </div>
+        )}
         <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl border border-line text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-900 text-3xl text-white shadow-lg shadow-slate-900/20">
             🔐
@@ -275,7 +288,20 @@ export default function KeuanganRumah() {
   // RENDER: TAMPILAN DASHBOARD KEUANGAN RUMAH
   // ==========================================
   return (
-    <div className="space-y-6 max-w-6xl pb-10">
+    <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-12">
+      {!isInsideAdmin && (
+        <div className="flex items-center justify-between pb-1">
+          <a
+            href="#/"
+            className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-emerald-700 font-semibold transition"
+          >
+            <span>←</span> Kembali ke Jimpitan Warga
+          </a>
+          <span className="text-[11px] text-slate-400 font-medium bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
+            🛡️ Akses Pribadi
+          </span>
+        </div>
+      )}
       {/* HEADER CARD */}
       <Card>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
