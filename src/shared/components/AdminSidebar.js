@@ -19,7 +19,6 @@ import {
   IconWhatsApp,
   IconCloudSync,
   IconUpdate,
-  IconHomeFinance,
 } from "./icons";
 
 const navItems = [
@@ -32,7 +31,6 @@ const navItems = [
   { to: "status-whatsapp", label: "Status WhatsApp", icon: IconWhatsApp },
   { to: "sinkron-cloud", label: "Sinkronisasi Cloud", icon: IconCloudSync },
   { to: "update-aplikasi", label: "Update Aplikasi", icon: IconUpdate },
-  { to: "keuangan-rumah", label: "Keuangan Rumah", icon: IconHomeFinance },
 ];
 
 const dataItems = [
