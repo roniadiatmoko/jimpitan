@@ -1,3 +1,4 @@
+import WhatsAppHeaderStatus from "./WhatsAppHeaderStatus";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -256,14 +257,17 @@ export default function AdminSidebar({ onLogout, collapsed, onToggleCollapse }) 
           <LogoMark size={28} />
           <span className="text-base font-bold text-white">Jimpitan</span>
         </Link>
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-label="Buka menu"
-          className="text-slate-300"
-        >
-          <IconMenu />
-        </button>
+        <div className="flex items-center gap-2">
+          <WhatsAppHeaderStatus isMobile />
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-label="Buka menu"
+            className="text-slate-300 p-1"
+          >
+            <IconMenu />
+          </button>
+        </div>
       </div>
 
       {/* Mobile drawer (always full-width, never collapsed) */}

@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import AdminSidebar from "../../shared/components/AdminSidebar";
+import WhatsAppHeaderStatus from "../../shared/components/WhatsAppHeaderStatus";
 
 const SIDEBAR_COLLAPSED_KEY = "adminSidebarCollapsed";
 
@@ -39,14 +40,20 @@ export default function AdminPanel({ onLogout }) {
           collapsed ? "md:pl-20" : "md:pl-64"
         }`}
       >
-        <header className="hidden items-center justify-between border-b border-line bg-white px-8 py-4 md:flex">
-          <div className="text-sm text-muted">
-            {format(new Date(), "EEEE, d MMMM yyyy", { locale: id })}
+        <header className="hidden items-center justify-between border-b border-line bg-white px-8 py-3.5 md:flex">
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-muted">
+              {format(new Date(), "EEEE, d MMMM yyyy", { locale: id })}
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-ink">{fullname}</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft text-sm font-semibold text-accent">
-              {fullname?.charAt(0) ?? "A"}
+          <div className="flex items-center gap-4">
+            <WhatsAppHeaderStatus />
+            <div className="h-5 w-[1px] bg-line" />
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-ink">{fullname}</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft text-sm font-semibold text-accent">
+                {fullname?.charAt(0) ?? "A"}
+              </div>
             </div>
           </div>
         </header>
