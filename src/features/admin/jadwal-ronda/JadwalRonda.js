@@ -110,8 +110,11 @@ export default function JadwalRonda() {
   }, [wargaList, searchWarga, existingNomorInTarget]);
 
   const toggleSelectHome = (nomor) => {
+    const strNomor = String(nomor);
     setSelectedHomes((prev) =>
-      prev.includes(nomor) ? prev.filter((n) => n !== nomor) : [...prev, nomor]
+      prev.some((n) => String(n) === strNomor)
+        ? prev.filter((n) => String(n) !== strNomor)
+        : [...prev, strNomor]
     );
   };
 
@@ -551,6 +554,32 @@ export default function JadwalRonda() {
               />
             </div>
 
+            {/* Tombol Pilih Cepat */}
+            <div className="flex items-center justify-between text-xs px-1 mb-1.5 text-slate-500">
+              <span>Warga Tersedia ({availableWarga.length}):</span>
+              {availableWarga.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSelectedHomes(availableWarga.map((w) => String(w.nomor)))
+                    }
+                    className="text-emerald-700 font-bold hover:underline"
+                  >
+                    Pilih Semua
+                  </button>
+                  <span>•</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedHomes([])}
+                    className="text-slate-500 hover:underline"
+                  >
+                    Reset
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Checklist Warga */}
             <div className="overflow-y-auto flex-1 pr-1 space-y-1.5 mb-4 max-h-60 border border-slate-100 rounded-xl p-2 bg-slate-50/50">
               {availableWarga.length === 0 ? (
@@ -559,12 +588,13 @@ export default function JadwalRonda() {
                 </p>
               ) : (
                 availableWarga.map((w) => {
-                  const isChecked = selectedHomes.includes(w.nomor);
+                  const isChecked = selectedHomes.some(
+                    (n) => String(n) === String(w.nomor)
+                  );
                   return (
                     <label
                       key={w.nomor}
-                      onClick={() => toggleSelectHome(w.nomor)}
-                      className={`flex items-center justify-between p-2.5 rounded-lg border cursor-pointer transition text-xs sm:text-sm ${
+                      className={`flex items-center justify-between p-2.5 rounded-lg border cursor-pointer transition text-xs sm:text-sm select-none ${
                         isChecked
                           ? "bg-emerald-50 border-emerald-300 text-emerald-950 font-bold"
                           : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
@@ -574,13 +604,16 @@ export default function JadwalRonda() {
                         <input
                           type="checkbox"
                           checked={isChecked}
-                          onChange={() => {}}
-                          className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 pointer-events-none"
+                          onChange={() => toggleSelectHome(w.nomor)}
+                          className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
                         />
                         <span>
                           <strong className="text-slate-800">No. {w.nomor}</strong> - {w.nama}
                         </span>
                       </div>
+                      <span className="text-[11px] font-semibold text-emerald-700">
+                        {isChecked ? "Terpilih ✓" : "+ Pilih"}
+                      </span>
                     </label>
                   );
                 })
