@@ -636,7 +636,7 @@ export default function KeuanganRumah() {
                       <td className="py-2.5 px-3 text-center whitespace-nowrap">
                         <span
                           className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
-                            row.dicatat_oleh === "Ibu"
+                            row.dicatat_oleh === "Ibu" || row.dicatat_oleh === "Ibu Kartini"
                               ? "bg-purple-100 text-purple-800"
                               : "bg-blue-100 text-blue-800"
                           }`}
@@ -795,7 +795,7 @@ export default function KeuanganRumah() {
                     className="w-full rounded-lg border border-line p-2 text-ink font-semibold"
                   >
                     <option value="Pak Roni">Pak Roni</option>
-                    <option value="Ibu">Ibu</option>
+                    <option value="Ibu Kartini">Ibu Kartini</option>
                   </select>
                 </div>
               </div>
