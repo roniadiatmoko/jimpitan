@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
@@ -72,6 +72,35 @@ const getPageFromPath = (path, pathname = typeof window !== "undefined" ? window
 
   return "harian";
 };
+
+const CustomDateInput = forwardRef(({ value, onClick }, ref) => (
+  <button
+    type="button"
+    onClick={onClick}
+    ref={ref}
+    className="w-full flex items-center justify-between p-3 sm:p-3.5 bg-slate-50 hover:bg-slate-100/90 active:bg-slate-200/70 border border-slate-200 rounded-xl text-left transition focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs group cursor-pointer"
+  >
+    <div className="flex items-center gap-3 min-w-0">
+      <div className="w-10 h-10 rounded-xl bg-emerald-100/90 text-emerald-800 flex items-center justify-center text-xl border border-emerald-200 shrink-0 group-hover:scale-105 transition-transform shadow-xs">
+        🗓️
+      </div>
+      <div className="min-w-0">
+        <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          Tanggal Ronda Terpilih
+        </span>
+        <span className="block text-sm sm:text-base font-bold text-slate-800 truncate">
+          {value || "-"}
+        </span>
+      </div>
+    </div>
+    <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 group-hover:bg-emerald-100 px-2.5 py-1.5 rounded-lg border border-emerald-200/80 shrink-0 transition">
+      <span>Ubah</span>
+      <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+  </button>
+));
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState(
@@ -410,36 +439,21 @@ export default function App() {
 
           {/* Tanggal Ronda Card */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5 mb-4">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  Tanggal Ronda
-                </span>
-                <div className="text-base sm:text-lg font-bold text-slate-800">
-                  {format(tanggal, "EEEE, d MMMM yyyy", { locale: id })}
-                </div>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-xl font-bold border border-emerald-100">
-                🗓️
-              </div>
-            </div>
+            <DatePicker
+              selected={tanggal}
+              onChange={(date) => setTanggal(date)}
+              dateFormat="EEEE, d MMMM yyyy"
+              locale={id}
+              wrapperClassName="w-full block"
+              customInput={<CustomDateInput />}
+            />
 
-            <div className="relative">
-              <DatePicker customInput={<input inputMode="none" onKeyDown={(e) => e.preventDefault()} autoComplete="off" />}
-                selected={tanggal}
-                onChange={(date) => setTanggal(date)}
-                dateFormat="dd-MM-yyyy"
-                locale={id}
-                className="w-full py-2.5 px-4 text-center font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition cursor-pointer"
-              />
-            </div>
-
-            <div className="flex items-center justify-center gap-1.5 mt-2.5 text-xs text-amber-700 font-medium bg-amber-50 py-1.5 px-3 rounded-lg border border-amber-200/60 text-center">
+            <div className="flex items-center justify-center gap-1.5 mt-3 text-xs text-amber-700 font-medium bg-amber-50 py-1.5 px-3 rounded-lg border border-amber-200/60 text-center">
               <span>⚠️</span> Pastikan tanggal ronda sudah benar sebelum menyimpan!
             </div>
 
             {/* Info Jam Server */}
-            <div className="mt-3 bg-rose-50 border border-rose-200/70 rounded-xl p-3 text-xs text-rose-900 flex items-start gap-2.5">
+            <div className="mt-2.5 bg-rose-50 border border-rose-200/70 rounded-xl p-3 text-xs text-rose-900 flex items-start gap-2.5">
               <span className="text-base leading-none">⏰</span>
               <div className="leading-relaxed">
                 <strong className="font-semibold text-rose-950">Perhatian:</strong> Server otomatis ditutup pukul <b>23:59 WIB</b> untuk mencegah salah input tanggal. Hubungi grup WA jika butuh bantuan.
