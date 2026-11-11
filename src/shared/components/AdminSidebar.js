@@ -2,6 +2,7 @@ import EnvBadge from "./EnvBadge";
 import WhatsAppHeaderStatus from "./WhatsAppHeaderStatus";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import ChangePasswordModal from "../../features/auth/ChangePasswordModal";
 import {
   IconRapel,
   IconHitungUlang,
@@ -15,6 +16,7 @@ import {
   IconChevron,
   IconMenu,
   IconClose,
+  IconKey,
   IconLogout,
   IconWhatsApp,
   IconCloudSync,
@@ -77,6 +79,7 @@ function SidebarContent({
   collapsed = false,
   onToggleCollapse,
 }) {
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const [dataOpen, setDataOpen] = useState(
     dataItems.some((item) => pathname.endsWith(item.to))
   );
@@ -220,15 +223,34 @@ function SidebarContent({
       </nav>
 
       <div
-        className={`border-t border-white/10 py-4 ${
+        className={`border-t border-white/10 py-3 space-y-1 ${
           collapsed ? "px-2" : "px-3"
         }`}
       >
+        {!collapsed && (
+          <div className="px-2 py-1.5 mb-1 rounded-lg bg-white/5 border border-white/5 text-xs">
+            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Login Sebagai</p>
+            <p className="text-white font-semibold truncate">{localStorage.getItem("fullname") || "Admin"}</p>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setShowChangePassword(true)}
+          title={collapsed ? "Ganti Sandi" : undefined}
+          className={`flex w-full items-center rounded-lg py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white ${
+            collapsed ? "justify-center px-0" : "gap-3 px-3.5"
+          }`}
+        >
+          <IconKey />
+          {!collapsed && "Ganti Sandi"}
+        </button>
+
         <button
           type="button"
           onClick={onLogout}
           title={collapsed ? "Keluar" : undefined}
-          className={`flex w-full items-center rounded-lg py-2.5 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white ${
+          className={`flex w-full items-center rounded-lg py-2 text-sm font-medium text-rose-300 transition hover:bg-rose-500/10 hover:text-rose-200 ${
             collapsed ? "justify-center px-0" : "gap-3 px-3.5"
           }`}
         >
@@ -236,6 +258,11 @@ function SidebarContent({
           {!collapsed && "Keluar"}
         </button>
       </div>
+
+      <ChangePasswordModal
+        isOpen={showChangePassword}
+        onClose={() => setShowChangePassword(false)}
+      />
     </div>
   );
 }

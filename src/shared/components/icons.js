@@ -116,6 +116,16 @@ export function IconClose(props) {
   );
 }
 
+export function IconKey(props) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="7.5" cy="15.5" r="4.5" />
+      <path d="m21 3-9.5 9.5" />
+      <path d="m15.5 7.5 3 3" />
+    </svg>
+  );
+}
+
 export function IconLogout(props) {
   return (
     <svg {...base} strokeWidth={2} {...props}>
